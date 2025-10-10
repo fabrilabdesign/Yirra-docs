@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: docs-yirrasystems-com
+  namespace: drone-store
+spec:
+  secretName: docs-yirrasystems-com-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-traefik
+  dnsNames:
+  - docs.yirrasystems.com

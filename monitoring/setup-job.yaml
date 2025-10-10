@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uptime-kuma-setup-script
+  namespace: monitoring
+data:
+  auto-setup.py: |
+    #!/usr/bin/env python3
+    """Uptime Kuma Auto-Setup Script"""
+    import os, sys, time, json
+    try:
+        import socketio
+    except ImportError:
+        print("Installing python-socketio...")
+        os.system("pip install --quiet python-socketio[client] requests")
+        import socketio
+
+    KUMA_URL = os.getenv('KUMA_URL', 'http://uptime-kuma-service.monitoring:3001')
+    USERNAME = os.getenv('KUMA_USERNAME', 'admin')
+    PASSWORD = os.getenv('KUMA_PASSWORD')
+
+    if not PASSWORD:
+        print("✗ KUMA_PASSWORD not set. Setup cannot continue without credentials.")
+        print("\nTo setup monitors automatically:")
+        print("1. First visit https://kuma.yirrasystems.com and create admin account")
+        print("2. Then run:")
+        print("   kubectl create secret generic kuma-credentials -n monitoring \\")
+        print("     --from-literal=username=admin \\")
+        print("     --from-literal=password=YOUR_PASSWORD")
+        print("3. Then apply: kubectl apply -f setup-job.yaml")
+        sys.exit(0)
+
+    MONITORS = [
+        {"type": "http", "name": "🌐 Main Site", "url": "https://yirrasystems.com", "method": "GET", "interval": 60, "maxretries": 3, "retryInterval": 60, "timeout": 48, "active": True},
+        {"type": "http", "name": "🔌 Backend API", "url": "https://yirrasystems.com/api/health", "method": "GET", "interval": 60, "maxretries": 3, "retryInterval": 60, "timeout": 48, "active": True},
+        {"type": "http", "name": "👨‍💼 Admin Panel", "url": "https://app.yirrasystems.com", "method": "GET", "interval": 60, "maxretries": 3, "retryInterval": 60, "timeout": 48, "active": True},
+        {"type": "http", "name": "📚 Documentation", "url": "https://docs.yirrasystems.com", "method": "GET", "interval": 60, "maxretries": 3, "retryInterval": 60, "timeout": 48, "active": True},
+        {"type": "http", "name": "⚙️ N8N Workflows", "url": "https://flows.yirrasystems.com", "method": "GET", "interval": 60, "maxretries": 3, "retryInterval": 60, "timeout": 48, "active": True},
+        {"type": "http", "name": "📦 Docker Registry", "url": "http://registry.drone-store.svc.cluster.local:5000/v2/", "method": "GET", "interval": 60, "maxretries": 3, "retryInterval": 60, "timeout": 48, "active": True},
+        {"type": "port", "name": "🗄️ PostgreSQL", "hostname": "postgres.drone-store.svc.cluster.local", "port": 5432, "interval": 60, "maxretries": 3, "retryInterval": 60, "active": True},
+        {"type": "port", "name": "⚡ Redis", "hostname": "redis.drone-store.svc.cluster.local", "port": 6379, "interval": 60, "maxretries": 3, "retryInterval": 60, "active": True},
+    ]
+
+    print("=" * 60)
+    print("Uptime Kuma Auto-Configuration")
+    print("=" * 60)
+    print(f"URL: {KUMA_URL}")
+    print(f"Username: {USERNAME}")
+    print()
+
+    sio = socketio.Client()
+    authenticated = False
+    monitors_created = 0
+
+    @sio.event
+    def connect():
+        print("✓ Connected to Uptime Kuma")
+
+    @sio.event
+    def disconnect():
+        print("✓ Disconnected")
+
+    try:
+        print("Connecting...")
+        sio.connect(KUMA_URL, transports=['polling', 'websocket'])
+        time.sleep(1)
+        
+        print("Authenticating...")
+        
+        def login_callback(data):
+            global authenticated
+            if data.get('ok'):
+                print("✓ Authenticated!")
+                authenticated = True
+            else:
+                print(f"✗ Auth failed: {data.get('msg', 'Unknown error')}")
+                sys.exit(1)
+        
+        sio.emit('login', {'username': USERNAME, 'password': PASSWORD, 'token': None}, callback=login_callback)
+        time.sleep(2)
+        
+        if not authenticated:
+            print("✗ Failed to authenticate. Check credentials.")
+            sys.exit(1)
+        
+        def get_monitors_callback(data):
+            global monitors_created
+            existing_names = [m['name'] for m in data]
+            print(f"\n✓ Found {len(existing_names)} existing monitors")
+            
+            if existing_names:
+                print("  Existing:", ", ".join(existing_names)[:80] + "...")
+            
+            print("\nCreating monitors...")
+            
+            for monitor in MONITORS:
+                if monitor['name'] in existing_names:
+                    print(f"  ⊘ Skip '{monitor['name']}' (exists)")
+                    continue
+                
+                def add_callback(data):
+                    global monitors_created
+                    if data.get('ok'):
+                        print(f"  ✓ Created '{monitor['name']}'")
+                        monitors_created += 1
+                    else:
+                        print(f"  ✗ Failed '{monitor['name']}'")
+                
+                sio.emit('add', monitor, callback=add_callback)
+                time.sleep(0.5)
+        
+        sio.emit('getMonitorList', callback=get_monitors_callback)
+        time.sleep(4)
+        
+        print("\n" + "=" * 60)
+        print("✓ Setup Complete!")
+        print("=" * 60)
+        print(f"\nCreated {monitors_created} new monitors")
+        print(f"Total configured: {len(MONITORS)}")
+        print("\nVisit https://kuma.yirrasystems.com")
+        print()
+        
+        sio.disconnect()
+
+    except Exception as e:
+        print(f"✗ Error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: uptime-kuma-setup
+  namespace: monitoring
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: setup
+        image: python:3.11-slim
+        command: ["python3", "/scripts/auto-setup.py"]
+        env:
+        - name: KUMA_URL
+          value: "http://uptime-kuma-service.monitoring:3001"
+        - name: KUMA_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: kuma-credentials
+              key: username
+              optional: true
+        - name: KUMA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kuma-credentials
+              key: password
+              optional: true
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+      volumes:
+      - name: scripts
+        configMap:
+          name: uptime-kuma-setup-script
+          defaultMode: 0755
+
+
+

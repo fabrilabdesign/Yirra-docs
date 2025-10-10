@@ -1,0 +1,18 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: admin-frontend
+  namespace: drone-store
+spec:
+  entryPoints:
+  - web
+  - websecure
+  routes:
+  - kind: Rule
+    match: Host(`app.yirrasystems.com`) && PathPrefix(`/`) && (Headers(`CF-Connecting-IP`, `122.199.30.183`) || HeadersRegexp(`X-Forwarded-For`, `(^|,\\s*)122\\.199\\.30\\.183(,|$)`))
+    priority: 10
+    services:
+    - name: admin-frontend
+      port: 3001
+
+

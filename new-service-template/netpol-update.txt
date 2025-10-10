@@ -1,0 +1,23 @@
+After applying deployment and ingressroute, you MUST update the network policy:
+
+1. Edit /home/james/yirra_systems_app/drone_website_MAX/netpol-drone-store.yaml
+
+2. Add your port to the ports list under the Traefik ingress rule:
+
+    ports:
+    - protocol: TCP
+      port: 3000  # frontend
+    - protocol: TCP
+      port: 4000  # docs
+    - protocol: TCP
+      port: 5000  # backend
+    - protocol: TCP
+      port: 8001  # ai-chat-service
+    - protocol: TCP
+      port: 8080  # ← ADD YOUR PORT HERE (replace 8080 with your actual port)
+
+3. Apply the updated network policy:
+   k3s kubectl apply -f /home/james/yirra_systems_app/drone_website_MAX/netpol-drone-store.yaml
+
+Without this step, Traefik cannot reach your service!
+

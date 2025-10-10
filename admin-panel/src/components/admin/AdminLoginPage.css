@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+  --admin-bg: #111827;
+  --admin-card-bg: #1f2937;
+  --admin-border: #374151;
+  --admin-text-primary: #f9fafb;
+  --admin-text-secondary: #9ca3af;
+  --admin-accent: var(--yirra-cyan, #00f2fe);
+  --admin-accent-dark: var(--yirra-cyan-dark, #00d8e0);
+}
+
+.admin-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--admin-bg);
+  font-family: 'Poppins', sans-serif;
+  color: var(--admin-text-primary);
+}
+
+.login-box {
+  padding: 40px 50px;
+  background-color: var(--admin-card-bg);
+  border-radius: 20px;
+  border: 1px solid var(--admin-border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  width: 380px;
+  transition: all 0.3s ease;
+}
+
+.login-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--admin-text-primary);
+}
+
+.login-header p {
+  margin: 5px 0 30px;
+  font-size: 1rem;
+  color: var(--admin-text-secondary);
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  color: var(--admin-text-primary);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input::placeholder {
+  color: #888;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.2);
+}
+
+.login-button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--admin-accent);
+  color: var(--admin-bg);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: var(--admin-accent-dark);
+}
+
+.error-message {
+  color: #ef4444;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}

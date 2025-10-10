@@ -1,0 +1,135 @@
+/**
+ * Yirra Documentation Homepage - Following Voron Design Style
+ */
+
+.heroBanner {
+  padding: 3rem 1rem 2rem;
+  text-align: center;
+  background-color: var(--ifm-background-color);
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-heading-color);
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin: 1rem 0;
+  color: var(--ifm-font-color-base);
+}
+
+.heroDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 1rem auto;
+  color: var(--ifm-font-color-base);
+  text-align: left;
+}
+
+.heroImageContainer {
+  margin: 3rem auto 2rem;
+  max-width: 900px;
+}
+
+.heroImage {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Community Section */
+.communitySection {
+  padding: 3rem 1rem;
+  background-color: var(--ifm-background-surface-color);
+}
+
+.communityTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--ifm-color-primary);
+  text-align: center;
+}
+
+.communityList {
+  list-style: none;
+  padding: 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.communityList li {
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+  position: relative;
+}
+
+.communityList li::before {
+  content: "•";
+  position: absolute;
+  left: 0.5rem;
+  color: var(--ifm-color-primary);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.communityLink {
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+  display: block;
+  transition: color 0.2s ease;
+  line-height: 1.6;
+}
+
+.communityLink:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.communityLink strong {
+  color: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .heroImage {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 996px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1.1rem;
+  }
+  
+  .heroDescription {
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  
+  .heroImageContainer {
+    margin: 2rem auto 1rem;
+  }
+  
+  .communitySection {
+    padding: 2rem 1rem;
+  }
+  
+  .communityTitle {
+    font-size: 1.5rem;
+  }
+  
+  .communityList li {
+    padding-left: 1.5rem;
+  }
+}

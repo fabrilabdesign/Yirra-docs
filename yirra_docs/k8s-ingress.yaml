@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docs-ingress
+  namespace: drone-store
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    # No TLS at K8s level - Cloudflare handles SSL termination
+spec:
+  rules:
+  - host: docs.yirrasystems.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: docs
+            port:
+              number: 4000
+

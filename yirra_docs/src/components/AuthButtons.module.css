@@ -1,0 +1,68 @@
+.authContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+}
+
+.signInButton {
+  background-color: #06b6d4;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.signInButton:hover {
+  background-color: #0891b2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.userName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ifm-font-color-base);
+  font-family: 'Inter', sans-serif;
+}
+
+.avatarBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.avatarBox:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.3);
+}
+
+@media (max-width: 996px) {
+  .authContainer {
+    margin-left: 0.5rem;
+  }
+  
+  .userName {
+    display: none;
+  }
+  
+  .signInButton {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+

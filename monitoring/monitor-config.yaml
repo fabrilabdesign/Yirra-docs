@@ -1,0 +1,188 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uptime-kuma-monitors
+  namespace: monitoring
+data:
+  monitors.json: |
+    {
+      "monitors": [
+        {
+          "name": "🌐 Main Site",
+          "type": "http",
+          "url": "https://yirrasystems.com",
+          "method": "GET",
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "Customer-facing main website"
+        },
+        {
+          "name": "🔌 Backend API",
+          "type": "http",
+          "url": "https://yirrasystems.com/api/health",
+          "method": "GET",
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "Backend API health check"
+        },
+        {
+          "name": "👨‍💼 Admin Panel",
+          "type": "http",
+          "url": "https://app.yirrasystems.com",
+          "method": "GET",
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "Admin dashboard"
+        },
+        {
+          "name": "📚 Documentation",
+          "type": "http",
+          "url": "https://docs.yirrasystems.com",
+          "method": "GET",
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "Docusaurus documentation site"
+        },
+        {
+          "name": "⚙️ N8N Workflows",
+          "type": "http",
+          "url": "https://flows.yirrasystems.com",
+          "method": "GET",
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "Workflow automation platform"
+        },
+        {
+          "name": "🗄️ PostgreSQL",
+          "type": "port",
+          "hostname": "postgres.drone-store.svc.cluster.local",
+          "port": 5432,
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "PostgreSQL database (internal)"
+        },
+        {
+          "name": "⚡ Redis",
+          "type": "port",
+          "hostname": "redis.drone-store.svc.cluster.local",
+          "port": 6379,
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "Redis cache (internal)"
+        },
+        {
+          "name": "📦 Docker Registry",
+          "type": "http",
+          "url": "http://registry.drone-store.svc.cluster.local:5000/v2/",
+          "method": "GET",
+          "interval": 60,
+          "maxretries": 3,
+          "retryInterval": 60,
+          "description": "Local container registry (internal)"
+        }
+      ]
+    }
+  
+  setup-instructions.md: |
+    # Uptime Kuma Setup Instructions
+    
+    ## Quick Setup Guide
+    
+    ### Step 1: Create Admin Account
+    1. Visit https://kuma.yirrasystems.com
+    2. You'll be prompted to create an admin account (first-time setup)
+    3. Choose a strong username and password
+    
+    ### Step 2: Add Monitors
+    
+    Add the following monitors to track your entire stack:
+    
+    #### External Services (HTTPS Monitoring)
+    
+    **Main Site**
+    - Type: HTTP(s)
+    - URL: https://yirrasystems.com
+    - Method: GET
+    - Interval: 60 seconds
+    - Retries: 3
+    - Friendly Name: 🌐 Main Site
+    
+    **Backend API**
+    - Type: HTTP(s)
+    - URL: https://yirrasystems.com/api/health
+    - Method: GET
+    - Interval: 60 seconds
+    - Retries: 3
+    - Friendly Name: 🔌 Backend API
+    
+    **Admin Panel**
+    - Type: HTTP(s)
+    - URL: https://app.yirrasystems.com
+    - Method: GET
+    - Interval: 60 seconds
+    - Retries: 3
+    - Friendly Name: 👨‍💼 Admin Panel
+    
+    **Documentation**
+    - Type: HTTP(s)
+    - URL: https://docs.yirrasystems.com
+    - Method: GET
+    - Interval: 60 seconds
+    - Retries: 3
+    - Friendly Name: 📚 Documentation
+    
+    **N8N Workflows**
+    - Type: HTTP(s)
+    - URL: https://flows.yirrasystems.com
+    - Method: GET
+    - Interval: 60 seconds
+    - Retries: 3
+    - Friendly Name: ⚙️ N8N Workflows
+    
+    #### Internal Services (Port/TCP Monitoring)
+    
+    **PostgreSQL Database**
+    - Type: TCP Port
+    - Hostname: postgres.drone-store.svc.cluster.local
+    - Port: 5432
+    - Interval: 60 seconds
+    - Friendly Name: 🗄️ PostgreSQL
+    
+    **Redis Cache**
+    - Type: TCP Port
+    - Hostname: redis.drone-store.svc.cluster.local
+    - Port: 6379
+    - Interval: 60 seconds
+    - Friendly Name: ⚡ Redis
+    
+    **Docker Registry**
+    - Type: HTTP(s)
+    - URL: http://registry.drone-store.svc.cluster.local:5000/v2/
+    - Method: GET
+    - Interval: 60 seconds
+    - Friendly Name: 📦 Docker Registry
+    
+    ### Step 3: Configure Notifications (Optional)
+    
+    Set up notifications for downtime alerts:
+    1. Go to Settings → Notifications
+    2. Add notification method (email, Slack, Discord, etc.)
+    3. Apply to all monitors or specific ones
+    
+    ### Step 4: Create Status Page (Optional)
+    
+    Create a public status page:
+    1. Go to Status Pages
+    2. Create new status page
+    3. Add monitors you want to display publicly
+    4. Get shareable link
+
+
+

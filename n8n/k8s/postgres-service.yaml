@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: n8n-postgres
+  namespace: n8n
+  labels:
+    app: n8n-postgres
+    service: n8n-db
+    component: n8n-database
+spec:
+  type: ClusterIP
+  selector:
+    app: n8n-postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+

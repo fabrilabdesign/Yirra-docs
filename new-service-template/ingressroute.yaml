@@ -1,0 +1,23 @@
+# Replace MYAPP with your app name (lowercase, no spaces)
+# Replace 8080 with your app's service port
+# Adjust priority if needed (avoid conflicts with existing routes)
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: MYAPP-ingress
+  namespace: drone-store
+spec:
+  entryPoints:
+    - web        # HTTP (port 80)
+    - websecure  # HTTPS (port 443) - Cloudflare terminates SSL before this
+  routes:
+  - kind: Rule
+    match: Host(`MYAPP.yirrasystems.com`)
+    priority: 15  # Adjust if needed (10=frontend, 20=api, 30=websocket, 50=docs)
+    services:
+    - name: MYAPP
+      port: 8080
+  # NO tls: section - Cloudflare handles all SSL termination!
+  # DO NOT ADD certResolver or any TLS config here
+
