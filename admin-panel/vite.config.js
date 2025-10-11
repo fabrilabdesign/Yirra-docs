@@ -1,12 +1,29 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
     port: 3001,
-    proxy: {
+    proxy: mode === 'development' ? {
+      '/api': {
+        target: process.env.VITE_API_URL || 'https://app.yirrasystems.com',
+        changeOrigin: true,
+        secure: true,
+      },
+      '/uploads': {
+        target: process.env.VITE_API_URL || 'https://app.yirrasystems.com',
+        changeOrigin: true,
+        secure: true,
+      },
+      '/chat/ws': {
+        target: process.env.VITE_CHAT_URL || 'wss://app.yirrasystems.com',
+        ws: true,
+        changeOrigin: true,
+        secure: true,
+      }
+    } : {
       '/api': {
         target: process.env.VITE_API_URL || 'http://backend.drone-store:5000',
         changeOrigin: true,
@@ -27,6 +44,6 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
   }
-});
+}));
 
 
