@@ -204,6 +204,13 @@ function App() {
           </ProtectedRoute>
         } />
         
+        {/* Temporary: direct route to enhanced dashboard for validation */}
+        <Route path="/enhanced" element={
+          <ProtectedRoute>
+            <EnhancedDashboard />
+          </ProtectedRoute>
+        } />
+        
         {/* Fallback - redirect to dashboard if logged in, login if not */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
