@@ -4,6 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import AdminGate from './components/admin/AdminGate';
 import AdminDashboard from './components/AdminDashboard';
 import AdminMobileDashboard from './components/AdminMobileDashboard';
+import EnhancedDashboard from './components/EnhancedDashboard';
 import AdminProducts from './components/AdminProducts';
 import AdminOrders from './components/AdminOrders';
 import AdminInventory from './components/AdminInventory';
@@ -61,7 +62,8 @@ function useIsMobile() {
 
 function App() {
   const isMobile = useIsMobile();
-  const DashboardComponent = isMobile ? AdminMobileDashboard : AdminDashboard;
+  // Use the newer EnhancedDashboard for the main dashboard route
+  const DashboardComponent = EnhancedDashboard;
 
   return (
     <Router>
