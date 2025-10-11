@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import AdminGate from './components/admin/AdminGate';
-import AdminDashboard from './components/AdminDashboard';
 import AdminMobileDashboard from './components/AdminMobileDashboard';
-import EnhancedDashboard from './components/EnhancedDashboard';
 import AdminProducts from './components/AdminProducts';
 import AdminOrders from './components/AdminOrders';
 import AdminInventory from './components/AdminInventory';
@@ -62,8 +60,8 @@ function useIsMobile() {
 
 function App() {
   const isMobile = useIsMobile();
-  // Use the main dashboard layout (includes sidebar/nav)
-  const DashboardComponent = isMobile ? AdminMobileDashboard : AdminDashboard;
+  // Quarantine other dashboards; use mobile dashboard as canonical
+  const DashboardComponent = AdminMobileDashboard;
 
   return (
     <Router>
@@ -204,14 +202,7 @@ function App() {
           </ProtectedRoute>
         } />
         
-        {/* Temporary: direct route to enhanced dashboard for validation */}
-        <Route path="/enhanced" element={
-          <ProtectedRoute>
-            <EnhancedDashboard />
-          </ProtectedRoute>
-        } />
-
-        {/* Direct route to mobile dashboard for validation */}
+        {/* Canonical dashboard route (mobile layout) */}
         <Route path="/mobile" element={
           <ProtectedRoute>
             <AdminMobileDashboard />
