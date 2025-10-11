@@ -62,8 +62,8 @@ function useIsMobile() {
 
 function App() {
   const isMobile = useIsMobile();
-  // Make AdminOverview the default dashboard to match production
-  const DashboardComponent = AdminOverview;
+  // Use the main dashboard layout (includes sidebar/nav)
+  const DashboardComponent = isMobile ? AdminMobileDashboard : AdminDashboard;
 
   return (
     <Router>
@@ -204,8 +204,8 @@ function App() {
           </ProtectedRoute>
         } />
         
-        {/* Fallback - redirect to overview if logged in, login if not */}
-        <Route path="*" element={<Navigate to="/overview" replace />} />
+        {/* Fallback - redirect to dashboard if logged in, login if not */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
   );
