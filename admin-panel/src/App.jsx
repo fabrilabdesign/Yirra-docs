@@ -210,6 +210,13 @@ function App() {
             <EnhancedDashboard />
           </ProtectedRoute>
         } />
+
+        {/* Direct route to mobile dashboard for validation */}
+        <Route path="/mobile" element={
+          <ProtectedRoute>
+            <AdminMobileDashboard />
+          </ProtectedRoute>
+        } />
         
         {/* Fallback - redirect to dashboard if logged in, login if not */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
