@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"kubernetes.io/ingress.class":"traefik"},"name":"yirrasystems-staging","namespace":"drone-store"},"spec":{"ingressClassName":"traefik","rules":[{"host":"staggingapp.yirrasystems.com","http":{"paths":[{"backend":{"service":{"name":"ai-chat-service","port":{"number":8001}}},"path":"/chat/ws","pathType":"Prefix"},{"backend":{"service":{"name":"backend","port":{"number":5000}}},"path":"/api","pathType":"Prefix"},{"backend":{"service":{"name":"admin-frontend-staging","port":{"number":3001}}},"path":"/","pathType":"Prefix"}]}}]}}
+    kubernetes.io/ingress.class: traefik
+  creationTimestamp: "2025-10-11T04:14:09Z"
+  generation: 1
+  name: yirrasystems-staging
+  namespace: drone-store
+  resourceVersion: "4419233"
+  uid: a412038d-3b52-4229-a2e0-aadec309936b
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: staggingapp.yirrasystems.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: ai-chat-service
+            port:
+              number: 8001
+        path: /chat/ws
+        pathType: Prefix
+      - backend:
+          service:
+            name: backend
+            port:
+              number: 5000
+        path: /api
+        pathType: Prefix
+      - backend:
+          service:
+            name: admin-frontend-staging
+            port:
+              number: 3001
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.3.103

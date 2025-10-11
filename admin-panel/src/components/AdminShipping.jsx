@@ -348,7 +348,7 @@ const AdminShipping = () => {
               </button>
             </div>
             {rates.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-text-tertiary">
                 <p>No shipping rates configured yet.</p>
                 <button 
                   className="btn btn-primary mt-4"
@@ -361,7 +361,7 @@ const AdminShipping = () => {
               <div className="rates-table">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-50">
+                    <tr className="bg-elev2">
                       <th className="px-4 py-2 text-left">Zone</th>
                       <th className="px-4 py-2 text-left">Carrier</th>
                       <th className="px-4 py-2 text-left">Service</th>
@@ -377,7 +377,7 @@ const AdminShipping = () => {
                       const service = services.find(s => s.id === rate.service_id);
                       
                       return (
-                        <tr key={rate.id} className="border-b">
+                        <tr key={rate.id} className="border-b border-line-soft">
                           <td className="px-4 py-2">{zone?.name || 'Unknown'}</td>
                           <td className="px-4 py-2">{carrier?.name || 'Unknown'}</td>
                           <td className="px-4 py-2">{service?.name || 'Unknown'}</td>
@@ -417,17 +417,17 @@ const AdminShipping = () => {
               <h3>Shipping Carriers</h3>
             </div>
             {carriers.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-text-tertiary">
                 <p>No shipping carriers available.</p>
               </div>
             ) : (
               <div className="carriers-list">
                 {carriers.map(carrier => (
-                  <div key={carrier.id} className="carrier-card bg-white border rounded-lg p-4 mb-4">
+                  <div key={carrier.id} className="carrier-card bg-elev1 border border-line-soft rounded-12 p-4 mb-4">
                     <div className="flex justify-between items-center">
                       <div className="carrier-info">
-                        <h4 className="text-lg font-semibold">{carrier.name}</h4>
-                        <p className="text-sm text-gray-600">Code: {carrier.code}</p>
+                        <h4 className="text-[16px] leading-6 font-semibold text-text-primary">{carrier.name}</h4>
+                        <p className="text-[13px] text-text-tertiary">Code: {carrier.code}</p>
                         <div className="mt-2">
                           <span className={`inline-block px-2 py-1 rounded text-xs ${
                             carrier.is_enabled 
@@ -437,12 +437,12 @@ const AdminShipping = () => {
                             {carrier.is_enabled ? 'Enabled' : 'Disabled'}
                           </span>
                           {carrier.supports_tracking && (
-                            <span className="inline-block ml-2 px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+                            <span className="inline-block ml-2 px-2 py-1 rounded text-xs bg-[rgba(99,102,241,.12)] text-brand">
                               Tracking
                             </span>
                           )}
                           {carrier.supports_labels && (
-                            <span className="inline-block ml-2 px-2 py-1 rounded text-xs bg-purple-100 text-purple-800">
+                            <span className="inline-block ml-2 px-2 py-1 rounded text-xs bg-[rgba(168,85,247,.12)] text-accent-secondary">
                               Labels
                             </span>
                           )}

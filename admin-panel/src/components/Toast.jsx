@@ -28,15 +28,15 @@ export function Toast({ message, type = 'success', duration = 3000, onClose }) {
   const getTypeStyles = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-500 text-white border-green-600';
+        return 'bg-success text-text-inverse border-success';
       case 'error':
-        return 'bg-red-500 text-white border-red-600';
+        return 'bg-danger text-text-inverse border-danger';
       case 'warning':
-        return 'bg-yellow-500 text-white border-yellow-600';
+        return 'bg-warning text-text-inverse border-warning';
       case 'info':
-        return 'bg-blue-500 text-white border-blue-600';
+        return 'bg-brand text-text-inverse border-brand';
       default:
-        return 'bg-gray-800 text-white border-gray-700';
+        return 'bg-elev2 text-text-primary border-line-strong';
     }
   };
 

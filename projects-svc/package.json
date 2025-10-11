@@ -1,0 +1,24 @@
+{
+  "name": "projects-svc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --env-file .env src/index.js",
+    "start": "node src/index.js",
+    "build": "echo build not needed (ESM)",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "@prisma/client": "^5.19.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "prisma": "^5.19.1"
+  }
+}

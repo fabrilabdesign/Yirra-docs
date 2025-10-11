@@ -347,3 +347,4 @@ const DigitalPurchases = () => {
 export default DigitalPurchases;
 
 
+

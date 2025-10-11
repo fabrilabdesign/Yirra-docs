@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Input } from '../ui/input';
 import { useAuth } from '@clerk/clerk-react';
 
 const AdminChat = () => {
@@ -112,33 +113,32 @@ const AdminChat = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-app min-h-screen text-text-primary">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Chat History</h1>
-          <p className="text-gray-600">View and manage customer chat sessions</p>
+          <h1 className="text-[18px] leading-6 font-semibold text-text-primary">Chat History</h1>
+          <p className="text-text-secondary">View and manage customer chat sessions</p>
         </div>
 
         <div className="mb-4">
-          <input
+          <Input
             type="text"
             placeholder="Search sessions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Sessions List */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-4 py-3 bg-gray-50 border-b">
-                <h3 className="text-lg font-medium text-gray-900">Chat Sessions ({sessions.length})</h3>
+            <div className="bg-surface rounded-12 shadow-elev1 overflow-hidden border border-line-soft">
+              <div className="px-3 py-3 border-b border-line-soft">
+                <h3 className="text-[14px] font-semibold text-text-primary">Chat Sessions ({sessions.length})</h3>
               </div>
                   <div className="max-h-96 overflow-y-auto">
                 {sessions.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">
+                  <div className="p-4 text-center text-text-tertiary">
                     {loadingSessions ? 'Loading sessions…' : 'No chat sessions found'}
                   </div>
                 ) : (
@@ -149,17 +149,17 @@ const AdminChat = () => {
                           setSelectedSession(session);
                           fetchSessionMessages(session.id);
                         }}
-                        className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
-                          selectedSession?.id === session.id ? 'bg-blue-50 border-blue-200' : ''
+                        className={`p-3 border-b border-line-soft cursor-pointer hover:bg-hover ${
+                          selectedSession?.id === session.id ? 'bg-[rgba(99,102,241,.12)]' : ''
                         }`}
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-medium text-gray-900">{session.id}</p>
+                            <p className="font-medium text-text-primary">{session.id}</p>
                             {session.user_email && (
-                              <p className="text-sm text-gray-600">{session.user_email}</p>
+                              <p className="text-[12px] text-text-secondary">{session.user_email}</p>
                             )}
-                            <p className="text-xs text-gray-500">
+                            <p className="text-[12px] text-text-tertiary">
                               {formatDate(session.created_at)}
                             </p>
                           </div>
@@ -173,39 +173,39 @@ const AdminChat = () => {
 
           {/* Messages */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-4 py-3 bg-gray-50 border-b">
-                <h3 className="text-lg font-medium text-gray-900">
+            <div className="bg-surface rounded-12 shadow-elev1 border border-line-soft">
+              <div className="px-3 py-3 border-b border-line-soft">
+                <h3 className="text-[14px] font-semibold text-text-primary">
                   {selectedSession ? `Messages for ${selectedSession.id}` : 'Select a session'}
                 </h3>
               </div>
-              <div className="p-4">
+              <div className="p-3">
                 {!selectedSession ? (
-                  <div className="text-center text-gray-500 py-8">
+                  <div className="text-center text-text-tertiary py-8">
                     Select a chat session to view messages
                   </div>
                 ) : loadingMessages ? (
-                  <div className="text-center text-gray-500 py-8">Loading messages…</div>
+                  <div className="text-center text-text-tertiary py-8">Loading messages…</div>
                 ) : messages.length === 0 ? (
-                  <div className="text-center text-gray-500 py-8">
+                  <div className="text-center text-text-tertiary py-8">
                     No messages in this session
                   </div>
                 ) : (
-                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
                     {messages.map((message, index) => (
                       <div
                         key={index}
                         className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          className={`max-w-xs lg:max-w-md px-3 py-2 rounded-12 ${
                             message.role === 'user'
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-200 text-gray-900'
+                              ? 'bg-brand text-text-inverse'
+                              : 'bg-elev1 text-text-primary border border-line-soft'
                           }`}
                         >
-                          <p className="text-sm">{message.content}</p>
-                          <p className="text-xs mt-1 opacity-75">
+                          <p className="text-[13px] leading-5">{message.content}</p>
+                          <p className="text-[12px] mt-1 opacity-75">
                             {formatDate(message.created_at)}
                           </p>
                         </div>

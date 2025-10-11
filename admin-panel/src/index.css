@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens: Dark theme (scope to any element with data-theme="dark") */
+[data-theme="dark"]{
+  --bg-app:#14151A; --bg-surface:#1B1C22; --bg-elev-1:#20222A; --bg-elev-2:#262833;
+  --line-soft:#2E303A; --line-strong:#3A3D49;
+  --text-primary:#E7E8EE; --text-secondary:#B7BAC7; --text-tertiary:#8F93A1; --text-inverse:#0E0F13; --muted:#74788B;
+  --brand-primary:#6366F1; --brand-primary-600:#5558E6; --brand-primary-700:#4B4ED1;
+  --accent-secondary:#A855F7; --info:#38BDF8; --success:#22C55E; --warning:#F59E0B; --danger:#EF4444;
+  --badge-bg:rgba(99,102,241,.12); --hover:rgba(255,255,255,.04); --pressed:rgba(255,255,255,.06); --focus-ring:rgba(99,102,241,.45); --scrim:rgba(10,11,14,.60);
+  --radius-10:10px; --radius-12:12px; --radius-14:14px; --radius-16:16px;
+  --shadow-1:0 1px 0 rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.35);
+  --shadow-2:0 2px 0 rgba(0,0,0,.35),0 14px 36px rgba(0,0,0,.45);
+}
+
 /* Mobile-first CSS Variables */
 :root {
   /* Mobile-first spacing system */
@@ -94,13 +107,13 @@ html {
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: #ffffff;
+  background-color: var(--bg-app);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   font-size: var(--text-base);
   line-height: var(--line-height-normal);
-  color: #1f2937;
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Prevent horizontal scrolling on mobile */
@@ -263,16 +276,16 @@ p:not(.hero-video *) {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #3F3F46; /* line-soft */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #71717A; /* text-tertiary */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #A1A1AA; /* text-secondary */
 }
 
 /* Mobile-first accessibility and performance optimizations */
@@ -310,8 +323,9 @@ button, a, [role="button"], input, textarea, select {
 
 /* Focus styles for accessibility - but not for navbar buttons */
 *:focus {
-  outline: 2px solid var(--yirra-cyan);
+  outline: 1px solid var(--brand-primary);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* Remove focus outlines for navbar buttons */
@@ -328,16 +342,16 @@ nav a:focus {
 
 /* Navbar menu links font styling */
 nav a:not([href="/"]) {
-  font-family: 'Case', sans-serif;
-  font-weight: 400;
-  color: rgb(34, 33, 31);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  color: #F4F4F5; /* text-primary */
 }
 
 /* Enhanced focus for interactive elements */
 button:focus, a:focus, [role="button"]:focus, input:focus, textarea:focus, select:focus {
-  outline: 2px solid var(--yirra-cyan);
+  outline: 1px solid var(--brand-primary);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.1);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* Skip link for keyboard navigation */
@@ -345,8 +359,8 @@ button:focus, a:focus, [role="button"]:focus, input:focus, textarea:focus, selec
   position: absolute;
   top: -40px;
   left: 6px;
-  background: var(--yirra-cyan);
-  color: white;
+  background: #A855F7; /* brand */
+  color: #27272A; /* text-inverse */
   padding: 8px;
   text-decoration: none;
   z-index: 9999;
@@ -373,6 +387,72 @@ img[loading="lazy"] {
 img[loading="lazy"].loaded {
   opacity: 1;
 }
+
+/* Dark theme input overrides (win over earlier generic light inputs) */
+:root[data-theme="dark"] input[type="email"],
+:root[data-theme="dark"] input[type="password"],
+:root[data-theme="dark"] input[type="text"],
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select {
+  background-color: var(--bg-elev-1) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--line-soft) !important;
+}
+
+:root[data-theme="dark"] input[type="email"]::placeholder,
+:root[data-theme="dark"] input[type="password"]::placeholder,
+:root[data-theme="dark"] input[type="text"]::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  body[data-theme="dark"] {
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+  }
+}
+
+/* Ensure dark base on app containers regardless of legacy styles */
+[data-theme="dark"] body,
+[data-theme="dark"] #root,
+[data-theme="dark"] main {
+  background-color: var(--bg-app) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure app shell containers are dark even when page-level CSS is scoped elsewhere */
+[data-theme="dark"] .main-content {
+  background-color: var(--bg-app) !important;
+  min-height: 100vh;
+}
+[data-theme="dark"] .content-wrapper {
+  background-color: transparent !important;
+}
+
+/* Dark theme global overrides for legacy light classes */
+/* Removed temporary global utility remaps after component sweep */
+
+/* Reintroduce robust dark mappings to catch remaining light utilities */
+:root[data-theme="dark"] .bg-white { background-color: var(--bg-elev-1) !important; }
+:root[data-theme="dark"] .bg-gray-50 { background-color: var(--bg-surface) !important; }
+:root[data-theme="dark"] .bg-gray-100 { background-color: var(--bg-elev-1) !important; }
+:root[data-theme="dark"] .bg-gray-200 { background-color: var(--bg-elev-1) !important; }
+:root[data-theme="dark"] .text-gray-900 { color: var(--text-primary) !important; }
+:root[data-theme="dark"] .text-gray-800 { color: var(--text-primary) !important; }
+:root[data-theme="dark"] .text-gray-700 { color: var(--text-secondary) !important; }
+:root[data-theme="dark"] .text-gray-600 { color: var(--text-secondary) !important; }
+:root[data-theme="dark"] .text-gray-500 { color: var(--text-tertiary) !important; }
+:root[data-theme="dark"] .text-gray-400 { color: var(--text-tertiary) !important; }
+:root[data-theme="dark"] .border-gray-100 { border-color: var(--line-soft) !important; }
+:root[data-theme="dark"] .border-gray-200 { border-color: var(--line-soft) !important; }
+:root[data-theme="dark"] .border-gray-300 { border-color: var(--line-strong) !important; }
+:root[data-theme="dark"] .hover\:bg-gray-50:hover { background-color: var(--hover) !important; }
+/* handle translucent white backgrounds */
+:root[data-theme="dark"] .bg-white\/5 { background-color: var(--bg-elev-1) !important; }
+:root[data-theme="dark"] .bg-white\/10 { background-color: var(--bg-elev-1) !important; }
+
+
 
 /* Admin Products Status Badges */
 .status-badges {
@@ -439,122 +519,15 @@ img[loading="lazy"].loaded {
   }
 }
 
-/* Force readable input styling regardless of dark mode */
-input[type="email"], 
-input[type="password"], 
-input[type="text"], 
-textarea, 
-select {
-  background-color: #ffffff !important;
-  color: #111827 !important;
-  border: 1px solid #d1d5db !important;
-}
-
-input[type="email"]::placeholder,
-input[type="password"]::placeholder,
-input[type="text"]::placeholder,
-textarea::placeholder {
-  color: #9ca3af !important;
-  opacity: 1 !important;
-}
+/* (removed legacy global light input overrides) */
 
 /* Enhanced Glassmorphism Effects */
-.glassmorphism-navbar {
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: none;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-}
+/* (removed glassmorphism helpers) */
 
-.glassmorphism-navbar-scrolled {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: none;
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
-}
-
-.glassmorphism-dropdown {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-}
-
-/* Ensure backdrop-filter support */
-@supports not (backdrop-filter: blur(20px)) {
-  .glassmorphism-navbar,
-  .glassmorphism-navbar-scrolled,
-  .glassmorphism-dropdown {
-    background: rgba(255, 255, 255, 0.9);
-  }
-}
-
-/* Force better text contrast for blog content */
-.prose p {
-  color: #111827 !important;
-  font-weight: 400 !important;
-}
-
-.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-  color: #111827 !important;
-  font-weight: 700 !important;
-}
-
-.prose strong {
-  color: #111827 !important;
-  font-weight: 600 !important;
-}
-
-.prose a {
-  color: #0891b2 !important;
-}
-
-.prose a:hover {
-  color: #0e7490 !important;
-}
-
-/* Blog content specific overrides - force dark text on white background */
-.prose *, .prose-lg *, .prose-xl * {
-  color: #111827 !important;
-}
-
-.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6,
-.prose-lg h1, .prose-lg h2, .prose-lg h3, .prose-lg h4, .prose-lg h5, .prose-lg h6 {
-  color: #111827 !important;
-}
-
-.prose p, .prose div, .prose span, .prose li,
-.prose-lg p, .prose-lg div, .prose-lg span, .prose-lg li {
-  color: #1f2937 !important;
-}
-
-.prose strong, .prose b,
-.prose-lg strong, .prose-lg b {
-  color: #111827 !important;
-}
-
-.prose a, .prose-lg a {
-  color: #0891b2 !important;
-}
-
-.prose a:hover, .prose-lg a:hover {
-  color: #0e7490 !important;
-}
+/* (removed blog force-light overrides) */
 
 /* Force mobile cart button visibility - only target the cart link in the dropdown menu, not the cart icon in the menu bar */
-.mobile-menu-container > div > div > a[href="/cart"] {
-  background-color: #111827 !important;
-  color: #ffffff !important;
-  border: 2px solid #374151 !important;
-}
-
-.mobile-menu-container > div > div > a[href="/cart"]:hover {
-  background-color: #1f2937 !important;
-  color: #ffffff !important;
-}
+/* (removed site-specific mobile cart overrides) */
 
 /* Ensure focus states are visible */
 input[type="email"]:focus,
@@ -569,24 +542,7 @@ select:focus {
 }
 
 /* Override dark mode for login/form pages */
-@media (prefers-color-scheme: dark) {
-  input[type="email"], 
-  input[type="password"], 
-  input[type="text"], 
-  textarea, 
-  select {
-    background-color: #ffffff !important;
-    color: #111827 !important;
-    border: 1px solid #d1d5db !important;
-  }
-  
-  input[type="email"]::placeholder,
-  input[type="password"]::placeholder,
-  input[type="text"]::placeholder,
-  textarea::placeholder {
-    color: #9ca3af !important;
-  }
-}
+/* (removed dark-scheme forced light input overrides) */
 
 /* Button Animation Effects */
 

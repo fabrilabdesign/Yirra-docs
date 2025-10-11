@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: yirrasystems-staging
+  namespace: drone-store
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/service.serversscheme: http
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: staggingapp.yirrasystems.com
+      http:
+        paths:
+          - path: /api/admin/projects
+            pathType: Prefix
+            backend:
+              service:
+                name: projects-svc
+                port:
+                  number: 8080
+          - path: /chat/ws
+            pathType: Prefix
+            backend:
+              service:
+                name: ai-chat-service
+                port:
+                  number: 8001
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 5000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-frontend-staging
+                port:
+                  number: 3001

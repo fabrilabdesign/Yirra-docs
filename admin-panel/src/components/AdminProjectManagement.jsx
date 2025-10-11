@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, X, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Select } from '../ui/select';
+import { Textarea } from '../ui/textarea';
 import AdminTaskDetails from './AdminTaskDetails';
+import KanbanBoard from './KanbanBoard';
+import ProjectReports from './ProjectReports';
 
 const AdminProjectManagement = () => {
   const { getToken } = useAuth();
@@ -17,7 +23,9 @@ const AdminProjectManagement = () => {
   const [filters, setFilters] = useState({
     search: '',
     sortBy: 'created_at',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
+    status: '',
+    priority: ''
   });
   const [selectedTask, setSelectedTask] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -26,10 +34,40 @@ const AdminProjectManagement = () => {
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [taskFormData, setTaskFormData] = useState({
     title: '',
-    description: ''
+    description: '',
+    status: 'todo',
+    priority: 'medium',
+    dueDate: '',
+    assigneeId: ''
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState(null); // { type: 'success'|'error', message: string }
+  const [viewMode, setViewMode] = useState('list'); // 'list', 'kanban', or 'reports'
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(() => setToast(null), 3000);
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'todo': return 'bg-gray-100 text-gray-800';
+      case 'in_progress': return 'bg-blue-100 text-blue-800';
+      case 'done': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPriorityBadgeClass = (priority) => {
+    switch (priority) {
+      case 'low': return 'bg-gray-100 text-gray-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'high': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   useEffect(() => {
     fetchTasks();
@@ -96,14 +134,22 @@ const AdminProjectManagement = () => {
     if (task) {
       setTaskFormData({
         title: task.title,
-        description: task.description || ''
+        description: task.description || '',
+        status: task.status || 'todo',
+        priority: task.priority || 'medium',
+        dueDate: task.due_date ? new Date(task.due_date).toISOString().slice(0, 10) : '',
+        assigneeId: task.assignee_id || ''
       });
       setIsEditing(true);
       setSelectedTask(task);
     } else {
       setTaskFormData({
         title: '',
-        description: ''
+        description: '',
+        status: 'todo',
+        priority: 'medium',
+        dueDate: '',
+        assigneeId: ''
       });
       setIsEditing(false);
       setSelectedTask(null);
@@ -116,6 +162,25 @@ const AdminProjectManagement = () => {
     setShowTaskDetails(true);
   };
 
+  const handleTaskDetailsBack = (taskOrId) => {
+    if (taskOrId) {
+      if (typeof taskOrId === 'object') {
+        // Navigate to sub-task details
+        setSelectedTask(taskOrId);
+      } else {
+        // subTaskId string (legacy)
+        const subTask = tasks.find(t => t.id === taskOrId);
+        if (subTask) {
+          setSelectedTask(subTask);
+        }
+      }
+    } else {
+      // Back to list
+      setShowTaskDetails(false);
+      setSelectedTask(null);
+    }
+  };
+
   const handleBackToList = () => {
     setShowTaskDetails(false);
     setSelectedTask(null);
@@ -126,8 +191,17 @@ const AdminProjectManagement = () => {
   const closeTaskModal = () => {
     setShowTaskModal(false);
     setSelectedTask(null);
-    setTaskFormData({ title: '', description: '' });
+    setTaskFormData({ title: '', description: '', status: 'todo', priority: 'medium', dueDate: '', assigneeId: '' });
     setIsEditing(false);
+  };
+
+  const handleUpdateTask = (updatedTask) => {
+    setTasks(prev => prev.map(task => task.id === updatedTask.id ? updatedTask : task));
+  };
+
+  const handleAddTaskForStatus = (status) => {
+    setTaskFormData(prev => ({ ...prev, status }));
+    openTaskModal();
   };
 
   const handleSubmitTask = async (e) => {
@@ -153,15 +227,24 @@ const AdminProjectManagement = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(taskFormData)
+        body: JSON.stringify({
+          title: taskFormData.title,
+          description: taskFormData.description || null,
+          status: taskFormData.status || 'todo',
+          priority: taskFormData.priority || 'medium',
+          dueDate: taskFormData.dueDate || null,
+          assigneeId: taskFormData.assigneeId || null
+        })
       });
 
       if (response.ok) {
         await fetchTasks(); // Refresh the list
         closeTaskModal();
+        showToast('success', isEditing ? 'Task updated' : 'Task created');
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to save task');
+        showToast('error', errorData.error || 'Failed to save task');
       }
     } catch (err) {
       console.error('Task save error:', err);
@@ -190,9 +273,11 @@ const AdminProjectManagement = () => {
       if (response.ok) {
         await fetchTasks(); // Refresh the list
         closeDeleteModal();
+        showToast('success', 'Task deleted');
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to delete task');
+        showToast('error', errorData.error || 'Failed to delete task');
       }
     } catch (err) {
       console.error('Task delete error:', err);
@@ -225,7 +310,7 @@ const AdminProjectManagement = () => {
     return (
       <AdminTaskDetails
         taskId={selectedTask.id}
-        onBack={handleBackToList}
+        onBack={handleTaskDetailsBack}
       />
     );
   }
@@ -240,16 +325,82 @@ const AdminProjectManagement = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded shadow text-white ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+          {toast.message}
+        </div>
+      )}
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Project Management</h1>
-        <button
-          onClick={() => openTaskModal()}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={20} />
-          Add New Task
-        </button>
+      <div className="bg-surface h-10 px-3 flex items-center justify-between border-b border-line-soft">
+        <div className="flex items-center gap-3">
+          <h1 className="text-[15px] leading-[22px] font-semibold text-text-primary">Project Management</h1>
+          <div className="inline-flex items-center rounded-10 p-0.5 bg-elev1 h-7 ring-1 ring-line-soft gap-0.5" role="tablist" aria-label="View mode">
+            {(
+              [
+                { key: 'list', label: 'List', Icon: List },
+                { key: 'kanban', label: 'Kanban', Icon: Kanban },
+                { key: 'reports', label: 'Reports', Icon: BarChart },
+              ]
+            ).map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={viewMode === key}
+                onClick={() => setViewMode(key)}
+                className={`${viewMode === key ? 'bg-badge-bg text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-hover'} inline-flex items-center gap-1 h-6 px-2 rounded-10 text-[12px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(99,102,241,.45)]`}
+              >
+                <Icon size={14} className="flex-shrink-0" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <Button onClick={() => openTaskModal()} className="gap-1.5 h-8 px-3 text-[13px]">
+          <Plus size={16} />
+          New Task
+        </Button>
+      </div>
+
+      {/* Stats Bar */}
+      <div className="mb-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold text-text-primary">{tasks.filter(t => t.status === 'todo').length}</div>
+              <div className="text-13 text-text-secondary">To Do</div>
+            </div>
+            <Circle className="h-6 w-6 text-text-tertiary" />
+          </div>
+        </div>
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold text-text-primary">{tasks.filter(t => t.status === 'in_progress').length}</div>
+              <div className="text-13 text-text-secondary">In Progress</div>
+            </div>
+            <Play className="h-6 w-6 text-text-tertiary" />
+          </div>
+        </div>
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold text-text-primary">{tasks.filter(t => t.status === 'done').length}</div>
+              <div className="text-13 text-text-secondary">Done</div>
+            </div>
+            <CheckCircle className="h-6 w-6 text-text-tertiary" />
+          </div>
+        </div>
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold text-text-primary">{tasks.length}</div>
+              <div className="text-13 text-text-secondary">Total</div>
+            </div>
+            <BarChart3 className="h-6 w-6 text-text-tertiary" />
+          </div>
+        </div>
       </div>
 
       {/* Error Message */}
@@ -265,31 +416,48 @@ const AdminProjectManagement = () => {
         </div>
       )}
 
-      {/* Search and Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      {/* Filters */}
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-          <input
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary" size={20} />
+          <Input
             type="text"
             placeholder="Search tasks..."
             value={filters.search}
             onChange={(e) => handleFilterChange('search', e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="pl-10"
           />
         </div>
+        <Select
+          value={filters.status}
+          onChange={(e) => handleFilterChange('status', e.target.value)}
+        >
+          <option value="">All Statuses</option>
+          <option value="todo">To Do</option>
+          <option value="in_progress">In Progress</option>
+          <option value="done">Done</option>
+        </Select>
+        <Select
+          value={filters.priority}
+          onChange={(e) => handleFilterChange('priority', e.target.value)}
+        >
+          <option value="">All Priorities</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </Select>
         <div className="flex gap-2">
-          <select
+          <Select
             value={filters.sortBy}
             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="created_at">Sort by Date</option>
             <option value="title">Sort by Title</option>
-          </select>
+          </Select>
           <select
             value={filters.sortOrder}
             onChange={(e) => handleFilterChange('sortOrder', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="h-9 px-3 rounded-10 bg-elev1 border border-line-soft text-text-primary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand"
           >
             <option value="desc">Descending</option>
             <option value="asc">Ascending</option>
@@ -297,48 +465,107 @@ const AdminProjectManagement = () => {
         </div>
       </div>
 
-      {/* Tasks Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Tasks View */}
+      {viewMode === 'kanban' ? (
+        <KanbanBoard
+          tasks={tasks}
+          onEdit={openTaskModal}
+          onDelete={openDeleteModal}
+          onViewDetails={viewTaskDetails}
+          onAddTask={handleAddTaskForStatus}
+          onUpdateTask={handleUpdateTask}
+        />
+      ) : viewMode === 'reports' ? (
+        <ProjectReports />
+      ) : (
+        <div className="bg-surface rounded-12 shadow-elev1 border border-line-soft overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full">
+            <thead className="bg-elev2">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Title
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Task Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
                   Description
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Priority
+                </th>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
                   Created
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
                   Notes
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {tasks.map((task) => (
-                <tr key={task.id} className="hover:bg-gray-50">
+            <tbody className="bg-surface divide-y divide-line-soft">
+              {loading && tasks.length === 0 ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-elev1 rounded animate-pulse"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-elev1 rounded animate-pulse w-3/4"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-6 bg-elev1 rounded animate-pulse w-16"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-6 bg-elev1 rounded animate-pulse w-16"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-elev1 rounded animate-pulse w-20"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-elev1 rounded animate-pulse w-8"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="flex justify-end space-x-2">
+                        <div className="h-8 w-8 bg-elev1 rounded animate-pulse"></div>
+                        <div className="h-8 w-8 bg-elev1 rounded animate-pulse"></div>
+                        <div className="h-8 w-8 bg-elev1 rounded animate-pulse"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                tasks.map((task) => (
+                <tr key={task.id} className="hover:bg-hover transition-colors duration-200">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{task.title}</div>
+                    <div className="text-[14px] font-semibold text-text-primary">{task.title}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-500 max-w-xs truncate">
+                    <div className="text-[13px] text-text-secondary max-w-xs truncate">
                       {task.description || 'No description'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-500">
+                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(task.status)}`}>
+                      {task.status === 'in_progress' ? 'In Progress' : task.status === 'todo' ? 'To Do' : task.status || 'To Do'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getPriorityBadgeClass(task.priority)}`}>
+                      {task.priority || 'medium'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center text-[13px] text-text-tertiary">
                       <Calendar size={16} className="mr-2" />
                       {formatDate(task.created_at)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-500">
+                    <div className="flex items-center text-[13px] text-text-tertiary">
                       <FileText size={16} className="mr-2" />
                       {task.notes_count}
                     </div>
@@ -347,21 +574,21 @@ const AdminProjectManagement = () => {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => viewTaskDetails(task)}
-                        className="text-green-600 hover:text-green-900 p-1"
+                        className="text-text-secondary hover:text-text-primary p-1 hover:bg-hover rounded"
                         title="View task details"
                       >
                         <Eye size={16} />
                       </button>
                       <button
                         onClick={() => openTaskModal(task)}
-                        className="text-blue-600 hover:text-blue-900 p-1"
+                        className="text-text-secondary hover:text-text-primary p-1 hover:bg-hover rounded"
                         title="Edit task"
                       >
                         <Edit size={16} />
                       </button>
                       <button
                         onClick={() => openDeleteModal(task)}
-                        className="text-red-600 hover:text-red-900 p-1"
+                        className="text-danger hover:opacity-90 p-1 hover:bg-hover rounded"
                         title="Delete task"
                       >
                         <Trash2 size={16} />
@@ -369,7 +596,8 @@ const AdminProjectManagement = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>
@@ -384,9 +612,10 @@ const AdminProjectManagement = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Pagination */}
-      {pagination.totalPages > 1 && (
+      {viewMode === 'list' && pagination.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
             Showing page {pagination.currentPage} of {pagination.totalPages}
@@ -415,53 +644,106 @@ const AdminProjectManagement = () => {
 
       {/* Task Modal */}
       {showTaskModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">
-              {isEditing ? 'Edit Task' : 'Add New Task'}
-            </h2>
-            <form onSubmit={handleSubmitTask}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Title *
+        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-50">
+          <div className="bg-elev1 rounded-16 shadow-elev2 max-w-lg w-full max-h-[90vh] overflow-y-auto border border-line-soft">
+            <div className="flex items-center justify-between p-6 border-b border-line-soft bg-surface rounded-t-16">
+              <h2 className="text-[16px] leading-6 font-semibold text-text-primary">
+                {isEditing ? 'Edit Task' : 'Create New Task'}
+              </h2>
+              <button
+                onClick={closeTaskModal}
+                className="text-text-tertiary hover:text-text-primary transition-colors p-2 hover:bg-hover rounded-10"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSubmitTask} className="p-6 space-y-6">
+              <div>
+                <label className="block text-[12px] font-semibold text-text-secondary mb-2">
+                  Task Title *
                 </label>
-                <input
+                <Input
                   type="text"
                   value={taskFormData.title}
                   onChange={(e) => setTaskFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter task title"
+                  placeholder="Enter a descriptive task title"
                   required
                 />
+                {!taskFormData.title.trim() && (
+                  <p className="mt-2 text-[12px] text-danger flex items-center">
+                    <span className="mr-1">⚠️</span> Title is required
+                  </p>
+                )}
               </div>
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div>
+                <label className="block text-[12px] font-semibold text-text-secondary mb-2">
                   Description
                 </label>
-                <textarea
+                <Textarea
                   value={taskFormData.description}
                   onChange={(e) => setTaskFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={4}
-                  placeholder="Enter task description (optional)"
+                  rows={3}
+                  placeholder="Add details about this task (optional)"
                 />
               </div>
-              <div className="flex gap-3">
-                <button
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[12px] font-semibold text-text-secondary mb-2">Status</label>
+                  <Select
+                    value={taskFormData.status}
+                    onChange={(e) => setTaskFormData(prev => ({ ...prev, status: e.target.value }))}
+                  >
+                    <option value="todo">📋 To Do</option>
+                    <option value="in_progress">⚡ In Progress</option>
+                    <option value="done">✅ Done</option>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-semibold text-text-secondary mb-2">Priority</label>
+                  <Select
+                    value={taskFormData.priority}
+                    onChange={(e) => setTaskFormData(prev => ({ ...prev, priority: e.target.value }))}
+                  >
+                    <option value="low">🟢 Low</option>
+                    <option value="medium">🟡 Medium</option>
+                    <option value="high">🔴 High</option>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-semibold text-text-secondary mb-2">Due Date</label>
+                  <Input
+                    type="date"
+                    value={taskFormData.dueDate}
+                    onChange={(e) => setTaskFormData(prev => ({ ...prev, dueDate: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-semibold text-text-secondary mb-2">Assignee</label>
+                  <Input
+                    type="text"
+                    value={taskFormData.assigneeId}
+                    onChange={(e) => setTaskFormData(prev => ({ ...prev, assigneeId: e.target.value }))}
+                    placeholder="Assign to team member (optional)"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 pt-6">
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={closeTaskModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="flex-1"
                   disabled={isSubmitting}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1"
                   disabled={isSubmitting || !taskFormData.title.trim()}
                 >
-                  {isSubmitting ? 'Saving...' : (isEditing ? 'Update' : 'Create')}
-                </button>
+                  {isSubmitting ? '💾 Saving...' : (isEditing ? '✏️ Update Task' : '✨ Create Task')}
+                </Button>
               </div>
             </form>
           </div>
@@ -470,28 +752,46 @@ const AdminProjectManagement = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && taskToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4 text-red-600">Delete Task</h2>
-            <p className="text-gray-700 mb-4">
-              Are you sure you want to delete the task <strong>"{taskToDelete.title}"</strong>?
-              This will also delete all associated notes and cannot be undone.
-            </p>
-            <div className="flex gap-3">
+        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-50">
+          <div className="bg-elev1 rounded-16 shadow-elev2 max-w-md w-full border border-line-soft">
+            <div className="flex items-center justify-between p-6 border-b border-line-soft">
+              <h2 className="text-[16px] font-semibold text-text-primary">Delete Task</h2>
               <button
                 onClick={closeDeleteModal}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                disabled={isSubmitting}
+                className="text-text-tertiary hover:text-text-primary transition-colors p-1 hover:bg-hover rounded-10"
               >
-                Cancel
+                <X size={20} />
               </button>
-              <button
-                onClick={handleDeleteTask}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Deleting...' : 'Delete Task'}
-              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex items-start space-x-3 mb-6">
+                <div className="flex-shrink-0">
+                  <Trash2 className="h-6 w-6 text-danger" />
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-medium text-text-primary">Delete Task</h3>
+                  <p className="text-[13px] text-text-secondary mt-1">
+                    Are you sure you want to delete <strong>"{taskToDelete.title}"</strong>?
+                    This will also delete all associated notes and cannot be undone.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={closeDeleteModal}
+                  className="flex-1 h-9 px-3 border border-line-strong rounded-10 text-text-secondary hover:bg-hover transition-colors"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteTask}
+                  className="flex-1 h-9 px-3 bg-danger text-text-inverse rounded-10 hover:opacity-90 disabled:opacity-50 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Deleting...' : 'Delete Task'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

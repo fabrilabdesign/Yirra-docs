@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-frontend-staging
+  namespace: drone-store
+  labels:
+    app: admin-frontend-staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: admin-frontend-staging
+  template:
+    metadata:
+      labels:
+        app: admin-frontend-staging
+    spec:
+      containers:
+        - name: admin-frontend
+          image: localhost:5000/admin-panel:staging
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-frontend-staging
+  namespace: drone-store
+  labels:
+    app: admin-frontend-staging
+spec:
+  type: ClusterIP
+  selector:
+    app: admin-frontend-staging
+  ports:
+    - name: http
+      port: 3001
+      targetPort: 3001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: yirrasystems-staging
+  namespace: drone-store
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: staggingapp.yirrasystems.com
+      http:
+        paths:
+          - path: /chat/ws
+            pathType: Prefix
+            backend:
+              service:
+                name: ai-chat-service
+                port:
+                  number: 8001
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 5000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-frontend-staging
+                port:
+                  number: 3001

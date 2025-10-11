@@ -131,57 +131,57 @@ export function AdminBlog() {
   return React.createElement('div', { className: 'space-y-6' },
     // Header
     React.createElement('div', { className: 'flex justify-between items-center' },
-      React.createElement('h2', { className: 'text-2xl font-bold text-gray-900' }, 'Blog Management'),
+      React.createElement('h2', { className: 'text-[18px] leading-6 font-semibold text-text-primary' }, 'Blog Management'),
       React.createElement('button', {
         onClick: () => setShowAddModal(true),
-        className: 'bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors'
+        className: 'h-9 px-4 rounded-10 bg-brand text-text-inverse font-semibold hover:bg-brand-600 active:bg-brand-700 transition'
       }, 'Add New Post')
     ),
 
     // Posts table
-    React.createElement('div', { className: 'bg-white rounded-lg shadow overflow-hidden' },
-      React.createElement('table', { className: 'min-w-full divide-y divide-gray-200' },
-        React.createElement('thead', { className: 'bg-gray-50' },
+    React.createElement('div', { className: 'bg-surface rounded-12 shadow-elev1 overflow-hidden border border-line-soft' },
+      React.createElement('table', { className: 'min-w-full divide-y divide-line-soft' },
+        React.createElement('thead', { className: 'bg-elev2' },
           React.createElement('tr', {},
-            React.createElement('th', { className: 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider' }, 'Title'),
-            React.createElement('th', { className: 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider' }, 'Category'),
-            React.createElement('th', { className: 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider' }, 'Status'),
-            React.createElement('th', { className: 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider' }, 'Date'),
-            React.createElement('th', { className: 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider' }, 'Actions')
+            React.createElement('th', { className: 'px-6 py-3 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider' }, 'Title'),
+            React.createElement('th', { className: 'px-6 py-3 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider' }, 'Category'),
+            React.createElement('th', { className: 'px-6 py-3 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider' }, 'Status'),
+            React.createElement('th', { className: 'px-6 py-3 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider' }, 'Date'),
+            React.createElement('th', { className: 'px-6 py-3 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider' }, 'Actions')
           )
         ),
-        React.createElement('tbody', { className: 'bg-white divide-y divide-gray-200' },
+        React.createElement('tbody', { className: 'bg-surface divide-y divide-line-soft' },
           ...posts.map(post =>
             React.createElement('tr', { key: post.id },
               React.createElement('td', { className: 'px-6 py-4 whitespace-nowrap' },
                 React.createElement('div', {},
-                  React.createElement('div', { className: 'text-sm font-medium text-gray-900' }, post.title),
-                  React.createElement('div', { className: 'text-sm text-gray-500' }, `/blog/${post.slug}`)
+                  React.createElement('div', { className: 'text-[14px] font-semibold text-text-primary' }, post.title),
+                  React.createElement('div', { className: 'text-[13px] text-text-secondary' }, `/blog/${post.slug}`)
                 )
               ),
               React.createElement('td', { className: 'px-6 py-4 whitespace-nowrap' },
                 React.createElement('span', { 
-                  className: 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800' 
+                  className: 'inline-flex px-2 py-1 text-[12px] font-semibold rounded-full bg-[rgba(99,102,241,.12)] text-text-secondary' 
                 }, post.category || 'Uncategorized')
               ),
               React.createElement('td', { className: 'px-6 py-4 whitespace-nowrap' },
                 React.createElement('span', { 
-                  className: `inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    post.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  className: `inline-flex px-2 py-1 text-[12px] font-semibold rounded-full ${
+                    post.published ? 'bg-[rgba(34,197,94,.12)] text-success' : 'bg-[rgba(245,158,11,.12)] text-warning'
                   }`
                 }, post.published ? 'Published' : 'Draft')
               ),
-              React.createElement('td', { className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500' },
+              React.createElement('td', { className: 'px-6 py-4 whitespace-nowrap text-[13px] text-text-tertiary' },
                 new Date(post.created_at).toLocaleDateString()
               ),
-              React.createElement('td', { className: 'px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2' },
+              React.createElement('td', { className: 'px-6 py-4 whitespace-nowrap text-[13px] font-medium space-x-2' },
                 React.createElement('button', {
                   onClick: () => handleEdit(post),
-                  className: 'text-cyan-600 hover:text-cyan-900'
+                  className: 'text-brand hover:opacity-90'
                 }, 'Edit'),
                 React.createElement('button', {
                   onClick: () => handleDelete(post.id),
-                  className: 'text-red-600 hover:text-red-900'
+                  className: 'text-danger hover:opacity-90'
                 }, 'Delete')
               )
             )
@@ -191,15 +191,15 @@ export function AdminBlog() {
     ),
 
     // Add/Edit Modal
-    showAddModal && React.createElement('div', { className: 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50' },
-      React.createElement('div', { className: 'relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white' },
+    showAddModal && React.createElement('div', { className: 'fixed inset-0 bg-scrim overflow-y-auto h-full w-full z-50' },
+      React.createElement('div', { className: 'relative top-20 mx-auto p-5 border border-line-soft w-11/12 max-w-4xl shadow-elev2 rounded-16 bg-elev1' },
         React.createElement('div', { className: 'mt-3' },
-          React.createElement('h3', { className: 'text-lg font-medium text-gray-900 mb-4' },
+          React.createElement('h3', { className: 'text-[16px] font-semibold text-text-primary mb-4' },
             editingPost ? 'Edit Post' : 'Add New Post'
           ),
           React.createElement('form', { onSubmit: handleSubmit, className: 'space-y-4' },
             React.createElement('div', {},
-              React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-1' }, 'Title'),
+              React.createElement('label', { className: 'block text-[12px] font-semibold text-text-secondary mb-1' }, 'Title'),
               React.createElement('input', {
                 type: 'text',
                 value: formData.title,
@@ -211,64 +211,64 @@ export function AdminBlog() {
                     slug: !editingPost ? generateSlug(title) : prev.slug
                   }));
                 },
-                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500',
+                className: 'w-full h-9 px-3 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand',
                 required: true
               })
             ),
             React.createElement('div', {},
-              React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-1' }, 'Slug'),
+              React.createElement('label', { className: 'block text-[12px] font-semibold text-text-secondary mb-1' }, 'Slug'),
               React.createElement('input', {
                 type: 'text',
                 value: formData.slug,
                 onChange: (e) => setFormData(prev => ({ ...prev, slug: e.target.value })),
-                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500',
+                className: 'w-full h-9 px-3 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand',
                 required: true
               })
             ),
             React.createElement('div', {},
-              React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-1' }, 'Category'),
+              React.createElement('label', { className: 'block text-[12px] font-semibold text-text-secondary mb-1' }, 'Category'),
               React.createElement('input', {
                 type: 'text',
                 value: formData.category,
                 onChange: (e) => setFormData(prev => ({ ...prev, category: e.target.value })),
-                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500'
+                className: 'w-full h-9 px-3 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand'
               })
             ),
             React.createElement('div', {},
-              React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-1' }, 'Excerpt'),
+              React.createElement('label', { className: 'block text-[12px] font-semibold text-text-secondary mb-1' }, 'Excerpt'),
               React.createElement('textarea', {
                 value: formData.excerpt,
                 onChange: (e) => setFormData(prev => ({ ...prev, excerpt: e.target.value })),
                 rows: 3,
-                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500'
+                className: 'w-full px-3 py-3 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand'
               })
             ),
             React.createElement('div', {},
-              React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-1' }, 'Content'),
+              React.createElement('label', { className: 'block text-[12px] font-semibold text-text-secondary mb-1' }, 'Content'),
               React.createElement('textarea', {
                 value: formData.content,
                 onChange: (e) => setFormData(prev => ({ ...prev, content: e.target.value })),
                 rows: 15,
-                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500',
+                className: 'w-full px-3 py-3 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand',
                 required: true
               })
             ),
             React.createElement('div', {},
-              React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-1' }, 'Featured Image URL'),
+              React.createElement('label', { className: 'block text-[12px] font-semibold text-text-secondary mb-1' }, 'Featured Image URL'),
               React.createElement('input', {
                 type: 'url',
                 value: formData.featured_image,
                 onChange: (e) => setFormData(prev => ({ ...prev, featured_image: e.target.value })),
-                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500'
+                className: 'w-full h-9 px-3 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand'
               })
             ),
             React.createElement('div', {},
-              React.createElement('label', { className: 'block text-sm font-medium text-gray-700 mb-1' }, 'Meta Description'),
+              React.createElement('label', { className: 'block text-[12px] font-semibold text-text-secondary mb-1' }, 'Meta Description'),
               React.createElement('textarea', {
                 value: formData.meta_description,
                 onChange: (e) => setFormData(prev => ({ ...prev, meta_description: e.target.value })),
                 rows: 2,
-                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500',
+                className: 'w-full px-3 py-3 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand',
                 placeholder: 'SEO meta description (160 characters max)'
               })
             ),
@@ -280,7 +280,7 @@ export function AdminBlog() {
                   onChange: (e) => setFormData(prev => ({ ...prev, published: e.target.checked })),
                   className: 'mr-2'
                 }),
-                React.createElement('span', { className: 'text-sm font-medium text-gray-700' }, 'Published')
+                React.createElement('span', { className: 'text-[12px] font-medium text-text-secondary' }, 'Published')
               )
             ),
             React.createElement('div', { className: 'flex justify-end space-x-3 pt-4' },
@@ -300,11 +300,11 @@ export function AdminBlog() {
                     published: false
                   });
                 },
-                className: 'px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50'
+                className: 'h-9 px-4 border border-line-strong rounded-10 text-text-secondary hover:bg-hover'
               }, 'Cancel'),
               React.createElement('button', {
                 type: 'submit',
-                className: 'px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700'
+                className: 'h-9 px-4 bg-brand text-text-inverse rounded-10 hover:bg-brand-600'
               }, editingPost ? 'Update Post' : 'Create Post')
             )
           )

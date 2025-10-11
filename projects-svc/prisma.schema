@@ -1,0 +1,71 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("active")
+  ownerId     String?
+  startDate   DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       Task[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  parentId    String?
+  parent      Task?    @relation("TaskHierarchy", fields: [parentId], references: [id])
+  children    Task[]   @relation("TaskHierarchy")
+  title       String
+  description String?
+  status      String   @default("todo")
+  priority    String   @default("medium")
+  assigneeId  String?
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  notes       TaskNote[]
+  timeEntries TimeEntry[]
+
+  @@index([projectId])
+  @@index([parentId])
+  @@index([status, priority, dueDate])
+}
+
+model TaskNote {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  noteText  String
+  authorId  String?
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+model TimeEntry {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  userId    String
+  hours     Float
+  date      DateTime
+  description String?
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([date])
+}

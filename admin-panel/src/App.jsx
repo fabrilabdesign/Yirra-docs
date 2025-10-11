@@ -67,7 +67,14 @@ function App() {
     <Router>
       <Routes>
         {/* Login/Auth Gate */}
-        <Route path="/" element={<AdminGate />} />
+        <Route path="/login" element={<AdminGate />} />
+
+        {/* Root should render the protected dashboard */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <DashboardComponent />
+          </ProtectedRoute>
+        } />
         
         {/* Protected Admin Routes */}
         <Route path="/dashboard" element={
@@ -209,8 +216,8 @@ function App() {
           </ProtectedRoute>
         } />
         
-        {/* Fallback - redirect to dashboard if logged in, login if not */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        {/* Fallback - redirect to root dashboard if logged in, login if not */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

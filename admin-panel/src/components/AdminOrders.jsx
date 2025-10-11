@@ -115,11 +115,11 @@ const AdminOrders = () => {
     <div className="p-4 space-y-6">
       {/* Mobile Header */}
       <div className="flex flex-col space-y-4">
-        <h2 className="text-2xl font-bold text-white">Order Management</h2>
+        <h2 className="text-[18px] leading-6 font-semibold text-text-primary">Order Management</h2>
         
         {/* Mobile Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-700">
+          <div className="bg-elev1 rounded-12 p-4 shadow-elev1 border border-line-soft">
             <div className="flex items-center justify-between mb-3">
               <div className="bg-blue-900/50 p-2 rounded-lg">
                 <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,11 +127,11 @@ const AdminOrders = () => {
                 </svg>
               </div>
             </div>
-            <div className="text-xl font-bold text-white">{orders.length}</div>
-            <div className="text-sm text-gray-400">Total Orders</div>
+            <div className="text-[16px] leading-6 font-semibold text-text-primary">{orders.length}</div>
+            <div className="text-[13px] text-text-tertiary">Total Orders</div>
           </div>
           
-          <div className="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-700">
+          <div className="bg-elev1 rounded-12 p-4 shadow-elev1 border border-line-soft">
             <div className="flex items-center justify-between mb-3">
               <div className="bg-green-900/50 p-2 rounded-lg">
                 <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,10 +139,10 @@ const AdminOrders = () => {
                 </svg>
               </div>
             </div>
-            <div className="text-lg font-bold text-white">
+            <div className="text-[16px] leading-6 font-semibold text-text-primary">
               {formatCurrency(orders.reduce((sum, order) => sum + parseFloat(order.total_amount || 0), 0))}
             </div>
-            <div className="text-sm text-gray-400">Total Revenue</div>
+            <div className="text-[13px] text-text-tertiary">Total Revenue</div>
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@ const AdminOrders = () => {
       <div className="space-y-4">
         {/* Search Bar */}
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -159,7 +159,7 @@ const AdminOrders = () => {
             placeholder="Search orders, customers, products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white placeholder-gray-400"
+            className="w-full pl-10 pr-4 h-9 rounded-10 bg-elev1 border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand"
           />
         </div>
         
@@ -168,7 +168,7 @@ const AdminOrders = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="flex-1 px-4 py-3 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
+            className="flex-1 h-9 px-3 rounded-10 bg-elev1 border border-line-soft text-text-primary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand"
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
@@ -180,7 +180,7 @@ const AdminOrders = () => {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="flex-1 px-4 py-3 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
+            className="flex-1 h-9 px-3 rounded-10 bg-elev1 border border-line-soft text-text-primary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand"
           >
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
@@ -194,12 +194,12 @@ const AdminOrders = () => {
       <div className="space-y-4">
         {filteredOrders.length > 0 ? (
           filteredOrders.map(order => (
-                          <div key={order.id} className="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-700 hover:shadow-xl transition-all duration-300">
+            <div key={order.id} className="bg-elev1 rounded-12 p-4 shadow-elev1 border border-line-soft hover:shadow-elev2 transition-all duration-300">
               {/* Header Row */}
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-white">#{order.id}</h3>
+                    <h3 className="text-[16px] leading-6 font-semibold text-text-primary">#{order.id}</h3>
                     <span 
                       className="px-3 py-1 text-xs font-medium rounded-full"
                       style={{ 
@@ -217,28 +217,28 @@ const AdminOrders = () => {
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-bold text-white">{formatCurrency(order.total_amount)}</div>
-                  <div className="text-sm text-gray-500">{formatCurrency(order.unit_price)} each</div>
+                  <div className="text-[16px] leading-6 font-semibold text-text-primary">{formatCurrency(order.total_amount)}</div>
+                  <div className="text-[13px] text-text-tertiary">{formatCurrency(order.unit_price)} each</div>
                 </div>
               </div>
 
               {/* Customer & Product Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-gray-300">Customer</div>
-                  <div className="text-sm text-white">{order.user_email}</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-[12px] font-medium text-text-tertiary">Customer</div>
+                  <div className="text-[13px] text-text-primary">{order.user_email}</div>
+                  <div className="text-[13px] text-text-tertiary">
                     {order.user_first_name} {order.user_last_name}
                   </div>
                 </div>
                 
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-gray-300">Product</div>
-                  <div className="text-sm text-white">{order.product_name}</div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="text-[12px] font-medium text-text-tertiary">Product</div>
+                  <div className="text-[13px] text-text-primary">{order.product_name}</div>
+                  <div className="flex items-center gap-2 text-[13px] text-text-tertiary">
                     <span>Qty: {order.quantity}</span>
                     {order.unlocks_stls && (
-                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
+                      <span className="bg-[rgba(99,102,241,.12)] text-brand px-2 py-1 rounded text-[12px]">
                         🗂️ Includes STLs
                       </span>
                     )}
@@ -247,8 +247,8 @@ const AdminOrders = () => {
               </div>
 
               {/* Date & Actions Row */}
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-gray-100">
-                <div className="text-sm text-gray-600">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-line-soft">
+                <div className="text-[13px] text-text-tertiary">
                   <div>Created: {formatDate(order.created_at)}</div>
                   {order.updated_at !== order.created_at && (
                     <div>Updated: {formatDate(order.updated_at)}</div>
@@ -260,13 +260,13 @@ const AdminOrders = () => {
                     <>
                       <button 
                         onClick={() => updateOrderStatus(order.id, 'completed')}
-                        className="bg-green-50 text-green-700 px-3 py-2 rounded-lg hover:bg-green-100 transition-colors font-medium text-sm"
+                        className="px-3 py-2 rounded-10 bg-[rgba(34,197,94,.12)] text-success hover:opacity-90 font-medium text-[12px]"
                       >
                         ✅ Complete
                       </button>
                       <button 
                         onClick={() => updateOrderStatus(order.id, 'failed')}
-                        className="bg-red-50 text-red-700 px-3 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
+                        className="px-3 py-2 rounded-10 bg-[rgba(239,68,68,.12)] text-danger hover:opacity-90 font-medium text-[12px]"
                       >
                         ❌ Fail
                       </button>
@@ -275,12 +275,12 @@ const AdminOrders = () => {
                   {order.status === 'completed' && (
                     <button 
                       onClick={() => updateOrderStatus(order.id, 'refunded')}
-                      className="bg-yellow-50 text-yellow-700 px-3 py-2 rounded-lg hover:bg-yellow-100 transition-colors font-medium text-sm"
+                      className="px-3 py-2 rounded-10 bg-[rgba(245,158,11,.12)] text-warning hover:opacity-90 font-medium text-[12px]"
                     >
                       💰 Refund
                     </button>
                   )}
-                  <button className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium text-sm">
+                  <button className="px-3 py-2 rounded-10 bg-[rgba(99,102,241,.12)] text-brand hover:opacity-90 font-medium text-[12px]">
                     👁️ View Details
                   </button>
                 </div>
