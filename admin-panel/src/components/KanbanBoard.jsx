@@ -38,7 +38,7 @@ const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: isDragging ? 'none' : transition,
   };
 
   return (
@@ -151,7 +151,7 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
   );
 };
 
-const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpdateTask }) => {
+const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpdateTask, onError }) => {
   const { getToken } = useAuth();
 
   const sensors = useSensors(
@@ -185,10 +185,19 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
           const updatedTask = await response.json();
           onUpdateTask(updatedTask);
         } else {
-          console.error('Failed to update task status');
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.error || 'Failed to update task status';
+          console.error('Failed to update task status:', errorMessage);
+          if (onError) {
+            onError(errorMessage);
+          }
         }
       } catch (error) {
         console.error('Error updating task status:', error);
+        const errorMessage = 'Network error while updating task status';
+        if (onError) {
+          onError(errorMessage);
+        }
       }
     }
   };

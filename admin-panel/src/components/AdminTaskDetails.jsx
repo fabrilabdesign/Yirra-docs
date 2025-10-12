@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { ArrowLeft, Plus, Save, Trash2, Calendar, MessageSquare, X } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Trash2, Calendar, MessageSquare } from 'lucide-react';
 
 const AdminTaskDetails = ({ taskId, onBack }) => {
   const { getToken } = useAuth();
@@ -38,6 +38,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
     date: new Date().toISOString().split('T')[0],
     description: ''
   });
+  const [aiSuggestions, setAiSuggestions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState(null); // { type, message }
 
@@ -95,6 +96,9 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
         setSubTasks(data.children || []);
         setTimeEntries(data.timeEntries || []);
         setTotalHours(data.totalHours || 0);
+
+        // Fetch AI suggestions for this task
+        fetchAISuggestions();
         setEditFormData({
           title: data.task.title,
           description: data.task.description || '',
@@ -301,6 +305,170 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
     } catch (err) {
       console.error('Time entry delete error:', err);
       setError('Failed to delete time entry');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const fetchAISuggestions = async () => {
+    try {
+      const token = await getToken();
+      const response = await fetch('/api/admin/projects/ai/suggestions', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Filter suggestions for this task
+        const taskSuggestions = data.suggestions.filter(s => s.taskId === task.id);
+        setAiSuggestions(taskSuggestions);
+      }
+    } catch (error) {
+      console.error('AI suggestions fetch error:', error);
+    }
+  };
+
+  const handleAISmartBreakdown = async () => {
+    try {
+      setIsSubmitting(true);
+      const token = await getToken();
+
+      const response = await fetch(`/api/admin/projects/tasks/${task.id}/ai/breakdown`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showToast('success', 'AI suggested task breakdown! Check suggestions below.');
+        fetchAISuggestions(); // Refresh suggestions
+      } else {
+        const errorData = await response.json();
+        showToast('error', errorData.error || 'Failed to generate breakdown');
+      }
+    } catch (error) {
+      console.error('AI breakdown error:', error);
+      showToast('error', 'Failed to generate task breakdown');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAIPriorityScore = async () => {
+    try {
+      setIsSubmitting(true);
+      const token = await getToken();
+
+      const response = await fetch(`/api/admin/projects/tasks/${task.id}/ai/priority`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showToast('success', 'AI analyzed priority! Check suggestions below.');
+        fetchAISuggestions(); // Refresh suggestions
+      } else {
+        const errorData = await response.json();
+        showToast('error', errorData.error || 'Failed to analyze priority');
+      }
+    } catch (error) {
+      console.error('AI priority error:', error);
+      showToast('error', 'Failed to analyze task priority');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAITimelineEstimate = async () => {
+    try {
+      setIsSubmitting(true);
+      const token = await getToken();
+
+      const response = await fetch(`/api/admin/projects/tasks/${task.id}/ai/timeline`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showToast('success', 'AI estimated timeline! Check suggestions below.');
+        fetchAISuggestions(); // Refresh suggestions
+      } else {
+        const errorData = await response.json();
+        showToast('error', errorData.error || 'Failed to estimate timeline');
+      }
+    } catch (error) {
+      console.error('AI timeline error:', error);
+      showToast('error', 'Failed to estimate task timeline');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAcceptSuggestion = async (suggestionId) => {
+    try {
+      setIsSubmitting(true);
+      const token = await getToken();
+
+      const response = await fetch(`/api/admin/projects/ai/suggestions/${suggestionId}/accept`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        showToast('success', 'AI suggestion accepted!');
+        fetchAISuggestions(); // Refresh suggestions
+        // Refresh task data to show changes
+        fetchTaskDetails();
+      } else {
+        const errorData = await response.json();
+        showToast('error', errorData.error || 'Failed to accept suggestion');
+      }
+    } catch (error) {
+      console.error('Accept suggestion error:', error);
+      showToast('error', 'Failed to accept AI suggestion');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDismissSuggestion = async (suggestionId) => {
+    try {
+      setIsSubmitting(true);
+      const token = await getToken();
+
+      const response = await fetch(`/api/admin/projects/ai/suggestions/${suggestionId}/dismiss`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        showToast('success', 'AI suggestion dismissed');
+        fetchAISuggestions(); // Refresh suggestions
+      } else {
+        const errorData = await response.json();
+        showToast('error', errorData.error || 'Failed to dismiss suggestion');
+      }
+    } catch (error) {
+      console.error('Dismiss suggestion error:', error);
+      showToast('error', 'Failed to dismiss AI suggestion');
     } finally {
       setIsSubmitting(false);
     }
@@ -725,7 +893,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
                 }}
                 className="text-text-tertiary hover:text-text-primary transition-colors"
               >
-                <X size={24} />
+                <span className="text-2xl">×</span>
               </button>
             </div>
             <form onSubmit={(e) => { e.preventDefault(); handleAddNote(); }} className="p-6 space-y-4">
@@ -769,6 +937,106 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
           </div>
         </div>
       )}
+
+      {/* AI Planning Section */}
+      <div className="bg-surface rounded-12 shadow-elev1 p-6 mt-6 border border-line-soft">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-[16px] font-semibold text-text-primary flex items-center gap-2">
+            🤖 AI Planning
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={() => handleAISmartBreakdown()}
+              disabled={isSubmitting}
+              className="h-10 px-4 rounded-10 bg-brand text-text-inverse font-medium hover:bg-brand-600 disabled:opacity-50 transition"
+            >
+              {isSubmitting ? 'Processing...' : 'Smart Breakdown'}
+            </button>
+            <button
+              onClick={() => handleAIPriorityScore()}
+              disabled={isSubmitting}
+              className="h-10 px-4 rounded-10 bg-accent-secondary text-text-inverse font-medium hover:opacity-80 disabled:opacity-50 transition"
+            >
+              {isSubmitting ? 'Analyzing...' : 'Priority Analysis'}
+            </button>
+          </div>
+
+          <div>
+            <button
+              onClick={() => handleAITimelineEstimate()}
+              disabled={isSubmitting}
+              className="w-full h-10 px-4 rounded-10 bg-success text-text-inverse font-medium hover:opacity-90 disabled:opacity-50 transition"
+            >
+              {isSubmitting ? 'Estimating...' : 'Timeline Estimate'}
+            </button>
+          </div>
+        </div>
+
+        {/* AI Suggestions Display */}
+        {aiSuggestions.length > 0 && (
+          <div className="mt-6 space-y-3">
+            <h3 className="text-[14px] font-medium text-text-primary">AI Suggestions</h3>
+            {aiSuggestions.map((suggestion) => (
+              <div key={suggestion.id} className="p-4 bg-elev1 border border-line-soft rounded-10">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[13px] font-medium text-text-primary capitalize">
+                        {suggestion.type} Suggestion
+                      </span>
+                      <span className={`px-2 py-1 rounded text-[11px] font-medium ${
+                        suggestion.confidence > 0.8 ? 'bg-success/20 text-success' :
+                        suggestion.confidence > 0.6 ? 'bg-warning/20 text-warning' :
+                        'bg-danger/20 text-danger'
+                      }`}>
+                        {Math.round(suggestion.confidence * 100)}% confidence
+                      </span>
+                    </div>
+                    <p className="text-[13px] text-text-secondary mb-3">{suggestion.rationale}</p>
+
+                    {suggestion.type === 'priority' && suggestion.data?.suggestedPriority && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] text-text-secondary">Suggested Priority:</span>
+                        <span className={`px-2 py-1 rounded text-[11px] font-medium ${
+                          suggestion.data.suggestedPriority === 'high' ? 'bg-danger/20 text-danger' :
+                          suggestion.data.suggestedPriority === 'medium' ? 'bg-warning/20 text-warning' :
+                          'bg-success/20 text-success'
+                        }`}>
+                          {suggestion.data.suggestedPriority}
+                        </span>
+                      </div>
+                    )}
+
+                    {suggestion.type === 'timeline' && suggestion.data && (
+                      <div className="text-[13px] text-text-secondary">
+                        Estimated: {suggestion.data.estimatedHours}h ({suggestion.data.confidence} confidence)
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 ml-4">
+                    <button
+                      onClick={() => handleAcceptSuggestion(suggestion.id)}
+                      className="px-3 py-1.5 bg-success text-text-inverse text-[12px] rounded-10 hover:opacity-90 transition"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => handleDismissSuggestion(suggestion.id)}
+                      className="px-3 py-1.5 bg-text-tertiary text-text-inverse text-[12px] rounded-10 hover:opacity-80 transition"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Time Tracking Section */}
       <div className="bg-surface rounded-12 shadow-elev1 p-6 mt-6 border border-line-soft">
@@ -843,7 +1111,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
                 }}
                 className="text-text-tertiary hover:text-text-primary transition-colors"
               >
-                <X size={24} />
+                <span className="text-2xl">×</span>
               </button>
             </div>
             <form onSubmit={handleAddTimeEntry} className="p-6 space-y-4">
@@ -935,7 +1203,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
                 }}
                 className="text-text-tertiary hover:text-text-primary transition-colors p-2 hover:bg-hover rounded-10"
               >
-                <X size={20} />
+                <span className="text-xl">×</span>
               </button>
             </div>
             <form onSubmit={handleCreateSubTask} className="p-6 space-y-6">

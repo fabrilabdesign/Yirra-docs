@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, X, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart, Folder } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Select } from '../ui/select';
@@ -8,6 +8,8 @@ import { Textarea } from '../ui/textarea';
 import AdminTaskDetails from './AdminTaskDetails';
 import KanbanBoard from './KanbanBoard';
 import ProjectReports from './ProjectReports';
+import ProjectSidebar from './ProjectSidebar';
+import ProjectModal from './ProjectModal';
 
 const AdminProjectManagement = () => {
   const { getToken } = useAuth();
@@ -20,6 +22,9 @@ const AdminProjectManagement = () => {
     totalTasks: 0,
     limit: 20
   });
+  // Declare selectedProjectId first to avoid temporal dead zone
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+
   const [filters, setFilters] = useState({
     search: '',
     sortBy: 'created_at',
@@ -35,6 +40,7 @@ const AdminProjectManagement = () => {
   const [taskFormData, setTaskFormData] = useState({
     title: '',
     description: '',
+    projectId: selectedProjectId || '',
     status: 'todo',
     priority: 'medium',
     dueDate: '',
@@ -44,6 +50,13 @@ const AdminProjectManagement = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState(null); // { type: 'success'|'error', message: string }
   const [viewMode, setViewMode] = useState('list'); // 'list', 'kanban', or 'reports'
+  const [showAIPanel, setShowAIPanel] = useState(false);
+  const [aiInput, setAiInput] = useState('');
+  const [showProjectSidebar, setShowProjectSidebar] = useState(true);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [projectRefreshTrigger, setProjectRefreshTrigger] = useState(0);
+  const [availableProjects, setAvailableProjects] = useState([]);
 
   const showToast = (type, message) => {
     setToast({ type, message });
@@ -71,7 +84,11 @@ const AdminProjectManagement = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [pagination.currentPage, filters]);
+  }, [pagination.currentPage, filters, selectedProjectId]);
+
+  useEffect(() => {
+    fetchAvailableProjects();
+  }, []);
 
   const fetchTasks = async () => {
     try {
@@ -86,7 +103,8 @@ const AdminProjectManagement = () => {
       const queryParams = new URLSearchParams({
         page: pagination.currentPage,
         limit: pagination.limit,
-        ...filters
+        ...filters,
+        ...(selectedProjectId && { projectId: selectedProjectId })
       });
 
       const response = await fetch(`/api/admin/projects/tasks?${queryParams}`, {
@@ -98,11 +116,11 @@ const AdminProjectManagement = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setTasks(data.tasks);
+        setTasks(data.tasks || []);
         setPagination(prev => ({
           ...prev,
-          totalPages: data.pagination.totalPages,
-          totalTasks: data.pagination.totalTasks
+          totalPages: data.pagination?.totalPages || 0,
+          totalTasks: data.pagination?.totalTasks || 0
         }));
         setError(null);
       } else if (response.status === 403) {
@@ -113,6 +131,7 @@ const AdminProjectManagement = () => {
     } catch (err) {
       console.error('Tasks fetch error:', err);
       setError('Failed to load tasks data');
+      setTasks([]); // Reset tasks on error
     } finally {
       setLoading(false);
     }
@@ -135,6 +154,7 @@ const AdminProjectManagement = () => {
       setTaskFormData({
         title: task.title,
         description: task.description || '',
+        projectId: task.project_id || selectedProjectId || '',
         status: task.status || 'todo',
         priority: task.priority || 'medium',
         dueDate: task.due_date ? new Date(task.due_date).toISOString().slice(0, 10) : '',
@@ -146,6 +166,7 @@ const AdminProjectManagement = () => {
       setTaskFormData({
         title: '',
         description: '',
+        projectId: selectedProjectId || '',
         status: 'todo',
         priority: 'medium',
         dueDate: '',
@@ -181,6 +202,112 @@ const AdminProjectManagement = () => {
     }
   };
 
+  const handleAICreateTask = async () => {
+    if (!aiInput.trim()) return;
+
+    try {
+      setIsSubmitting(true);
+      const token = await getToken();
+
+      const response = await fetch('/api/admin/projects/ai/create-task', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: aiInput.trim() })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await fetchTasks(); // Refresh the list
+        setAiInput('');
+        setShowAIPanel(false);
+        showToast('success', 'AI created task successfully!');
+      } else {
+        const errorData = await response.json();
+        showToast('error', errorData.error || 'Failed to create task with AI');
+      }
+    } catch (error) {
+      console.error('AI task creation error:', error);
+      showToast('error', 'Failed to create task with AI');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleProjectSelect = (projectId) => {
+    setSelectedProjectId(projectId);
+    // Reset to first page when changing projects
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+  };
+
+  const handleCreateProject = () => {
+    setEditingProject(null);
+    setShowProjectModal(true);
+  };
+
+  const handleEditProject = (project) => {
+    setEditingProject(project);
+    setShowProjectModal(true);
+  };
+
+  const handleDeleteProject = async (project) => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`/api/admin/projects/${project.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // If the deleted project was selected, switch to "All Tasks"
+        if (selectedProjectId === project.id) {
+          setSelectedProjectId(null);
+        }
+        setProjectRefreshTrigger(prev => prev + 1);
+        fetchAvailableProjects();
+        showToast('success', `Project "${project.name}" deleted successfully!`);
+      } else {
+        const errorData = await response.json();
+        showToast('error', errorData.error || 'Failed to delete project');
+      }
+    } catch (error) {
+      console.error('Project deletion error:', error);
+      showToast('error', 'Failed to delete project');
+    }
+  };
+
+  const fetchAvailableProjects = async () => {
+    try {
+      const token = await getToken();
+      const response = await fetch('/api/admin/projects', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableProjects(Array.isArray(data.projects) ? data.projects : []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch projects for dropdown:', error);
+    }
+  };
+
+  const handleProjectModalSuccess = (project) => {
+    // Trigger sidebar refresh
+    setProjectRefreshTrigger(prev => prev + 1);
+    fetchAvailableProjects(); // Refresh project dropdown
+    showToast('success', `Project "${project.name}" ${editingProject ? 'updated' : 'created'} successfully!`);
+    setEditingProject(null);
+  };
+
   const handleBackToList = () => {
     setShowTaskDetails(false);
     setSelectedTask(null);
@@ -191,7 +318,7 @@ const AdminProjectManagement = () => {
   const closeTaskModal = () => {
     setShowTaskModal(false);
     setSelectedTask(null);
-    setTaskFormData({ title: '', description: '', status: 'todo', priority: 'medium', dueDate: '', assigneeId: '' });
+    setTaskFormData({ title: '', description: '', projectId: selectedProjectId || '', status: 'todo', priority: 'medium', dueDate: '', assigneeId: '' });
     setIsEditing(false);
   };
 
@@ -230,6 +357,7 @@ const AdminProjectManagement = () => {
         body: JSON.stringify({
           title: taskFormData.title,
           description: taskFormData.description || null,
+          projectId: taskFormData.projectId || null,
           status: taskFormData.status || 'todo',
           priority: taskFormData.priority || 'medium',
           dueDate: taskFormData.dueDate || null,
@@ -315,7 +443,7 @@ const AdminProjectManagement = () => {
     );
   }
 
-  if (loading && tasks.length === 0) {
+  if (loading && (!tasks || tasks.length === 0)) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -332,10 +460,10 @@ const AdminProjectManagement = () => {
         </div>
       )}
       {/* Header */}
-      <div className="bg-surface h-10 px-3 flex items-center justify-between border-b border-line-soft">
-        <div className="flex items-center gap-3">
-          <h1 className="text-[15px] leading-[22px] font-semibold text-text-primary">Project Management</h1>
-          <div className="inline-flex items-center rounded-10 p-0.5 bg-elev1 h-7 ring-1 ring-line-soft gap-0.5" role="tablist" aria-label="View mode">
+      <div className="bg-surface h-14 px-4 flex items-center justify-between border-b border-line-soft">
+        <div className="flex items-center gap-4">
+          <h1 className="text-lg font-semibold text-text-primary">Project Management</h1>
+          <div className="inline-flex items-center rounded-10 p-0.5 bg-elev1 h-9 ring-1 ring-line-soft gap-0.5" role="tablist" aria-label="View mode">
             {(
               [
                 { key: 'list', label: 'List', Icon: List },
@@ -349,26 +477,77 @@ const AdminProjectManagement = () => {
                 role="tab"
                 aria-selected={viewMode === key}
                 onClick={() => setViewMode(key)}
-                className={`${viewMode === key ? 'bg-badge-bg text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-hover'} inline-flex items-center gap-1 h-6 px-2 rounded-10 text-[12px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(99,102,241,.45)]`}
+                className={`${viewMode === key ? 'bg-badge-bg text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-hover'} inline-flex items-center gap-1.5 h-8 px-3 rounded-10 text-sm font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(99,102,241,.45)]`}
               >
-                <Icon size={14} className="flex-shrink-0" />
+                <Icon size={16} className="flex-shrink-0" />
                 {label}
               </button>
             ))}
           </div>
         </div>
-        <Button onClick={() => openTaskModal()} className="gap-1.5 h-8 px-3 text-[13px]">
-          <Plus size={16} />
-          New Task
-        </Button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowAIPanel(!showAIPanel)}
+            className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
+              showAIPanel ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
+            }`}
+          >
+            🤖 AI
+          </button>
+          <Button onClick={() => openTaskModal()} className="gap-1.5 h-10 px-4 text-sm">
+            <Plus size={16} />
+            New Task
+          </Button>
+        </div>
       </div>
+
+      {/* AI Panel */}
+      {showAIPanel && (
+        <div className="mb-8 bg-elev1 rounded-xl p-6 border border-line-soft">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-18 font-semibold text-text-primary">AI Assistant</h2>
+            <button
+              onClick={() => setShowAIPanel(false)}
+              className="text-text-tertiary hover:text-text-primary transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-13 font-medium text-text-secondary mb-2">
+                Create task from natural language
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  placeholder="e.g., 'Create a marketing campaign for product launch next Friday'"
+                  className="flex-1 h-9 px-3 rounded-10 bg-surface border border-line-soft text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-brand focus:border-transparent transition"
+                />
+                <button
+                  onClick={() => handleAICreateTask()}
+                  disabled={!aiInput.trim() || isSubmitting}
+                  className="h-9 px-4 rounded-10 bg-brand text-text-inverse font-medium hover:bg-brand-600 disabled:opacity-50 transition"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create'}
+                </button>
+              </div>
+              <p className="text-12 text-text-tertiary mt-1">
+                AI will parse your description and create a structured task with appropriate fields.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Bar */}
       <div className="mb-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold text-text-primary">{tasks.filter(t => t.status === 'todo').length}</div>
+              <div className="text-2xl font-bold text-text-primary">{(tasks || []).filter(t => t.status === 'todo').length}</div>
               <div className="text-13 text-text-secondary">To Do</div>
             </div>
             <Circle className="h-6 w-6 text-text-tertiary" />
@@ -377,7 +556,7 @@ const AdminProjectManagement = () => {
         <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold text-text-primary">{tasks.filter(t => t.status === 'in_progress').length}</div>
+              <div className="text-2xl font-bold text-text-primary">{(tasks || []).filter(t => t.status === 'in_progress').length}</div>
               <div className="text-13 text-text-secondary">In Progress</div>
             </div>
             <Play className="h-6 w-6 text-text-tertiary" />
@@ -386,7 +565,7 @@ const AdminProjectManagement = () => {
         <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold text-text-primary">{tasks.filter(t => t.status === 'done').length}</div>
+              <div className="text-2xl font-bold text-text-primary">{(tasks || []).filter(t => t.status === 'done').length}</div>
               <div className="text-13 text-text-secondary">Done</div>
             </div>
             <CheckCircle className="h-6 w-6 text-text-tertiary" />
@@ -395,7 +574,7 @@ const AdminProjectManagement = () => {
         <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold text-text-primary">{tasks.length}</div>
+              <div className="text-2xl font-bold text-text-primary">{(tasks || []).length}</div>
               <div className="text-13 text-text-secondary">Total</div>
             </div>
             <BarChart3 className="h-6 w-6 text-text-tertiary" />
@@ -474,6 +653,7 @@ const AdminProjectManagement = () => {
           onViewDetails={viewTaskDetails}
           onAddTask={handleAddTaskForStatus}
           onUpdateTask={handleUpdateTask}
+          onError={(message) => showToast('error', message)}
         />
       ) : viewMode === 'reports' ? (
         <ProjectReports />
@@ -507,7 +687,7 @@ const AdminProjectManagement = () => {
               </tr>
             </thead>
             <tbody className="bg-surface divide-y divide-line-soft">
-              {loading && tasks.length === 0 ? (
+              {loading && (!tasks || tasks.length === 0) ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -538,7 +718,7 @@ const AdminProjectManagement = () => {
                   </tr>
                 ))
               ) : (
-                tasks.map((task) => (
+                (tasks || []).map((task) => (
                 <tr key={task.id} className="hover:bg-hover transition-colors duration-200">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-[14px] font-semibold text-text-primary">{task.title}</div>
@@ -602,7 +782,7 @@ const AdminProjectManagement = () => {
           </table>
         </div>
 
-        {tasks.length === 0 && !loading && (
+        {(!tasks || tasks.length === 0) && !loading && (
           <div className="text-center py-12">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No tasks found</h3>
@@ -654,7 +834,7 @@ const AdminProjectManagement = () => {
                 onClick={closeTaskModal}
                 className="text-text-tertiary hover:text-text-primary transition-colors p-2 hover:bg-hover rounded-10"
               >
-                <X size={20} />
+                <span className="text-xl">×</span>
               </button>
             </div>
             <form onSubmit={handleSubmitTask} className="p-6 space-y-6">
@@ -685,6 +865,22 @@ const AdminProjectManagement = () => {
                   rows={3}
                   placeholder="Add details about this task (optional)"
                 />
+              </div>
+              <div>
+                <label className="block text-[12px] font-semibold text-text-secondary mb-2">
+                  Project
+                </label>
+                <Select
+                  value={taskFormData.projectId}
+                  onChange={(e) => setTaskFormData(prev => ({ ...prev, projectId: e.target.value }))}
+                >
+                  <option value="">📂 No Project (Personal Task)</option>
+                  {availableProjects.map(project => (
+                    <option key={project.id} value={project.id}>
+                      📁 {project.name}
+                    </option>
+                  ))}
+                </Select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
@@ -760,7 +956,7 @@ const AdminProjectManagement = () => {
                 onClick={closeDeleteModal}
                 className="text-text-tertiary hover:text-text-primary transition-colors p-1 hover:bg-hover rounded-10"
               >
-                <X size={20} />
+                <span className="text-xl">×</span>
               </button>
             </div>
             <div className="p-6">
@@ -796,6 +992,29 @@ const AdminProjectManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        isOpen={showProjectSidebar}
+        onToggle={() => setShowProjectSidebar(!showProjectSidebar)}
+        selectedProjectId={selectedProjectId}
+        onProjectSelect={handleProjectSelect}
+        onCreateProject={handleCreateProject}
+        onEditProject={handleEditProject}
+        onDeleteProject={handleDeleteProject}
+        refreshTrigger={projectRefreshTrigger}
+      />
+
+      {/* Project Modal */}
+      <ProjectModal
+        isOpen={showProjectModal}
+        onClose={() => {
+          setShowProjectModal(false);
+          setEditingProject(null);
+        }}
+        project={editingProject}
+        onSuccess={handleProjectModalSuccess}
+      />
     </div>
   );
 };
