@@ -1,5 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { useLocation } from 'react-router-dom';
 
 // Lazy load all admin components to prevent initialization conflicts
 const AdminOverview = lazy(() => import('./AdminOverview'));
@@ -26,6 +27,22 @@ const AdminMobileDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { getToken } = useAuth();
+  const location = useLocation();
+
+  // Sync activeTab from URL query (?tab=...)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(location.search);
+      const tab = params.get('tab');
+      if (!tab) return;
+      const allowedTabs = new Set([
+        'overview','projects','products','orders','fulfillment','inventory','bom','customers','stl-files','newsletter','marketing','blog','users','shipping','returns','reports','settings','engineering','chat'
+      ]);
+      if (allowedTabs.has(tab)) {
+        setActiveTab(tab);
+      }
+    } catch {}
+  }, [location.search]);
 
   // Mobile navigation items - prioritizing BOM and product management
   const mobileNavItems = [
@@ -434,7 +451,7 @@ const renderActiveComponent = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="bottom-nav">
+      <nav className="bottom-nav md:hidden">
         <div className="nav-grid">
           {mobileNavItems.map((item) => (
             <button

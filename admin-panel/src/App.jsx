@@ -193,7 +193,7 @@ function App() {
         
         <Route path="/projects" element={
           <ProtectedRoute>
-            <AdminProjectManagementPage />
+            <Navigate to="/mobile?tab=projects" replace />
           </ProtectedRoute>
         } />
         

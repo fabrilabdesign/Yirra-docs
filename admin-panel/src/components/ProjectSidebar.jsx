@@ -77,7 +77,7 @@ const ProjectSidebar = ({
       {/* Toggle Button */}
       <button
         onClick={onToggle}
-        className={`fixed top-20 right-4 z-40 h-10 w-10 rounded-12 bg-surface border border-line-soft shadow-lg flex items-center justify-center hover:bg-elev1 transition-all duration-200 ${
+        className={`fixed top-16 right-4 z-40 h-10 w-10 rounded-12 bg-surface border border-line-soft shadow-lg flex items-center justify-center hover:bg-elev1 transition-all duration-200 ${
           isOpen ? 'right-80' : 'right-4'
         }`}
         aria-label={isOpen ? 'Close projects sidebar' : 'Open projects sidebar'}
@@ -90,7 +90,7 @@ const ProjectSidebar = ({
       </button>
 
       {/* Sidebar */}
-      <div className={`fixed top-16 right-0 h-[calc(100vh-4rem)] w-80 bg-surface border-l border-line-soft shadow-2xl transform transition-transform duration-300 ease-in-out z-30 ${
+      <div className={`fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-80 bg-surface border-l border-line-soft shadow-2xl transform transition-transform duration-300 ease-in-out z-30 ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="flex flex-col h-full">

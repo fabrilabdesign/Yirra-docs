@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart, Folder } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -15,6 +15,7 @@ import ProjectModal from './ProjectModal';
 const AdminProjectManagement = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,6 +117,48 @@ const AdminProjectManagement = () => {
     }
   };
 
+  const currentTab = useMemo(() => {
+    if (location.pathname !== '/mobile') return null;
+    try {
+      return new URLSearchParams(location.search).get('tab') || 'overview';
+    } catch {
+      return null;
+    }
+  }, [location.pathname, location.search]);
+
+  const pathToTab = useMemo(() => ({
+    '/overview': 'overview',
+    '/projects': 'projects',
+    '/products': 'products',
+    '/orders': 'orders',
+    '/customers': 'customers',
+    '/inventory': 'inventory',
+    '/fulfillment': 'fulfillment',
+    '/stl-files': 'stl-files',
+    '/analytics': 'reports',
+    '/users': 'users',
+    '/settings': 'settings'
+  }), []);
+
+  const isPathActive = (path) => {
+    if (location.pathname === path) return true;
+    if (location.pathname === '/mobile') {
+      const mapped = pathToTab[path];
+      if (!mapped) return false;
+      return currentTab === mapped;
+    }
+    return false;
+  };
+
+  const navItemClass = (path) => (
+    `flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition relative ` +
+    (isPathActive(path)
+      ? 'text-brand bg-[rgba(99,102,241,.12)] before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-brand before:rounded'
+      : 'text-text-secondary hover:bg-hover hover:text-text-primary')
+  );
+
+  const navItemAriaCurrent = (path) => (isPathActive(path) ? 'page' : undefined);
+
   useEffect(() => {
     fetchTasks();
   }, [pagination.currentPage, filters, selectedProjectId]);
@@ -123,6 +166,22 @@ const AdminProjectManagement = () => {
   useEffect(() => {
     fetchAvailableProjects();
   }, []);
+
+  // Persist right ProjectSidebar open/closed state
+  useEffect(() => {
+    const saved = localStorage.getItem('projectsSidebarOpen');
+    if (saved !== null) {
+      try {
+        setShowProjectSidebar(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('projectsSidebarOpen', JSON.stringify(showProjectSidebar));
+    } catch {}
+  }, [showProjectSidebar]);
 
   const fetchTasks = async () => {
     try {
@@ -620,8 +679,8 @@ const AdminProjectManagement = () => {
       {/* Fixed Header (full width at the very top) */}
       <div className="fixed inset-x-0 top-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-line-soft">
         <div className="max-w-7xl mx-auto h-14 px-4 flex items-center justify-between">
-          {/* Menu button and title */}
-          <div className="flex items-center gap-4">
+          {/* Menu button and brand */}
+          <div className="flex items-center gap-3">
             <button
               className="bg-brand/10 border border-brand/20 rounded-10 p-1.5 text-brand hover:bg-brand/20 active:scale-95 transition-all"
               onClick={() => setSidebarOpen(true)}
@@ -631,7 +690,18 @@ const AdminProjectManagement = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <h1 className="text-lg font-semibold text-text-primary">Project Management</h1>
+            <div className="flex items-center gap-2">
+              <button onClick={() => navigate('/mobile?tab=overview')} className="text-[13px] leading-[18px] font-semibold text-text-primary hover:text-text-primary/90">
+                Yirra
+              </button>
+              <button onClick={() => navigate('/mobile?tab=overview')} className="text-[13px] leading-[18px] font-semibold text-brand hover:text-brand/90">
+                Systems
+              </button>
+              <span className="hidden sm:inline text-text-tertiary">•</span>
+              <button onClick={() => navigate('/mobile?tab=projects')} className="hidden sm:inline h-6 px-2.5 rounded-10 text-[12px] font-semibold bg-badge-bg text-brand">
+                Projects
+              </button>
+            </div>
           </div>
 
           {/* List/Kanban/Reports tabs */}
@@ -681,7 +751,7 @@ const AdminProjectManagement = () => {
         </div>
       </div>
 
-      {/* Push content below the fixed header (header is h-14 => 56px) */}
+      {/* Push content below the fixed header */}
       <div className="h-14" />
 
       {/* AI Panel */}
@@ -726,10 +796,10 @@ const AdminProjectManagement = () => {
       )}
 
       {/* Content Area */}
-      <div className="px-6 pt-8 pb-12">
+      <div className={`px-6 pt-6 pb-8 ${showProjectSidebar ? 'lg:pr-96' : ''}`}>
       {/* Stats Bar */}
-        <div className="mt-10 md:mt-12 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+        <div className="mt-4 md:mt-6 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button onClick={() => handleFilterChange('status', 'todo')} className="bg-elev1 rounded-xl p-4 border border-line-soft hover:border-brand/40 hover:bg-elev2 transition cursor-pointer text-left" aria-pressed={filters.status === 'todo'} title="Filter: To Do">
           <div className="flex items-center justify-between">
             <div>
                 <div className="text-2xl font-bold text-text-primary">{todoCount}</div>
@@ -737,8 +807,8 @@ const AdminProjectManagement = () => {
             </div>
             <Circle className="h-6 w-6 text-text-tertiary" />
           </div>
-        </div>
-        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+        </button>
+        <button onClick={() => handleFilterChange('status', 'in_progress')} className="bg-elev1 rounded-xl p-4 border border-line-soft hover:border-brand/40 hover:bg-elev2 transition cursor-pointer text-left" aria-pressed={filters.status === 'in_progress'} title="Filter: In Progress">
           <div className="flex items-center justify-between">
             <div>
                 <div className="text-2xl font-bold text-text-primary">{inProgressCount}</div>
@@ -746,8 +816,8 @@ const AdminProjectManagement = () => {
             </div>
             <Play className="h-6 w-6 text-text-tertiary" />
           </div>
-        </div>
-        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+        </button>
+        <button onClick={() => handleFilterChange('status', 'done')} className="bg-elev1 rounded-xl p-4 border border-line-soft hover:border-brand/40 hover:bg-elev2 transition cursor-pointer text-left" aria-pressed={filters.status === 'done'} title="Filter: Done">
           <div className="flex items-center justify-between">
             <div>
                 <div className="text-2xl font-bold text-text-primary">{doneCount}</div>
@@ -755,7 +825,7 @@ const AdminProjectManagement = () => {
             </div>
             <CheckCircle className="h-6 w-6 text-text-tertiary" />
           </div>
-        </div>
+        </button>
         <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
           <div className="flex items-center justify-between">
             <div>
@@ -781,7 +851,7 @@ const AdminProjectManagement = () => {
       )}
 
       {/* Filters */}
-      <div className="mb-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="mb-4 grid grid-cols-1 sm:grid-cols-4 gap-3 sticky top-14 z-40 bg-app/95 backdrop-blur-sm border-b border-line-soft py-2">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary" size={20} />
           <Input
@@ -1077,8 +1147,9 @@ const AdminProjectManagement = () => {
           <div>
             <div className="text-[12px] leading-[18px] font-semibold text-text-tertiary uppercase tracking-wider mb-2 px-1">Dashboard</div>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/mobile'); setSidebarOpen(false); }}
+              className={navItemClass('/overview')}
+              aria-current={navItemAriaCurrent('/overview')}
+              onClick={() => { navigate('/mobile?tab=overview'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
@@ -1086,8 +1157,9 @@ const AdminProjectManagement = () => {
               Overview
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/projects'); setSidebarOpen(false); }}
+              className={navItemClass('/projects')}
+              aria-current={navItemAriaCurrent('/projects')}
+              onClick={() => { navigate('/mobile?tab=projects'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v8m4-4H8m12 0a8 8 0 11-16 0 8 8 0 0116 0z" />
@@ -1095,8 +1167,9 @@ const AdminProjectManagement = () => {
               Projects
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/products'); setSidebarOpen(false); }}
+              className={navItemClass('/products')}
+              aria-current={navItemAriaCurrent('/products')}
+              onClick={() => { navigate('/mobile?tab=products'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -1104,8 +1177,9 @@ const AdminProjectManagement = () => {
               Products
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/orders'); setSidebarOpen(false); }}
+              className={navItemClass('/orders')}
+              aria-current={navItemAriaCurrent('/orders')}
+              onClick={() => { navigate('/mobile?tab=orders'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1113,8 +1187,9 @@ const AdminProjectManagement = () => {
               Orders
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/customers'); setSidebarOpen(false); }}
+              className={navItemClass('/customers')}
+              aria-current={navItemAriaCurrent('/customers')}
+              onClick={() => { navigate('/mobile?tab=customers'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -1122,8 +1197,9 @@ const AdminProjectManagement = () => {
               Customers
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/inventory'); setSidebarOpen(false); }}
+              className={navItemClass('/inventory')}
+              aria-current={navItemAriaCurrent('/inventory')}
+              onClick={() => { navigate('/mobile?tab=inventory'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -1131,8 +1207,9 @@ const AdminProjectManagement = () => {
               Inventory
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/fulfillment'); setSidebarOpen(false); }}
+              className={navItemClass('/fulfillment')}
+              aria-current={navItemAriaCurrent('/fulfillment')}
+              onClick={() => { navigate('/mobile?tab=fulfillment'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -1140,8 +1217,9 @@ const AdminProjectManagement = () => {
               Fulfillment
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/stl-files'); setSidebarOpen(false); }}
+              className={navItemClass('/stl-files')}
+              aria-current={navItemAriaCurrent('/stl-files')}
+              onClick={() => { navigate('/mobile?tab=stl-files'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m4 0H8l.5 16h7L16 4z" />
@@ -1149,8 +1227,9 @@ const AdminProjectManagement = () => {
               STL Files
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/analytics'); setSidebarOpen(false); }}
+              className={navItemClass('/analytics')}
+              aria-current={navItemAriaCurrent('/analytics')}
+              onClick={() => { navigate('/mobile?tab=reports'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -1162,8 +1241,9 @@ const AdminProjectManagement = () => {
           <div>
             <div className="text-[12px] leading-[18px] font-semibold text-text-tertiary uppercase tracking-wider mb-2 px-1">Management</div>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/users'); setSidebarOpen(false); }}
+              className={navItemClass('/users')}
+              aria-current={navItemAriaCurrent('/users')}
+              onClick={() => { navigate('/mobile?tab=users'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -1171,8 +1251,9 @@ const AdminProjectManagement = () => {
               Users
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
-              onClick={() => { navigate('/settings'); setSidebarOpen(false); }}
+              className={navItemClass('/settings')}
+              aria-current={navItemAriaCurrent('/settings')}
+              onClick={() => { navigate('/mobile?tab=settings'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
