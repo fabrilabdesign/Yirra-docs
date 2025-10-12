@@ -617,29 +617,48 @@ const AdminProjectManagement = () => {
       {/* Fixed Header (full width at the very top) */}
       <div className="fixed inset-x-0 top-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-line-soft">
         <div className="max-w-7xl mx-auto h-14 px-4 flex items-center justify-between">
-        <div className="inline-flex items-center rounded-10 p-0.5 bg-elev1 h-9 ring-1 ring-line-soft gap-0.5" role="tablist" aria-label="View mode">
-          {(
-            [
-              { key: 'list', label: 'List', Icon: List },
-              { key: 'kanban', label: 'Kanban', Icon: Kanban },
-              { key: 'reports', label: 'Reports', Icon: BarChart },
-            ]
-          ).map(({ key, label, Icon }) => (
+          {/* Menu button and title */}
+          <div className="flex items-center gap-4">
             <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={viewMode === key}
-              onClick={() => setViewMode(key)}
-              className={`${viewMode === key ? 'bg-badge-bg text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-hover'} inline-flex items-center gap-1.5 h-8 px-3 rounded-10 text-sm font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(99,102,241,.45)]`}
+              className="bg-brand/10 border border-brand/20 rounded-10 p-1.5 text-brand hover:bg-brand/20 active:scale-95 transition-all"
+              onClick={() => setShowProjectSidebar(!showProjectSidebar)}
+              aria-label="Toggle project sidebar"
             >
-              <Icon size={16} className="flex-shrink-0" />
-              {label}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg font-semibold text-text-primary">Project Management</h1>
+            <h1 className="text-lg font-semibold text-text-primary">Project Management</h1>
+          </div>
+
+          {/* List/Kanban/Reports tabs */}
+          <div className="inline-flex items-center rounded-10 p-0.5 bg-elev1 h-9 ring-1 ring-line-soft gap-0.5" role="tablist" aria-label="View mode">
+            {(
+              [
+                { key: 'list', label: 'List', Icon: List },
+                { key: 'kanban', label: 'Kanban', Icon: Kanban },
+                { key: 'reports', label: 'Reports', Icon: BarChart },
+              ]
+            ).map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={viewMode === key}
+                onClick={() => setViewMode(key)}
+                className={`inline-flex items-center gap-1 h-6 px-2 rounded-10 text-[12px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(99,102,241,.45)] ${
+                  viewMode === key
+                    ? 'bg-badge-bg text-brand'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-hover'
+                }`}
+              >
+                <Icon size={14} className="flex-shrink-0" />
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Action buttons */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAIPanel(!showAIPanel)}
@@ -1010,6 +1029,17 @@ const AdminProjectManagement = () => {
         </div>
       )}
 
+      {/* Project Modal */}
+      <ProjectModal
+        isOpen={showProjectModal}
+        onClose={() => {
+          setShowProjectModal(false);
+          setEditingProject(null);
+        }}
+        project={editingProject}
+        onSuccess={handleProjectModalSuccess}
+      />
+
       {/* Project Sidebar */}
       <ProjectSidebar
         isOpen={showProjectSidebar}
@@ -1022,18 +1052,6 @@ const AdminProjectManagement = () => {
         refreshTrigger={projectRefreshTrigger}
       />
       </div>
-
-      {/* Project Modal */}
-      <ProjectModal
-        isOpen={showProjectModal}
-        onClose={() => {
-          setShowProjectModal(false);
-          setEditingProject(null);
-        }}
-        project={editingProject}
-        onSuccess={handleProjectModalSuccess}
-      />
-    </div>
   );
 };
 

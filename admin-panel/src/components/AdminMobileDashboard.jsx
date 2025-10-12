@@ -1,24 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import AdminOverview from './AdminOverview';
-import AdminProducts from './AdminProducts';
-import AdminOrders from './AdminOrders';
-import AdminOrderFulfillment from './AdminOrderFulfillment';
-import AdminInventory from './AdminInventory';
-import AdminBOM from './AdminBOM';
-import AdminCustomers from './AdminCustomers';
-import AdminSTLFiles from './AdminSTLFiles';
-import AdminNewsletter from './AdminNewsletter';
-import AdminMarketing from './AdminMarketing';
-import AdminBlog from './AdminBlog';
-import AdminUserManagement from './AdminUserManagement';
-import AdminShipping from './AdminShipping';
-import AdminReturns from './AdminReturns';
-import AdminReports from './AdminReports';
-import AdminSettings from './AdminSettings';
-import AdminEngineering from './AdminEngineering';
-import AdminChat from './AdminChat';
-import AdminProjectManagement from './AdminProjectManagement';
+
+// Lazy load all admin components to prevent initialization conflicts
+const AdminOverview = lazy(() => import('./AdminOverview'));
+const AdminProducts = lazy(() => import('./AdminProducts'));
+const AdminOrders = lazy(() => import('./AdminOrders'));
+const AdminOrderFulfillment = lazy(() => import('./AdminOrderFulfillment'));
+const AdminInventory = lazy(() => import('./AdminInventory'));
+const AdminBOM = lazy(() => import('./AdminBOM'));
+const AdminCustomers = lazy(() => import('./AdminCustomers'));
+const AdminSTLFiles = lazy(() => import('./AdminSTLFiles'));
+const AdminNewsletter = lazy(() => import('./AdminNewsletter'));
+const AdminMarketing = lazy(() => import('./AdminMarketing'));
+const AdminBlog = lazy(() => import('./AdminBlog'));
+const AdminUserManagement = lazy(() => import('./AdminUserManagement'));
+const AdminShipping = lazy(() => import('./AdminShipping'));
+const AdminReturns = lazy(() => import('./AdminReturns'));
+const AdminReports = lazy(() => import('./AdminReports'));
+const AdminSettings = lazy(() => import('./AdminSettings'));
+const AdminEngineering = lazy(() => import('./AdminEngineering'));
+const AdminChat = lazy(() => import('./AdminChat'));
+const AdminProjectManagement = lazy(() => import('./AdminProjectManagement'));
 
 const AdminMobileDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -35,57 +37,138 @@ const AdminMobileDashboard = () => {
     { id: 'more', label: 'More', icon: 'M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z' }
   ];
 
-  const renderActiveComponent = () => {
-    switch (activeTab) {
-      case 'overview':
-      default:
-        return <AdminOverview onNavigateToTab={setActiveTab} />;
-      case 'products':
-        return <AdminProducts />;
-      case 'projects':
-        return <AdminProjectManagement />;
-      case 'orders':
-        return <AdminOrders />;
-      case 'fulfillment':
-        return <AdminOrderFulfillment />;
-      case 'inventory':
-        return <AdminInventory />;
-      case 'bom':
-        return <AdminBOM />;
-      case 'customers':
-        return <AdminCustomers />;
-      case 'stl-files':
-        return <AdminSTLFiles />;
-      case 'newsletter':
-        return <AdminNewsletter />;
-      case 'marketing':
-        return <AdminMarketing />;
-      case 'blog':
-        return <AdminBlog />;
-      case 'users':
-        return <AdminUserManagement />;
-      case 'shipping':
-        return <AdminShipping />;
-      case 'returns':
-        return <AdminReturns />;
-      case 'reports':
-        return <AdminReports />;
-      case 'settings':
-        return <AdminSettings />;
-      case 'engineering':
-        return <AdminEngineering />;
-      case 'chat':
-        return <AdminChat />;
-      case 'projects':
-        return <AdminProjectManagement />;
-    }
-  };
+// Loading component for lazy loaded components
+const ComponentLoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+);
+
+const renderActiveComponent = () => {
+  switch (activeTab) {
+    case 'overview':
+    default:
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminOverview onNavigateToTab={setActiveTab} />
+        </Suspense>
+      );
+    case 'products':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminProducts />
+        </Suspense>
+      );
+    case 'projects':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminProjectManagement />
+        </Suspense>
+      );
+    case 'orders':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminOrders />
+        </Suspense>
+      );
+    case 'fulfillment':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminOrderFulfillment />
+        </Suspense>
+      );
+    case 'inventory':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminInventory />
+        </Suspense>
+      );
+    case 'bom':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminBOM />
+        </Suspense>
+      );
+    case 'customers':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminCustomers />
+        </Suspense>
+      );
+    case 'stl-files':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminSTLFiles />
+        </Suspense>
+      );
+    case 'newsletter':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminNewsletter />
+        </Suspense>
+      );
+    case 'marketing':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminMarketing />
+        </Suspense>
+      );
+    case 'blog':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminBlog />
+        </Suspense>
+      );
+    case 'users':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminUserManagement />
+        </Suspense>
+      );
+    case 'shipping':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminShipping />
+        </Suspense>
+      );
+    case 'returns':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminReturns />
+        </Suspense>
+      );
+    case 'reports':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminReports />
+        </Suspense>
+      );
+    case 'settings':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminSettings />
+        </Suspense>
+      );
+    case 'engineering':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminEngineering />
+        </Suspense>
+      );
+    case 'chat':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminChat />
+        </Suspense>
+      );
+  }
+};
 
   return (
     <div className="flex flex-col min-h-screen bg-app text-text-primary overflow-x-hidden">
 
       {/* Mobile Header */}
-      <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-line-soft px-3 py-1.5 flex items-center justify-between h-10 min-h-10">
+      <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-line-soft px-4 py-2 flex items-center justify-between h-14 min-h-14">
         <div className="flex items-center gap-2">
           <button
             className="bg-brand/10 border border-brand/20 rounded-10 p-1.5 text-brand hover:bg-brand/20 active:scale-95 transition-all"
