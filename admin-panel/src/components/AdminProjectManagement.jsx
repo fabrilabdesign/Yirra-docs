@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart, Folder } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -58,11 +58,42 @@ const AdminProjectManagement = () => {
   const [projectRefreshTrigger, setProjectRefreshTrigger] = useState(0);
   const [availableProjects, setAvailableProjects] = useState([]);
 
+  // Memoized counter calculations for performance
+  const { todoCount, inProgressCount, doneCount, totalCount } = useMemo(() => {
+    const t = tasks || [];
+    return {
+      todoCount: t.filter(task => task.status === 'todo').length,
+      inProgressCount: t.filter(task => task.status === 'in_progress').length,
+      doneCount: t.filter(task => task.status === 'done').length,
+      totalCount: t.length
+    };
+  }, [tasks]);
+
+  const toastTimer = useRef(null);
+
   const showToast = (type, message) => {
     setToast({ type, message });
-    window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => setToast(null), 3000);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = window.setTimeout(() => setToast(null), 3000);
   };
+
+  // Cleanup toast timer on unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) {
+        clearTimeout(toastTimer.current);
+      }
+    };
+  }, []);
+
+  // Body scroll lock when modals are open
+  useEffect(() => {
+    const open = showTaskModal || showDeleteModal || showProjectModal;
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showTaskModal, showDeleteModal, showProjectModal]);
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -426,84 +457,214 @@ const AdminProjectManagement = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
   };
 
-  // Show task details view
-  if (showTaskDetails && selectedTask) {
-    return (
-      <AdminTaskDetails
-        taskId={selectedTask.id}
-        onBack={handleTaskDetailsBack}
-      />
-    );
-  }
+  // Decide what goes in the main content area
+  const mainContent = (() => {
+    if (loading && (!tasks || tasks.length === 0)) {
+      return (
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-brand border-t-transparent"></div>
+        </div>
+      );
+    }
 
-  if (loading && (!tasks || tasks.length === 0)) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    if (showTaskDetails && selectedTask) {
+      return (
+        <AdminTaskDetails
+          taskId={selectedTask.id}
+          onBack={handleTaskDetailsBack}
+        />
+      );
+    }
+
+    // otherwise your list/kanban/reports switch
+    return viewMode === 'kanban' ? (
+      <KanbanBoard
+        tasks={tasks}
+        onEdit={openTaskModal}
+        onDelete={openDeleteModal}
+        onViewDetails={viewTaskDetails}
+        onAddTask={handleAddTaskForStatus}
+        onUpdateTask={handleUpdateTask}
+        onError={(msg) => showToast('error', msg)}
+      />
+    ) : viewMode === 'reports' ? (
+      <ProjectReports />
+    ) : (
+      <div className="bg-surface rounded-12 shadow-elev1 border border-line-soft overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-elev2">
+              <tr>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Task Title
+                </th>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Description
+                </th>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Priority
+                </th>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Created
+                </th>
+                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Notes
+                </th>
+                <th className="px-6 py-4 text-right text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-surface divide-y divide-line-soft">
+              {(tasks || []).map((task) => (
+                <tr key={task.id} className="hover:bg-hover transition-colors duration-200">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-[14px] font-semibold text-text-primary">{task.title}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-[13px] text-text-secondary max-w-xs line-clamp-2">
+                      {task.description || 'No description'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(task.status)}`}>
+                      {task.status === 'in_progress' ? 'In Progress' : task.status === 'todo' ? 'To Do' : task.status || 'To Do'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getPriorityBadgeClass(task.priority)}`}>
+                      {task.priority || 'medium'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center text-[13px] text-text-tertiary">
+                      <Calendar size={16} className="mr-2" />
+                      {formatDate(task.created_at)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center text-[13px] text-text-tertiary">
+                      <FileText size={16} className="mr-2" />
+                      {task.notes_count}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => viewTaskDetails(task)}
+                        className="text-text-secondary hover:text-text-primary p-1 hover:bg-hover rounded"
+                        title="View task details"
+                        aria-label="View task details"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        onClick={() => openTaskModal(task)}
+                        className="text-text-secondary hover:text-text-primary p-1 hover:bg-hover rounded"
+                        title="Edit task"
+                        aria-label="Edit task"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(task)}
+                        className="text-danger hover:opacity-90 p-1 hover:bg-hover rounded"
+                        title="Delete task"
+                        aria-label="Delete task"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {(!tasks || tasks.length === 0) && !loading && (
+          <div className="text-center py-12">
+            <FileText className="mx-auto h-12 w-12 text-text-tertiary" />
+            <h3 className="mt-2 text-sm font-medium text-text-primary">No tasks found</h3>
+            <p className="mt-1 text-sm text-text-secondary">
+              {filters.search ? 'Try adjusting your search terms.' : 'Get started by creating your first task.'}
+            </p>
+          </div>
+        )}
       </div>
     );
-  }
+  })();
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded shadow text-white ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+        <div className={`fixed top-4 right-4 z-[60] px-4 py-3 rounded shadow text-white ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
           {toast.message}
         </div>
       )}
-      {/* Header */}
-      <div className="bg-surface h-14 px-4 flex items-center justify-between border-b border-line-soft">
+
+      {/* Fixed Header (full width at the very top) */}
+      <div className="fixed inset-x-0 top-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-line-soft">
+        <div className="max-w-7xl mx-auto h-14 px-4 flex items-center justify-between">
+        <div className="inline-flex items-center rounded-10 p-0.5 bg-elev1 h-9 ring-1 ring-line-soft gap-0.5" role="tablist" aria-label="View mode">
+          {(
+            [
+              { key: 'list', label: 'List', Icon: List },
+              { key: 'kanban', label: 'Kanban', Icon: Kanban },
+              { key: 'reports', label: 'Reports', Icon: BarChart },
+            ]
+          ).map(({ key, label, Icon }) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={viewMode === key}
+              onClick={() => setViewMode(key)}
+              className={`${viewMode === key ? 'bg-badge-bg text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-hover'} inline-flex items-center gap-1.5 h-8 px-3 rounded-10 text-sm font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(99,102,241,.45)]`}
+            >
+              <Icon size={16} className="flex-shrink-0" />
+              {label}
+            </button>
+          ))}
+        </div>
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-semibold text-text-primary">Project Management</h1>
-          <div className="inline-flex items-center rounded-10 p-0.5 bg-elev1 h-9 ring-1 ring-line-soft gap-0.5" role="tablist" aria-label="View mode">
-            {(
-              [
-                { key: 'list', label: 'List', Icon: List },
-                { key: 'kanban', label: 'Kanban', Icon: Kanban },
-                { key: 'reports', label: 'Reports', Icon: BarChart },
-              ]
-            ).map(({ key, label, Icon }) => (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={viewMode === key}
-                onClick={() => setViewMode(key)}
-                className={`${viewMode === key ? 'bg-badge-bg text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-hover'} inline-flex items-center gap-1.5 h-8 px-3 rounded-10 text-sm font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(99,102,241,.45)]`}
-              >
-                <Icon size={16} className="flex-shrink-0" />
-                {label}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowAIPanel(!showAIPanel)}
+              aria-pressed={showAIPanel}
+              aria-label="Toggle AI panel"
+              className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
+                showAIPanel ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
+              }`}
+            >
+              🤖 AI
+            </button>
+            <Button onClick={() => openTaskModal()} className="gap-1.5 h-10 px-4 text-sm">
+              <Plus size={16} />
+              New Task
+            </Button>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAIPanel(!showAIPanel)}
-            className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
-              showAIPanel ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
-            }`}
-          >
-            🤖 AI
-          </button>
-          <Button onClick={() => openTaskModal()} className="gap-1.5 h-10 px-4 text-sm">
-            <Plus size={16} />
-            New Task
-          </Button>
         </div>
       </div>
 
+      {/* Push content below the fixed header (header is h-14 => 56px) */}
+      <div className="h-14" />
+
       {/* AI Panel */}
       {showAIPanel && (
-        <div className="mb-8 bg-elev1 rounded-xl p-6 border border-line-soft">
+        <div className="mb-12 bg-elev1 rounded-xl p-6 border border-line-soft">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-18 font-semibold text-text-primary">AI Assistant</h2>
             <button
@@ -542,45 +703,47 @@ const AdminProjectManagement = () => {
         </div>
       )}
 
-      {/* Stats Bar */}
-      <div className="mb-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-text-primary">{(tasks || []).filter(t => t.status === 'todo').length}</div>
-              <div className="text-13 text-text-secondary">To Do</div>
+      {/* Content Area */}
+      <div className="px-6 pt-8 pb-12">
+        {/* Stats Bar */}
+        <div className="mt-10 md:mt-12 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold text-text-primary">{todoCount}</div>
+                <div className="text-13 text-text-secondary">To Do</div>
+              </div>
+              <Circle className="h-6 w-6 text-text-tertiary" />
             </div>
-            <Circle className="h-6 w-6 text-text-tertiary" />
+          </div>
+          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold text-text-primary">{inProgressCount}</div>
+                <div className="text-13 text-text-secondary">In Progress</div>
+              </div>
+              <Play className="h-6 w-6 text-text-tertiary" />
+            </div>
+          </div>
+          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold text-text-primary">{doneCount}</div>
+                <div className="text-13 text-text-secondary">Done</div>
+              </div>
+              <CheckCircle className="h-6 w-6 text-text-tertiary" />
+            </div>
+          </div>
+          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold text-text-primary">{totalCount}</div>
+                <div className="text-13 text-text-secondary">Total</div>
+              </div>
+              <BarChart3 className="h-6 w-6 text-text-tertiary" />
+            </div>
           </div>
         </div>
-        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-text-primary">{(tasks || []).filter(t => t.status === 'in_progress').length}</div>
-              <div className="text-13 text-text-secondary">In Progress</div>
-            </div>
-            <Play className="h-6 w-6 text-text-tertiary" />
-          </div>
-        </div>
-        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-text-primary">{(tasks || []).filter(t => t.status === 'done').length}</div>
-              <div className="text-13 text-text-secondary">Done</div>
-            </div>
-            <CheckCircle className="h-6 w-6 text-text-tertiary" />
-          </div>
-        </div>
-        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-text-primary">{(tasks || []).length}</div>
-              <div className="text-13 text-text-secondary">Total</div>
-            </div>
-            <BarChart3 className="h-6 w-6 text-text-tertiary" />
-          </div>
-        </div>
-      </div>
 
       {/* Error Message */}
       {error && (
@@ -644,160 +807,11 @@ const AdminProjectManagement = () => {
         </div>
       </div>
 
-      {/* Tasks View */}
-      {viewMode === 'kanban' ? (
-        <KanbanBoard
-          tasks={tasks}
-          onEdit={openTaskModal}
-          onDelete={openDeleteModal}
-          onViewDetails={viewTaskDetails}
-          onAddTask={handleAddTaskForStatus}
-          onUpdateTask={handleUpdateTask}
-          onError={(message) => showToast('error', message)}
-        />
-      ) : viewMode === 'reports' ? (
-        <ProjectReports />
-      ) : (
-        <div className="bg-surface rounded-12 shadow-elev1 border border-line-soft overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-elev2">
-              <tr>
-                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Task Title
-                </th>
-                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Priority
-                </th>
-                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-4 text-left text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Notes
-                </th>
-                <th className="px-6 py-4 text-right text-[12px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-surface divide-y divide-line-soft">
-              {loading && (!tasks || tasks.length === 0) ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-elev1 rounded animate-pulse"></div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="h-4 bg-elev1 rounded animate-pulse w-3/4"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-6 bg-elev1 rounded animate-pulse w-16"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-6 bg-elev1 rounded animate-pulse w-16"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-elev1 rounded animate-pulse w-20"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-elev1 rounded animate-pulse w-8"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex justify-end space-x-2">
-                        <div className="h-8 w-8 bg-elev1 rounded animate-pulse"></div>
-                        <div className="h-8 w-8 bg-elev1 rounded animate-pulse"></div>
-                        <div className="h-8 w-8 bg-elev1 rounded animate-pulse"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                (tasks || []).map((task) => (
-                <tr key={task.id} className="hover:bg-hover transition-colors duration-200">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-[14px] font-semibold text-text-primary">{task.title}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-[13px] text-text-secondary max-w-xs truncate">
-                      {task.description || 'No description'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(task.status)}`}>
-                      {task.status === 'in_progress' ? 'In Progress' : task.status === 'todo' ? 'To Do' : task.status || 'To Do'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getPriorityBadgeClass(task.priority)}`}>
-                      {task.priority || 'medium'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-[13px] text-text-tertiary">
-                      <Calendar size={16} className="mr-2" />
-                      {formatDate(task.created_at)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-[13px] text-text-tertiary">
-                      <FileText size={16} className="mr-2" />
-                      {task.notes_count}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => viewTaskDetails(task)}
-                        className="text-text-secondary hover:text-text-primary p-1 hover:bg-hover rounded"
-                        title="View task details"
-                      >
-                        <Eye size={16} />
-                      </button>
-                      <button
-                        onClick={() => openTaskModal(task)}
-                        className="text-text-secondary hover:text-text-primary p-1 hover:bg-hover rounded"
-                        title="Edit task"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => openDeleteModal(task)}
-                        className="text-danger hover:opacity-90 p-1 hover:bg-hover rounded"
-                        title="Delete task"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {(!tasks || tasks.length === 0) && !loading && (
-          <div className="text-center py-12">
-            <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No tasks found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {filters.search ? 'Try adjusting your search terms.' : 'Get started by creating your first task.'}
-            </p>
-          </div>
-        )}
-      </div>
-      )}
-
-      {/* Pagination */}
+      {/* Main content */}
+      {mainContent}
       {viewMode === 'list' && pagination.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-text-secondary">
             Showing page {pagination.currentPage} of {pagination.totalPages}
             ({pagination.totalTasks} total tasks)
           </div>
@@ -805,7 +819,7 @@ const AdminProjectManagement = () => {
             <button
               onClick={() => handlePageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="flex items-center gap-1 px-3 py-1 border border-line-soft rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-hover text-text-primary"
             >
               <ChevronLeft size={16} />
               Previous
@@ -813,7 +827,7 @@ const AdminProjectManagement = () => {
             <button
               onClick={() => handlePageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
-              className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="flex items-center gap-1 px-3 py-1 border border-line-soft rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-hover text-text-primary"
             >
               Next
               <ChevronRight size={16} />
@@ -822,9 +836,12 @@ const AdminProjectManagement = () => {
         </div>
       )}
 
+      {/* Content Area End */}
+      </div>
+
       {/* Task Modal */}
       {showTaskModal && (
-        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-[70]">
           <div className="bg-elev1 rounded-16 shadow-elev2 max-w-lg w-full max-h-[90vh] overflow-y-auto border border-line-soft">
             <div className="flex items-center justify-between p-6 border-b border-line-soft bg-surface rounded-t-16">
               <h2 className="text-[16px] leading-6 font-semibold text-text-primary">
@@ -948,7 +965,7 @@ const AdminProjectManagement = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && taskToDelete && (
-        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-[70]">
           <div className="bg-elev1 rounded-16 shadow-elev2 max-w-md w-full border border-line-soft">
             <div className="flex items-center justify-between p-6 border-b border-line-soft">
               <h2 className="text-[16px] font-semibold text-text-primary">Delete Task</h2>
@@ -1004,6 +1021,7 @@ const AdminProjectManagement = () => {
         onDeleteProject={handleDeleteProject}
         refreshTrigger={projectRefreshTrigger}
       />
+      </div>
 
       {/* Project Modal */}
       <ProjectModal
