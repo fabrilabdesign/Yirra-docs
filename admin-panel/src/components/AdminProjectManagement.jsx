@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart, Folder } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -13,6 +14,8 @@ import ProjectModal from './ProjectModal';
 
 const AdminProjectManagement = () => {
   const { getToken } = useAuth();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -474,14 +477,14 @@ const AdminProjectManagement = () => {
       );
     }
 
-    if (showTaskDetails && selectedTask) {
-      return (
-        <AdminTaskDetails
-          taskId={selectedTask.id}
-          onBack={handleTaskDetailsBack}
-        />
-      );
-    }
+  if (showTaskDetails && selectedTask) {
+    return (
+      <AdminTaskDetails
+        taskId={selectedTask.id}
+        onBack={handleTaskDetailsBack}
+      />
+    );
+  }
 
     // otherwise your list/kanban/reports switch
     return viewMode === 'kanban' ? (
@@ -621,8 +624,8 @@ const AdminProjectManagement = () => {
           <div className="flex items-center gap-4">
             <button
               className="bg-brand/10 border border-brand/20 rounded-10 p-1.5 text-brand hover:bg-brand/20 active:scale-95 transition-all"
-              onClick={() => setShowProjectSidebar(!showProjectSidebar)}
-              aria-label="Toggle project sidebar"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open admin menu"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -660,20 +663,20 @@ const AdminProjectManagement = () => {
 
           {/* Action buttons */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowAIPanel(!showAIPanel)}
+          <button
+            onClick={() => setShowAIPanel(!showAIPanel)}
               aria-pressed={showAIPanel}
               aria-label="Toggle AI panel"
               className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
-                showAIPanel ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
-              }`}
-            >
-              🤖 AI
-            </button>
+              showAIPanel ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
+            }`}
+          >
+            🤖 AI
+          </button>
             <Button onClick={() => openTaskModal()} className="gap-1.5 h-10 px-4 text-sm">
-              <Plus size={16} />
-              New Task
-            </Button>
+            <Plus size={16} />
+            New Task
+          </Button>
           </div>
         </div>
       </div>
@@ -724,45 +727,45 @@ const AdminProjectManagement = () => {
 
       {/* Content Area */}
       <div className="px-6 pt-8 pb-12">
-        {/* Stats Bar */}
+      {/* Stats Bar */}
         <div className="mt-10 md:mt-12 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-            <div className="flex items-center justify-between">
-              <div>
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
                 <div className="text-2xl font-bold text-text-primary">{todoCount}</div>
-                <div className="text-13 text-text-secondary">To Do</div>
-              </div>
-              <Circle className="h-6 w-6 text-text-tertiary" />
+              <div className="text-13 text-text-secondary">To Do</div>
             </div>
-          </div>
-          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-text-primary">{inProgressCount}</div>
-                <div className="text-13 text-text-secondary">In Progress</div>
-              </div>
-              <Play className="h-6 w-6 text-text-tertiary" />
-            </div>
-          </div>
-          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-text-primary">{doneCount}</div>
-                <div className="text-13 text-text-secondary">Done</div>
-              </div>
-              <CheckCircle className="h-6 w-6 text-text-tertiary" />
-            </div>
-          </div>
-          <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-text-primary">{totalCount}</div>
-                <div className="text-13 text-text-secondary">Total</div>
-              </div>
-              <BarChart3 className="h-6 w-6 text-text-tertiary" />
-            </div>
+            <Circle className="h-6 w-6 text-text-tertiary" />
           </div>
         </div>
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
+                <div className="text-2xl font-bold text-text-primary">{inProgressCount}</div>
+              <div className="text-13 text-text-secondary">In Progress</div>
+            </div>
+            <Play className="h-6 w-6 text-text-tertiary" />
+          </div>
+        </div>
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
+                <div className="text-2xl font-bold text-text-primary">{doneCount}</div>
+              <div className="text-13 text-text-secondary">Done</div>
+            </div>
+            <CheckCircle className="h-6 w-6 text-text-tertiary" />
+          </div>
+        </div>
+        <div className="bg-elev1 rounded-xl p-4 border border-line-soft">
+          <div className="flex items-center justify-between">
+            <div>
+                <div className="text-2xl font-bold text-text-primary">{totalCount}</div>
+              <div className="text-13 text-text-secondary">Total</div>
+            </div>
+            <BarChart3 className="h-6 w-6 text-text-tertiary" />
+          </div>
+        </div>
+      </div>
 
       {/* Error Message */}
       {error && (
@@ -1040,6 +1043,147 @@ const AdminProjectManagement = () => {
         onSuccess={handleProjectModalSuccess}
       />
 
+      {/* Admin Navigation Sidebar Overlay */}
+      <div
+        className={`fixed inset-0 bg-scrim backdrop-blur-sm z-40 transition-all duration-300 ${sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* Admin Navigation Sidebar */}
+      <div className={`fixed top-0 left-0 w-[280px] h-full bg-surface z-50 border-r border-line-soft transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between mb-4 p-3 pb-3 border-b border-line-soft">
+          <div className="text-[18px] leading-6 font-semibold text-text-primary">Yirra Admin</div>
+          <button
+            className="bg-danger/10 border border-danger/20 rounded-10 p-2 text-danger hover:bg-danger/20 active:scale-95 transition-all"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="h-[calc(100%-56px)] overflow-y-auto p-3 pt-0 space-y-6">
+          <div>
+            <div className="h-9 rounded-10 bg-elev1 border border-line-soft flex items-center px-3 gap-2">
+              <svg className="w-4 h-4 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+              </svg>
+              <input className="flex-1 bg-transparent outline-none text-text-primary placeholder:text-text-tertiary text-[13px]" placeholder="Search…" />
+            </div>
+          </div>
+
+          <div>
+            <div className="text-[12px] leading-[18px] font-semibold text-text-tertiary uppercase tracking-wider mb-2 px-1">Dashboard</div>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/mobile'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+              Overview
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-brand bg-[rgba(99,102,241,.12)] relative before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-brand before:rounded"
+              onClick={() => { navigate('/projects'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v8m4-4H8m12 0a8 8 0 11-16 0 8 8 0 0116 0z" />
+              </svg>
+              Projects
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/products'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              Products
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/orders'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Orders
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/customers'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              </svg>
+              Customers
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/inventory'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Inventory
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/fulfillment'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              Fulfillment
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/stl-files'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m4 0H8l.5 16h7L16 4z" />
+              </svg>
+              STL Files
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/analytics'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Analytics
+            </button>
+          </div>
+
+          <div>
+            <div className="text-[12px] leading-[18px] font-semibold text-text-tertiary uppercase tracking-wider mb-2 px-1">Management</div>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/users'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              </svg>
+              Users
+            </button>
+            <button
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
+              onClick={() => { navigate('/settings'); setSidebarOpen(false); }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Settings
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Project Sidebar */}
       <ProjectSidebar
         isOpen={showProjectSidebar}
@@ -1051,7 +1195,7 @@ const AdminProjectManagement = () => {
         onDeleteProject={handleDeleteProject}
         refreshTrigger={projectRefreshTrigger}
       />
-      </div>
+    </div>
   );
 };
 
