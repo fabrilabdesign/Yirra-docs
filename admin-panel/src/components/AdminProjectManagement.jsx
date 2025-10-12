@@ -1086,7 +1086,7 @@ const AdminProjectManagement = () => {
               Overview
             </button>
             <button
-              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-brand bg-[rgba(99,102,241,.12)] relative before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-brand before:rounded"
+              className="flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition text-text-secondary hover:bg-hover hover:text-text-primary"
               onClick={() => { navigate('/projects'); setSidebarOpen(false); }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
