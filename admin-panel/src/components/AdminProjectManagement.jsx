@@ -170,8 +170,9 @@ const AdminProjectManagement = () => {
   }, []);
 
   const handleTasksCreated = useCallback(() => {
-    fetchTasks(); // Refresh tasks after AI chat creates them
-  }, [fetchTasks]);
+    // Defer to ensure latest fetchTasks is used at call time
+    Promise.resolve().then(() => fetchTasks());
+  }, []);
 
   const fetchTasks = useCallback(async () => {
     try {

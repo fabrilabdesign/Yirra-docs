@@ -52,16 +52,15 @@ const PlanReview = ({
       setSuggestions([]);
 
       const token = await getToken();
+      const proposePayload = { userPrompt: prompt };
+      if (projectId) proposePayload.projectId = projectId;
       const res = await fetch('/api/admin/projects/ai/plan', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userPrompt: prompt,
-          projectId: projectId || null,
-        }),
+        body: JSON.stringify(proposePayload),
       });
 
       if (!res.ok) {
@@ -83,23 +82,36 @@ const PlanReview = ({
     }
   }, [userPrompt, projectId, getToken, onNotify, selectedProject]);
 
+  const computeIdempotencyKey = useCallback(async (convId, selectionList) => {
+    const base = `${convId || 'no-conv'}:${selectionList.map(s => s.suggestionId).join(',')}`;
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(base);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return `${convId || 'no-conv'}:${hashHex.slice(0, 24)}`;
+    } catch (e) {
+      const fallback = `${convId || 'no-conv'}:${selectionList.length}:${selectionList[0]?.suggestionId || ''}:${selectionList[selectionList.length - 1]?.suggestionId || ''}`;
+      return fallback.slice(0, 100);
+    }
+  }, []);
+
   const handleCommit = useCallback(async (selectionList) => {
     try {
       setIsProposing(true);
       const token = await getToken();
-      const idempotencyKey = `${conversationId || 'no-conv'}:${selectionList.map(s => s.suggestionId).join(',')}`;
+      const idempotencyKey = await computeIdempotencyKey(conversationId, selectionList);
+      const commitPayload = { idempotencyKey, selections: selectionList };
+      if (projectId) commitPayload.projectId = projectId;
+      if (conversationId) commitPayload.conversationId = conversationId;
       const res = await fetch('/api/admin/projects/ai/commit', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          projectId: projectId || null,
-          conversationId: conversationId || null,
-          idempotencyKey,
-          selections: selectionList,
-        }),
+        body: JSON.stringify(commitPayload),
       });
       if (!res.ok) {
         const msg = await res.json().then(d => d.error || 'Failed to create tasks').catch(() => 'Failed to create tasks');
@@ -117,7 +129,7 @@ const PlanReview = ({
     } finally {
       setIsProposing(false);
     }
-  }, [conversationId, projectId, getToken, onNotify, onTasksCreated]);
+  }, [conversationId, projectId, getToken, onNotify, onTasksCreated, computeIdempotencyKey]);
 
   const handleAcceptAll = useCallback(async () => {
     if (plannedCount === 0) return;
