@@ -1,10 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { CheckCircle2, ClipboardList, Loader2, AlertTriangle } from 'lucide-react';
+import { ClipboardList, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Select } from '../ui/select';
 import { Textarea } from '../ui/textarea';
 
+// LLM Planning UI with project selection
+// Props:
+// - availableProjects: [{id, name}] list
+// - selectedProjectId: preselected project id (string)
+// - onProjectChange: (id) => void
+// - onTasksCreated: () => Promise<void>
+// - onNotify: (type, message) => void
 const PlanReview = ({
   availableProjects = [],
   selectedProjectId,
@@ -13,82 +20,120 @@ const PlanReview = ({
   onNotify,
 }) => {
   const { getToken } = useAuth();
-  const [planText, setPlanText] = useState('');
-  const [status, setStatus] = useState('todo');
-  const [priority, setPriority] = useState('medium');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Project selection state (initialized from parent)
+  const [projectId, setProjectId] = useState(selectedProjectId || '');
+
+  // Prompt for proposing plan
+  const [userPrompt, setUserPrompt] = useState('');
+  const [isProposing, setIsProposing] = useState(false);
   const [error, setError] = useState(null);
 
-  const plannedTasks = useMemo(() => {
-    return planText
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(Boolean);
-  }, [planText]);
+  // Suggestions state
+  const [conversationId, setConversationId] = useState('');
+  const [suggestions, setSuggestions] = useState([]); // [{id,title,description,priority,...}]
+  const plannedCount = suggestions.length;
 
-  const handleCreateTasks = async () => {
-    if (plannedTasks.length === 0) {
-      setError('Add at least one task description before creating tasks.');
-      onNotify?.('error', 'Add at least one task description before creating tasks.');
+  const selectedProject = useMemo(() => (
+    availableProjects.find(p => String(p.id) === String(projectId))
+  ), [availableProjects, projectId]);
+
+  const handleProposePlan = useCallback(async () => {
+    const prompt = userPrompt.trim();
+    if (!prompt) {
+      setError('Please enter a short planning prompt.');
+      onNotify?.('error', 'Please enter a short planning prompt.');
       return;
     }
 
     try {
-      setIsSubmitting(true);
+      setIsProposing(true);
       setError(null);
+      setSuggestions([]);
 
       const token = await getToken();
-      if (!token) {
-        throw new Error('Authentication required to create tasks.');
+      const res = await fetch('/api/admin/projects/ai/plan', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userPrompt: prompt,
+          projectId: projectId || null,
+        }),
+      });
+
+      if (!res.ok) {
+        const msg = await res.json().then(d => d.error || 'Failed to propose plan').catch(() => 'Failed to propose plan');
+        throw new Error(msg);
       }
 
-      const createdTasks = [];
-      for (const title of plannedTasks) {
-        const response = await fetch('/api/admin/projects/tasks', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title,
-            description: null,
-            projectId: selectedProjectId || null,
-            status,
-            priority,
-            dueDate: null,
-            assigneeId: null,
-          }),
-        });
-
-        if (!response.ok) {
-          const message = await response
-            .json()
-            .then(data => data.error || 'Failed to create task')
-            .catch(() => 'Failed to create task');
-          throw new Error(message);
-        }
-
-        const createdTask = await response.json();
-        createdTasks.push(createdTask);
-      }
-
-      onNotify?.('success', `${createdTasks.length} planned task${createdTasks.length > 1 ? 's' : ''} created successfully.`);
-      setPlanText('');
-      if (onTasksCreated) {
-        await onTasksCreated();
-      }
-    } catch (err) {
-      console.error('Plan creation error:', err);
-      const message = err?.message || 'Failed to create planned tasks.';
-      setError(message);
-      onNotify?.('error', message);
+      const data = await res.json();
+      const convId = data.conversation_id || '';
+      const list = Array.isArray(data.suggestions) ? data.suggestions : [];
+      setConversationId(convId);
+      setSuggestions(list);
+      onNotify?.('success', `Proposed ${list.length} items${projectId ? ` for project ${selectedProject?.name || projectId}` : ''}.`);
+    } catch (e) {
+      setError(e?.message || 'Failed to propose plan');
+      onNotify?.('error', e?.message || 'Failed to propose plan');
     } finally {
-      setIsSubmitting(false);
+      setIsProposing(false);
     }
-  };
+  }, [userPrompt, projectId, getToken, onNotify, selectedProject]);
 
-  const selectedProject = availableProjects.find(project => String(project.id) === String(selectedProjectId));
+  const handleCommit = useCallback(async (selectionList) => {
+    try {
+      setIsProposing(true);
+      const token = await getToken();
+      const idempotencyKey = `${conversationId || 'no-conv'}:${selectionList.map(s => s.suggestionId).join(',')}`;
+      const res = await fetch('/api/admin/projects/ai/commit', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId: projectId || null,
+          conversationId: conversationId || null,
+          idempotencyKey,
+          selections: selectionList,
+        }),
+      });
+      if (!res.ok) {
+        const msg = await res.json().then(d => d.error || 'Failed to create tasks').catch(() => 'Failed to create tasks');
+        throw new Error(msg);
+      }
+      const out = await res.json();
+      const createdCount = Array.isArray(out.created) ? out.created.length : 0;
+      const failedCount = Array.isArray(out.errors) ? out.errors.length : 0;
+      onNotify?.('success', `Created ${createdCount} task(s)${failedCount ? `, ${failedCount} failed` : ''}.`);
+      // Refresh
+      await onTasksCreated?.();
+    } catch (e) {
+      setError(e?.message || 'Failed to create tasks from plan');
+      onNotify?.('error', e?.message || 'Failed to create tasks from plan');
+    } finally {
+      setIsProposing(false);
+    }
+  }, [conversationId, projectId, getToken, onNotify, onTasksCreated]);
+
+  const handleAcceptAll = useCallback(async () => {
+    if (plannedCount === 0) return;
+    const selections = suggestions.map(s => ({ suggestionId: s.id, override: {} }));
+    await handleCommit(selections);
+    // Reset UI
+    setUserPrompt('');
+    setSuggestions([]);
+    setConversationId('');
+  }, [plannedCount, suggestions, handleCommit]);
+
+  const handleAcceptOne = useCallback(async (id) => {
+    await handleCommit([{ suggestionId: id, override: {} }]);
+    // Remove accepted from the local list
+    setSuggestions(prev => prev.filter(s => s.id !== id));
+  }, [handleCommit]);
 
   return (
     <section className="bg-elev1 border border-line-soft rounded-16 shadow-elev1 p-6">
@@ -96,75 +141,57 @@ const PlanReview = ({
         <div className="flex items-center gap-3 text-text-primary">
           <ClipboardList size={24} className="text-brand" />
           <div>
-            <h2 className="text-[18px] font-semibold leading-6">Project Planning</h2>
-            <p className="text-[13px] text-text-secondary">
-              Paste or type one task per line and create them in bulk with a single click.
-            </p>
+            <h2 className="text-[18px] font-semibold leading-6">Project Planning (AI)</h2>
+            <p className="text-[13px] text-text-secondary">Propose a plan and commit generated tasks to a project.</p>
           </div>
         </div>
         <div className="flex items-center gap-3 text-[13px] text-text-secondary">
           <CheckCircle2 size={18} className="text-success" />
-          {plannedTasks.length} task{plannedTasks.length === 1 ? '' : 's'} ready
+          {plannedCount} item{plannedCount === 1 ? '' : 's'} proposed
         </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)]">
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="md:col-span-1">
-            <label className="block text-[12px] font-semibold text-text-secondary mb-2">Assign to project</label>
-            <Select
-              value={selectedProjectId || ''}
-              onChange={(event) => onProjectChange?.(event.target.value)}
-            >
-              <option value="">📂 No project (personal tasks)</option>
-              {availableProjects.map(project => (
-                <option key={project.id} value={project.id}>
-                  📁 {project.name}
-                </option>
-              ))}
-            </Select>
-            {selectedProject && (
-              <p className="mt-2 text-[12px] text-text-tertiary">
-                Tasks will be created under <span className="font-medium text-text-secondary">{selectedProject.name}</span>.
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="block text-[12px] font-semibold text-text-secondary mb-2">Default status</label>
-            <Select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="todo">📋 To do</option>
-              <option value="in_progress">⚡ In progress</option>
-              <option value="done">✅ Done</option>
-            </Select>
-          </div>
-          <div>
-            <label className="block text-[12px] font-semibold text-text-secondary mb-2">Default priority</label>
-            <Select value={priority} onChange={(event) => setPriority(event.target.value)}>
-              <option value="low">🟢 Low</option>
-              <option value="medium">🟡 Medium</option>
-              <option value="high">🔴 High</option>
-            </Select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[12px] font-semibold text-text-secondary mb-2">
-            Plan tasks (one per line)
-          </label>
-          <Textarea
-            value={planText}
-            onChange={(event) => {
-              if (error) {
-                setError(null);
-              }
-              setPlanText(event.target.value);
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="md:col-span-1">
+          <label className="block text-[12px] font-semibold text-text-secondary mb-2">Assign to project</label>
+          <Select
+            value={projectId || ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              setProjectId(val);
+              onProjectChange?.(val);
             }}
-            placeholder={'e.g.\nDefine project scope\nDraft initial requirements\nSchedule kickoff meeting'}
-            rows={8}
+          >
+            <option value="">📂 No project (personal tasks)</option>
+            {availableProjects.map(p => (
+              <option key={p.id} value={p.id}>📁 {p.name}</option>
+            ))}
+          </Select>
+          {selectedProject && (
+            <p className="mt-2 text-[12px] text-text-tertiary">
+              Tasks will be created under <span className="font-medium text-text-secondary">{selectedProject.name}</span>.
+            </p>
+          )}
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-[12px] font-semibold text-text-secondary mb-2">Planning prompt</label>
+          <Textarea
+            rows={3}
+            value={userPrompt}
+            onChange={(e) => {
+              if (error) setError(null);
+              setUserPrompt(e.target.value);
+            }}
+            placeholder={'e.g.\nLaunch prep for next week: docs, QA sweep, marketing checklist, site updates'}
           />
-          <p className="mt-2 text-[12px] text-text-tertiary">
-            Tip: include due dates or owners in parentheses to remind yourself (e.g. "Book venue (due Friday)").
-          </p>
+          <div className="mt-3 flex gap-2">
+            <Button onClick={handleProposePlan} disabled={isProposing || !userPrompt.trim()}>
+              {isProposing ? (<><Loader2 size={16} className="animate-spin" /> Proposing...</>) : 'Propose Plan'}
+            </Button>
+            <Button onClick={handleAcceptAll} disabled={isProposing || plannedCount === 0}>
+              Commit {plannedCount > 0 ? plannedCount : ''} task{plannedCount === 1 ? '' : 's'}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -175,29 +202,28 @@ const PlanReview = ({
         </div>
       )}
 
-      <footer className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-[12px] text-text-tertiary">
-          {selectedProjectId ? 'Tasks will automatically inherit the selected project.' : 'Tasks will be created without a project.'}
-        </span>
-        <Button
-          type="button"
-          className="flex items-center gap-2"
-          onClick={handleCreateTasks}
-          disabled={isSubmitting || plannedTasks.length === 0}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Creating...
-            </>
-          ) : (
-            <>
-              <CheckCircle2 size={16} />
-              Create {plannedTasks.length > 0 ? `${plannedTasks.length} ` : ''}task{plannedTasks.length === 1 ? '' : 's'}
-            </>
-          )}
-        </Button>
-      </footer>
+      {plannedCount > 0 && (
+        <div className="mt-6 space-y-3">
+          {suggestions.map(s => (
+            <div key={s.id} className="border border-line-soft rounded-12 p-4 bg-surface">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-semibold text-text-primary mb-1 truncate">{s.title || 'Untitled task'}</div>
+                  {s.description && (
+                    <div className="text-[13px] text-text-secondary mb-2 whitespace-pre-wrap break-words">{s.description}</div>
+                  )}
+                  <div className="text-[12px] text-text-tertiary">Priority: {s.priority || 'medium'}</div>
+                </div>
+                <div className="flex-shrink-0 flex gap-2">
+                  <Button onClick={() => handleAcceptOne(s.id)} disabled={isProposing}>
+                    Accept
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
