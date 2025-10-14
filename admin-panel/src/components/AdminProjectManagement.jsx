@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useRef, Suspense, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart, Folder } from 'lucide-react';
@@ -11,6 +11,9 @@ import KanbanBoard from './KanbanBoard';
 import ProjectReports from './ProjectReports';
 import ProjectSidebar from './ProjectSidebar';
 import ProjectModal from './ProjectModal';
+
+const ProjectsAssistantChat = React.lazy(() => import('./ProjectsAssistantChat'));
+const PlanReview = React.lazy(() => import('./PlanReview'));
 
 const AdminProjectManagement = () => {
   const { getToken } = useAuth();
@@ -161,31 +164,12 @@ const AdminProjectManagement = () => {
 
   const navItemAriaCurrent = (path) => (isPathActive(path) ? 'page' : undefined);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [pagination.currentPage, filters, selectedProjectId]);
-
-  useEffect(() => {
-    fetchAvailableProjects();
+  const getTaskId = useCallback((task) => {
+    if (!task) return null;
+    return task.id ?? task.task_id ?? task.taskId ?? null;
   }, []);
 
-  // Persist right ProjectSidebar open/closed state
-  useEffect(() => {
-    const saved = localStorage.getItem('projectsSidebarOpen');
-    if (saved !== null) {
-      try {
-        setShowProjectSidebar(JSON.parse(saved));
-      } catch {}
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('projectsSidebarOpen', JSON.stringify(showProjectSidebar));
-    } catch {}
-  }, [showProjectSidebar]);
-
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
       const token = await getToken();
@@ -226,11 +210,35 @@ const AdminProjectManagement = () => {
     } catch (err) {
       console.error('Tasks fetch error:', err);
       setError('Failed to load tasks data');
-      setTasks([]); // Reset tasks on error
+      setTasks([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, getToken, pagination.currentPage, pagination.limit, selectedProjectId]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  useEffect(() => {
+    fetchAvailableProjects();
+  }, []);
+
+  // Persist right ProjectSidebar open/closed state
+  useEffect(() => {
+    const saved = localStorage.getItem('projectsSidebarOpen');
+    if (saved !== null) {
+      try {
+        setShowProjectSidebar(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('projectsSidebarOpen', JSON.stringify(showProjectSidebar));
+    } catch {}
+  }, [showProjectSidebar]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -274,7 +282,13 @@ const AdminProjectManagement = () => {
   };
 
   const viewTaskDetails = (task) => {
-    setSelectedTask(task);
+    const normalizedId = getTaskId(task);
+    if (!normalizedId) {
+      showToast('error', 'Unable to open task details. The task is missing an identifier.');
+      return;
+    }
+
+    setSelectedTask({ ...task, id: normalizedId });
     setShowTaskDetails(true);
   };
 
@@ -282,12 +296,13 @@ const AdminProjectManagement = () => {
     if (taskOrId) {
       if (typeof taskOrId === 'object') {
         // Navigate to sub-task details
-        setSelectedTask(taskOrId);
+        const normalizedId = getTaskId(taskOrId);
+        setSelectedTask(normalizedId ? { ...taskOrId, id: normalizedId } : taskOrId);
       } else {
         // subTaskId string (legacy)
-        const subTask = tasks.find(t => t.id === taskOrId);
+        const subTask = tasks.find(t => getTaskId(t) === taskOrId);
         if (subTask) {
-          setSelectedTask(subTask);
+          setSelectedTask({ ...subTask, id: getTaskId(subTask) });
         }
       }
     } else {
@@ -310,7 +325,10 @@ const AdminProjectManagement = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ text: aiInput.trim() })
+        body: JSON.stringify({
+          text: aiInput.trim(),
+          projectId: selectedProjectId || null,
+        })
       });
 
       if (response.ok) {
@@ -420,7 +438,12 @@ const AdminProjectManagement = () => {
   };
 
   const handleUpdateTask = (updatedTask) => {
-    setTasks(prev => prev.map(task => task.id === updatedTask.id ? updatedTask : task));
+    const updatedId = getTaskId(updatedTask);
+    setTasks(prev => prev.map(task => (getTaskId(task) === updatedId ? { ...task, ...updatedTask } : task)));
+    setSelectedTask(prev => {
+      if (!prev) return prev;
+      return getTaskId(prev) === updatedId ? { ...prev, ...updatedTask, id: updatedId } : prev;
+    });
   };
 
   const handleAddTaskForStatus = (status) => {
@@ -540,14 +563,14 @@ const AdminProjectManagement = () => {
       );
     }
 
-  if (showTaskDetails && selectedTask) {
-    return (
-      <AdminTaskDetails
-        taskId={selectedTask.id}
-        onBack={handleTaskDetailsBack}
-      />
-    );
-  }
+    if (showTaskDetails && selectedTask) {
+      return (
+        <AdminTaskDetails
+          taskId={getTaskId(selectedTask)}
+          onBack={handleTaskDetailsBack}
+        />
+      );
+    }
 
     // otherwise your list/kanban/reports switch
     return viewMode === 'kanban' ? (
@@ -672,7 +695,7 @@ const AdminProjectManagement = () => {
   })();
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="mx-auto w-full max-w-[100rem] px-4 sm:px-6">
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 right-4 z-[60] px-4 py-3 rounded shadow text-white ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
@@ -823,10 +846,7 @@ const AdminProjectManagement = () => {
       {showAIChat && (
         <div className="mb-12">
           <Suspense fallback={<div>Loading AI Chat...</div>}>
-            {React.createElement(
-              React.lazy(() => import('./ProjectsAssistantChat')),
-              null
-            )}
+            <ProjectsAssistantChat />
           </Suspense>
         </div>
       )}
@@ -835,16 +855,27 @@ const AdminProjectManagement = () => {
       {showPlanReview && (
         <div className="mb-12">
           <Suspense fallback={<div>Loading Plan Review...</div>}>
-            {React.createElement(
-              React.lazy(() => import('./PlanReview')),
-              null
-            )}
+            <PlanReview
+              availableProjects={availableProjects}
+              selectedProjectId={selectedProjectId}
+              onProjectChange={(value) => {
+                if (!value) {
+                  handleProjectSelect(null);
+                  return;
+                }
+
+                const matchingProject = availableProjects.find(project => String(project.id) === String(value));
+                handleProjectSelect(matchingProject ? matchingProject.id : value);
+              }}
+              onTasksCreated={fetchTasks}
+              onNotify={showToast}
+            />
           </Suspense>
         </div>
       )}
 
       {/* Content Area */}
-      <div className={`px-6 pt-6 pb-8 ${showProjectSidebar ? 'lg:pr-96' : ''}`}>
+      <div className={`pt-6 pb-8 ${showProjectSidebar ? 'lg:pr-80 xl:pr-[21rem]' : ''}`}>
       {/* Stats Bar */}
         <div className="mt-4 md:mt-6 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <button onClick={() => handleFilterChange('status', 'todo')} className="bg-elev1 rounded-xl p-4 border border-line-soft hover:border-brand/40 hover:bg-elev2 transition cursor-pointer text-left" aria-pressed={filters.status === 'todo'} title="Filter: To Do">

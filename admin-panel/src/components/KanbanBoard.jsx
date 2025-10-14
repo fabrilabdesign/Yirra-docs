@@ -34,7 +34,14 @@ const getPriorityBadgeClass = (priority) => {
 };
 
 const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    data: {
+      type: 'task',
+      task,
+      columnId: task.status || 'todo',
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -98,7 +105,13 @@ const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
 };
 
 const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, onAddTask }) => {
-  const { setNodeRef, isOver } = useDroppable({ id: status });
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+    data: {
+      type: 'column',
+      status,
+    },
+  });
 
   const getColumnBg = () => {
     return 'bg-surface border-line-soft';
@@ -107,7 +120,7 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
   return (
     <div
       ref={setNodeRef}
-      className={`w-[320px] rounded-14 border border-line-soft bg-surface shadow-elev1 flex flex-col transition-colors duration-200 ${
+      className={`w-[360px] rounded-14 border border-line-soft bg-surface shadow-elev1 flex flex-col transition-colors duration-200 ${
         isOver ? 'border-dashed border-brand' : ''
       }`}
     >
@@ -128,7 +141,7 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
           <Plus size={16} />
         </button>
       </div>
-      <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext id={status} items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="px-3 pb-3 space-y-3 min-h-96">
           {tasks.map((task) => (
             <TaskCard
@@ -166,7 +179,15 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
     if (!over) return;
 
     const taskId = active.id;
-    const newStatus = over.id;
+    const activeStatus = active.data?.current?.columnId || active.data?.current?.task?.status;
+    const overColumnId = over.data?.current?.type === 'column'
+      ? over.id
+      : over.data?.current?.sortable?.containerId;
+    const newStatus = overColumnId || over.id;
+
+    if (!newStatus || newStatus === activeStatus) {
+      return;
+    }
 
     // Check if dropped on a column
     if (newStatus === 'todo' || newStatus === 'in_progress' || newStatus === 'done') {
@@ -183,7 +204,7 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
 
         if (response.ok) {
           const updatedTask = await response.json();
-          onUpdateTask(updatedTask);
+          onUpdateTask({ ...updatedTask, id: taskId, status: newStatus });
         } else {
           const errorData = await response.json().catch(() => ({}));
           const errorMessage = errorData.error || 'Failed to update task status';
