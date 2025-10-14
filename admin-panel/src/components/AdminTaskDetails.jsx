@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { ArrowLeft, Plus, Save, Trash2, Calendar, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Trash2, Calendar, MessageSquare, Clock } from 'lucide-react';
 
 const AdminTaskDetails = ({ taskId, onBack }) => {
   const { getToken } = useAuth();
@@ -72,6 +72,13 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
     }
   }, [taskId]);
 
+  useEffect(() => {
+    if (task) {
+      // Load AI suggestions for the task after the task details are fetched
+      fetchAISuggestions(task.id);
+    }
+  }, [task]); // Rerun when task object changes
+
   const fetchTaskDetails = async () => {
     try {
       setLoading(true);
@@ -98,7 +105,9 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
         setTotalHours(data.totalHours || 0);
 
         // Fetch AI suggestions for this task
-        fetchAISuggestions();
+        if (data.task) { // Only fetch AI suggestions if task is valid
+          // fetchAISuggestions(data.task.id); // This line is now handled by the useEffect hook
+        }
         setEditFormData({
           title: data.task.title,
           description: data.task.description || '',
@@ -310,10 +319,10 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
     }
   };
 
-  const fetchAISuggestions = async () => {
+  const fetchAISuggestions = async (taskId) => {
     try {
       const token = await getToken();
-      const response = await fetch('/api/admin/projects/ai/suggestions', {
+      const response = await fetch(`/api/admin/projects/ai/suggestions?taskId=${taskId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -323,7 +332,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
       if (response.ok) {
         const data = await response.json();
         // Filter suggestions for this task
-        const taskSuggestions = data.suggestions.filter(s => s.taskId === task.id);
+        const taskSuggestions = data.suggestions.filter(s => s.taskId === taskId);
         setAiSuggestions(taskSuggestions);
       }
     } catch (error) {
@@ -347,7 +356,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
       if (response.ok) {
         const data = await response.json();
         showToast('success', 'AI suggested task breakdown! Check suggestions below.');
-        fetchAISuggestions(); // Refresh suggestions
+        fetchAISuggestions(task.id); // Refresh suggestions
       } else {
         const errorData = await response.json();
         showToast('error', errorData.error || 'Failed to generate breakdown');
@@ -375,7 +384,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
       if (response.ok) {
         const data = await response.json();
         showToast('success', 'AI analyzed priority! Check suggestions below.');
-        fetchAISuggestions(); // Refresh suggestions
+        fetchAISuggestions(task.id); // Refresh suggestions
       } else {
         const errorData = await response.json();
         showToast('error', errorData.error || 'Failed to analyze priority');
@@ -403,7 +412,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
       if (response.ok) {
         const data = await response.json();
         showToast('success', 'AI estimated timeline! Check suggestions below.');
-        fetchAISuggestions(); // Refresh suggestions
+        fetchAISuggestions(task.id); // Refresh suggestions
       } else {
         const errorData = await response.json();
         showToast('error', errorData.error || 'Failed to estimate timeline');
@@ -431,7 +440,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
 
       if (response.ok) {
         showToast('success', 'AI suggestion accepted!');
-        fetchAISuggestions(); // Refresh suggestions
+        fetchAISuggestions(task.id); // Refresh suggestions
         // Refresh task data to show changes
         fetchTaskDetails();
       } else {
@@ -461,7 +470,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
 
       if (response.ok) {
         showToast('success', 'AI suggestion dismissed');
-        fetchAISuggestions(); // Refresh suggestions
+        fetchAISuggestions(task.id); // Refresh suggestions
       } else {
         const errorData = await response.json();
         showToast('error', errorData.error || 'Failed to dismiss suggestion');
@@ -567,7 +576,7 @@ const AdminTaskDetails = ({ taskId, onBack }) => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-12 shadow-elev2 border ${toast.type === 'success' ? 'bg-success text-text-inverse border-success' : 'bg-danger text-text-inverse border-danger'}`}>

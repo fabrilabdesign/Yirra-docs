@@ -12,8 +12,8 @@ import ProjectReports from './ProjectReports';
 import ProjectSidebar from './ProjectSidebar';
 import ProjectModal from './ProjectModal';
 
-const ProjectsAssistantChat = React.lazy(() => import('./ProjectsAssistantChat'));
-const PlanReview = React.lazy(() => import('./PlanReview'));
+import ProjectsAssistantChat from './ProjectsAssistantChat';
+import PlanReview from './PlanReview';
 
 const AdminProjectManagement = () => {
   const { getToken } = useAuth();
@@ -168,6 +168,10 @@ const AdminProjectManagement = () => {
     if (!task) return null;
     return task.id ?? task.task_id ?? task.taskId ?? null;
   }, []);
+
+  const handleTasksCreated = useCallback(() => {
+    fetchTasks(); // Refresh tasks after AI chat creates them
+  }, [fetchTasks]);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -760,18 +764,24 @@ const AdminProjectManagement = () => {
 
           {/* Action buttons */}
           <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAIPanel(!showAIPanel)}
+            <button
+              onClick={() => setShowAIPanel(!showAIPanel)}
               aria-pressed={showAIPanel}
               aria-label="Toggle AI panel"
               className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
-              showAIPanel ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
-            }`}
-          >
-            🤖 AI
-          </button>
+                showAIPanel ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
+              }`}
+            >
+              🤖 AI
+            </button>
             <button
-              onClick={() => setShowAIChat(!showAIChat)}
+              onClick={() => {
+                setShowAIChat(!showAIChat);
+                // If closing chat, refresh tasks in case any were created via chat
+                if (showAIChat) {
+                  fetchTasks();
+                }
+              }}
               aria-pressed={showAIChat}
               aria-label="Toggle Projects Assistant chat"
               className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
@@ -845,32 +855,32 @@ const AdminProjectManagement = () => {
       {/* Projects Assistant Chat */}
       {showAIChat && (
         <div className="mb-12">
-          <Suspense fallback={<div>Loading AI Chat...</div>}>
-            <ProjectsAssistantChat />
-          </Suspense>
+          <ProjectsAssistantChat
+            onTasksCreated={handleTasksCreated}
+            onNotify={showToast}
+            selectedProjectId={selectedProjectId}
+          />
         </div>
       )}
 
       {/* Plan Review */}
       {showPlanReview && (
         <div className="mb-12">
-          <Suspense fallback={<div>Loading Plan Review...</div>}>
-            <PlanReview
-              availableProjects={availableProjects}
-              selectedProjectId={selectedProjectId}
-              onProjectChange={(value) => {
-                if (!value) {
-                  handleProjectSelect(null);
-                  return;
-                }
+          <PlanReview
+            availableProjects={availableProjects}
+            selectedProjectId={selectedProjectId}
+            onProjectChange={(value) => {
+              if (!value) {
+                handleProjectSelect(null);
+                return;
+              }
 
-                const matchingProject = availableProjects.find(project => String(project.id) === String(value));
-                handleProjectSelect(matchingProject ? matchingProject.id : value);
-              }}
-              onTasksCreated={fetchTasks}
-              onNotify={showToast}
-            />
-          </Suspense>
+              const matchingProject = availableProjects.find(project => String(project.id) === String(value));
+              handleProjectSelect(matchingProject ? matchingProject.id : value);
+            }}
+            onTasksCreated={fetchTasks}
+            onNotify={showToast}
+          />
         </div>
       )}
 

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { Plus, Calendar, User, AlertCircle, GripVertical } from 'lucide-react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -52,7 +52,7 @@ const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
     <article
       ref={setNodeRef}
       style={style}
-      className={`group rounded-12 border border-line-soft bg-elev1 p-3 shadow-elev1 hover:shadow-elev2 hover:-translate-y-px transition duration-150 ease-in ${isDragging ? 'cursor-grabbing scale-[0.998] shadow-elev2' : 'cursor-grab'}`}
+      className={`group rounded-12 border border-line-soft bg-elev1 p-3 shadow-elev1 hover:shadow-elev2 hover:-translate-y-px transition duration-150 ease-in ${isDragging ? 'cursor-grabbing scale-[0.998] shadow-elev2' : ''}`}
       {...attributes}
       {...listeners}
       onClick={!isDragging ? () => onViewDetails(task) : undefined}
@@ -64,9 +64,12 @@ const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
             <p className="text-[13px] leading-5 text-text-secondary">{task.description}</p>
           )}
         </div>
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
+        <button
+          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab hover:text-brand p-1 rounded hover:bg-hover"
+          {...listeners}
+        >
           <GripVertical size={16} className="text-text-tertiary" />
-        </div>
+        </button>
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-text-tertiary">
@@ -166,6 +169,11 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
 
 const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpdateTask, onError }) => {
   const { getToken } = useAuth();
+  const [localTasks, setLocalTasks] = useState(tasks);
+
+  useEffect(() => {
+    setLocalTasks(tasks);
+  }, [tasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -179,18 +187,23 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
     if (!over) return;
 
     const taskId = active.id;
-    const activeStatus = active.data?.current?.columnId || active.data?.current?.task?.status;
-    const overColumnId = over.data?.current?.type === 'column'
-      ? over.id
-      : over.data?.current?.sortable?.containerId;
-    const newStatus = overColumnId || over.id;
+    const activeTask = localTasks.find(t => t.id === taskId);
+    if (!activeTask) return;
 
-    if (!newStatus || newStatus === activeStatus) {
-      return;
-    }
+    // Resolve containers (columns)
+    const sourceCol = active.data?.current?.sortable?.containerId;
+    const overIsItem = Boolean(over.data?.current?.sortable);
+    const destCol = overIsItem
+      ? over.data?.current?.sortable?.containerId
+      : over.id;
 
-    // Check if dropped on a column
-    if (newStatus === 'todo' || newStatus === 'in_progress' || newStatus === 'done') {
+    if (!sourceCol || !destCol) return;
+
+    // If moved across columns, update status
+    if (sourceCol !== destCol) {
+      const optimistic = { ...activeTask, status: destCol };
+      // setLocalTasks(prev => prev.map(t => (t.id === taskId ? optimistic : t))); // This line was removed
+
       try {
         const token = await getToken();
         const response = await fetch(`/api/admin/projects/tasks/${taskId}`, {
@@ -199,16 +212,18 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ status: newStatus })
+          body: JSON.stringify({ status: destCol })
         });
 
         if (response.ok) {
           const updatedTask = await response.json();
-          onUpdateTask({ ...updatedTask, id: taskId, status: newStatus });
+          onUpdateTask({ ...updatedTask, id: taskId, status: destCol });
         } else {
           const errorData = await response.json().catch(() => ({}));
           const errorMessage = errorData.error || 'Failed to update task status';
           console.error('Failed to update task status:', errorMessage);
+          // Rollback
+          setLocalTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: sourceCol } : t)));
           if (onError) {
             onError(errorMessage);
           }
@@ -216,11 +231,41 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
       } catch (error) {
         console.error('Error updating task status:', error);
         const errorMessage = 'Network error while updating task status';
+        // Rollback
+        // setLocalTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: sourceCol } : t))); // This line was removed
         if (onError) {
           onError(errorMessage);
         }
       }
     }
+
+    // Same-column reorder
+    const columnTasks = localTasks.filter(t => t.status === sourceCol);
+    const oldIndex = columnTasks.findIndex(t => t.id === taskId);
+    const newIndex = columnTasks.findIndex(t => t.id === over.id);
+    
+    if (oldIndex !== newIndex && newIndex !== -1) {
+      const reorderedTasks = arrayMove(columnTasks, oldIndex, newIndex);
+      
+      // Update local order
+      const reorderedIds = reorderedTasks.map(t => t.id);
+      const reorderMap = new Map(reorderedIds.map((id, i) => [id, i]));
+      
+      setLocalTasks(prev =>
+        prev.map(t => {
+          if (t.status === sourceCol) {
+            return { ...t, order: reorderMap.get(t.id) };
+          }
+          return t;
+        }).sort((a, b) => {
+          if (a.status !== b.status) return 0;
+          return (a.order ?? 0) - (b.order ?? 0);
+        })
+      );
+
+      // Optionally persist ordering to server (batch or single)
+      // await fetch('/api/admin/projects/tasks/reorder', { ... })
+     }
   };
 
   const columns = [
@@ -229,12 +274,16 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
     { id: 'done', title: 'Done', status: 'done' }
   ];
 
-  const getTasksForColumn = (status) => tasks.filter(task => task.status === status);
+  const getTasksForColumn = (status) => {
+    return localTasks
+      .filter(task => task.status === status)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  };
 
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={closestCorners}
       onDragEnd={handleDragEnd}
     >
       <div className="overflow-x-auto">
