@@ -70,13 +70,13 @@ spec:
     - host: staggingapp.yirrasystems.com
       http:
         paths:
-          - path: /chat/ws
+          - path: /api/admin/projects
             pathType: Prefix
             backend:
               service:
-                name: ai-chat-service
+                name: projects-svc
                 port:
-                  number: 8001
+                  number: 8080
           - path: /api
             pathType: Prefix
             backend:
@@ -84,6 +84,13 @@ spec:
                 name: backend
                 port:
                   number: 5000
+          - path: /chat/ws
+            pathType: Prefix
+            backend:
+              service:
+                name: ai-chat-service
+                port:
+                  number: 8001
           - path: /
             pathType: Prefix
             backend:

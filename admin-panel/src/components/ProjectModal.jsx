@@ -75,11 +75,11 @@ const ProjectModal = ({ isOpen, onClose, project, onSuccess }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: formData.name,
+          name: formData.name.trim(),
           description: formData.description,
           status: formData.status,
-          startDate: formData.startDate,
-          dueDate: formData.dueDate
+          startDate: formData.startDate || null,
+          dueDate: formData.dueDate || null
         })
       });
 

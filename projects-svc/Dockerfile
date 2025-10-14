@@ -10,4 +10,4 @@ RUN mkdir -p prisma && mv prisma.schema prisma/schema.prisma && npx prisma gener
 ENV NODE_ENV=production
 ENV PORT=8080
 EXPOSE 8080
-CMD sh -lc "npx prisma db push && node src/index.js"
+CMD node src/index.js

@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { PrismaClient } from '@prisma/client';
 import aiService from './ai.js';
+import { PlanRequestSchema, CommitRequestSchema } from './schemas.js';
+import crypto from 'crypto';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -11,6 +13,10 @@ const prisma = new PrismaClient();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log('Middleware Log (after json parse):', { url: req.url, method: req.method, body: req.body });
+  next();
+});
 app.use(morgan('tiny'));
 
 // Health before auth
@@ -19,6 +25,7 @@ app.get('/health', (req, res) => res.send('ok'));
 // Basic auth guard placeholder (staging): require Bearer token present for project APIs only
 app.use('/api/admin/projects', (req, res, next) => {
   const auth = req.headers.authorization || '';
+  console.log('Auth middleware hit:', { url: req.url, method: req.method, authHeader: auth ? 'Present' : 'Missing' });
   if (!auth.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -30,6 +37,32 @@ function parseIntOr(val, fallback) {
   const n = parseInt(val, 10);
   return Number.isFinite(n) ? n : fallback;
 }
+
+// Simple in-memory rate limiter (per-IP per-endpoint)
+function createRateLimiter(limit, windowMs) {
+  const buckets = new Map(); // key => { count, resetAt }
+  return (req, res, next) => {
+    const now = Date.now();
+    const key = `${req.ip}:${req.path}`;
+    const b = buckets.get(key) || { count: 0, resetAt: now + windowMs };
+    if (now > b.resetAt) {
+      b.count = 0;
+      b.resetAt = now + windowMs;
+    }
+    b.count += 1;
+    buckets.set(key, b);
+    if (b.count > limit) {
+      return res.status(429).json({ error: 'Too many requests' });
+    }
+    next();
+  };
+}
+
+const rateLimitPlan = createRateLimiter(5, 60_000); // 5/min per IP
+const rateLimitAccept = createRateLimiter(60, 60_000); // 60/min per IP
+
+// Simple in-memory idempotency store
+const idempotencyCache = new Map(); // key -> { hash, result, expiresAt }
 
 // GET tasks with pagination/search/sort
 app.get('/api/admin/projects/tasks', async (req, res) => {
@@ -338,6 +371,7 @@ app.get('/api/admin/projects', async (req, res) => {
 
 app.post('/api/admin/projects', async (req, res) => {
   try {
+    console.log('Project creation route received body:', req.body);
     const { name, description, status, startDate, dueDate } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'Project name is required' });
 
@@ -354,8 +388,8 @@ app.post('/api/admin/projects', async (req, res) => {
 
     res.status(201).json({ project });
   } catch (error) {
-    console.error('Project creation error:', error);
-    res.status(500).json({ error: 'Failed to create project' });
+    console.error('Project creation error:', error.message, error.stack);
+    res.status(500).json({ error: 'Failed to create project', details: error.message });
   }
 });
 
@@ -451,6 +485,72 @@ app.delete('/api/admin/projects/:id', async (req, res) => {
 
 // AI Integration Endpoints
 
+// Conversational assistant for projects/tasks
+app.post('/api/admin/projects/ai/chat', async (req, res) => {
+  try {
+    const { message, allowWrites = (process.env.PM_AI_ALLOW_WRITES === 'true') } = req.body || {};
+    if (!message || !message.trim()) return res.status(400).json({ error: 'message required' });
+    const result = await aiService.chat({ prisma, userId: req.user?.id || 'unknown', message: message.trim(), allowWrites });
+    res.json(result);
+  } catch (error) {
+    console.error('AI chat error:', error);
+    res.status(500).json({ error: 'Failed to process AI chat' });
+  }
+});
+
+// Planning mode: generate plan suggestions from a prompt (no writes to tasks yet)
+app.post('/api/admin/projects/ai/plan', rateLimitPlan, async (req, res) => {
+  try {
+    // Support legacy shape {prompt} by mapping to userPrompt
+    const body = { ...req.body };
+    if (body.prompt && !body.userPrompt) body.userPrompt = body.prompt;
+
+    const parsed = PlanRequestSchema.safeParse({
+      projectId: body.projectId,
+      userPrompt: body.userPrompt,
+      conversationId: body.conversationId,
+      count: body.count
+    });
+    if (!parsed.success) return res.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
+
+    const { projectId, userPrompt, conversationId, count } = parsed.data;
+    const userId = req.user?.id || 'unknown';
+    const convId = conversationId || crypto.randomUUID();
+
+    const suggestions = await aiService.generateSuggestions({
+      prisma,
+      userPrompt,
+      projectId: projectId || null,
+      userId,
+      count: count || 10
+    });
+
+    const stored = await aiService.storeSuggestions(prisma, convId, projectId || null, suggestions, userId);
+
+    // Normalize response to blueprint, plus legacy fields for compatibility
+    const outSuggestions = stored.map(s => ({
+      id: s.id,
+      title: s.data?.title,
+      description: s.data?.description,
+      priority: s.data?.priority,
+      labels: s.data?.labels || [],
+      dependencies: s.data?.dependencies || [],
+      reasoning: s.data?.reasoning,
+      meta: s.data?.meta || {}
+    }));
+
+    res.json({
+      conversation_id: convId,
+      suggestions: outSuggestions,
+      // legacy extras
+      proposed: outSuggestions.length
+    });
+  } catch (error) {
+    console.error('AI plan error:', error);
+    res.status(500).json({ error: 'Failed to generate plan' });
+  }
+});
+
 // Natural language task creation
 app.post('/api/admin/projects/ai/create-task', async (req, res) => {
   try {
@@ -494,6 +594,76 @@ app.post('/api/admin/projects/ai/create-task', async (req, res) => {
   } catch (error) {
     console.error('AI task creation error:', error);
     res.status(500).json({ error: 'Failed to create task with AI' });
+  }
+});
+
+// Commit AI plan suggestions to tasks (blueprint)
+app.post('/api/admin/projects/ai/commit', rateLimitAccept, async (req, res) => {
+  try {
+    const parsed = CommitRequestSchema.safeParse(req.body || {});
+    if (!parsed.success) return res.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
+
+    const { projectId, conversationId, idempotencyKey, selections } = parsed.data;
+
+    // Idempotency
+    const hash = crypto.createHash('sha256').update(JSON.stringify(selections)).digest('hex');
+    const cache = idempotencyCache.get(idempotencyKey);
+    const now = Date.now();
+    if (cache && cache.hash === hash && cache.expiresAt > now) {
+      return res.json({ created: [], duplicates: cache.result.created || [], errors: [] });
+    }
+
+    const created = [];
+    const errors = [];
+
+    for (const sel of selections) {
+      try {
+        const suggestion = await prisma.aISuggestion.findUnique({ where: { id: sel.suggestionId } });
+        if (!suggestion) {
+          errors.push({ suggestionId: sel.suggestionId, error: 'suggestion_not_found' });
+          continue;
+        }
+        if (suggestion.type !== 'plan_task') {
+          errors.push({ suggestionId: sel.suggestionId, error: 'invalid_suggestion_type' });
+          continue;
+        }
+        const base = suggestion.data || {};
+        const override = sel.override || {};
+        const payload = {
+          title: (override.title ?? base.title ?? '').toString().slice(0, 200),
+          description: (override.description ?? base.description ?? null),
+          priority: (override.priority ?? base.priority ?? 'medium'),
+          labels: override.labels ?? base.labels ?? [],
+          dependencies: override.dependencies ?? base.dependencies ?? [],
+          // reasoning ignored for task creation
+        };
+        const newTask = await prisma.task.create({
+          data: {
+            title: payload.title,
+            description: payload.description,
+            status: 'todo',
+            priority: ['low','medium','high'].includes(payload.priority) ? payload.priority : 'medium',
+            dueDate: null,
+            projectId: projectId || null
+          }
+        });
+
+        // Mark suggestion accepted when applicable
+        try { await prisma.aISuggestion.update({ where: { id: suggestion.id }, data: { status: 'accepted' } }); } catch (_) {}
+
+        created.push({ suggestionId: suggestion.id, taskId: newTask.id });
+      } catch (e) {
+        errors.push({ suggestionId: sel.suggestionId, error: e.message || 'commit_failed' });
+      }
+    }
+
+    const result = { created, duplicates: [], errors };
+    idempotencyCache.set(idempotencyKey, { hash, result, expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
+
+    res.json(result);
+  } catch (error) {
+    console.error('AI commit error:', error);
+    res.status(500).json({ error: 'Failed to commit suggestions' });
   }
 });
 
@@ -610,7 +780,6 @@ app.get('/api/admin/projects/ai/suggestions', async (req, res) => {
         userId: req.user?.id || 'unknown',
         status: 'pending'
       },
-      include: { task: true },
       orderBy: { createdAt: 'desc' },
       take: 10
     });
@@ -622,8 +791,45 @@ app.get('/api/admin/projects/ai/suggestions', async (req, res) => {
   }
 });
 
+// Accept-all for plan suggestions
+app.post('/api/admin/projects/ai/suggestions/accept-all', rateLimitAccept, async (req, res) => {
+  try {
+    const { type = 'plan_task' } = req.body || {};
+    const userId = req.user?.id || 'unknown';
+    const suggestions = await prisma.aISuggestion.findMany({
+      where: { status: 'pending', type, userId }
+    });
+    let applied = 0;
+    for (const suggestion of suggestions) {
+      try {
+        await prisma.aISuggestion.update({ where: { id: suggestion.id }, data: { status: 'accepted' } });
+        if (type === 'plan_task') {
+          const data = suggestion.data || {};
+          await prisma.task.create({
+            data: {
+              title: (data.title || '').toString().slice(0, 200),
+              description: (data.description || null),
+              status: 'todo',
+              priority: ['low','medium','high'].includes((data.priority || '').toLowerCase()) ? data.priority : 'medium',
+              dueDate: data.dueDate ? new Date(data.dueDate) : null,
+              projectId: data.projectId || null
+            }
+          });
+        }
+        applied++;
+      } catch (e) {
+        console.warn('accept-all apply failed for', suggestion.id, e.message);
+      }
+    }
+    res.json({ applied, total: suggestions.length });
+  } catch (error) {
+    console.error('accept-all error:', error);
+    res.status(500).json({ error: 'Failed to accept all suggestions' });
+  }
+});
+
 // Accept/reject AI suggestion
-app.post('/api/admin/projects/ai/suggestions/:suggestionId/:action', async (req, res) => {
+app.post('/api/admin/projects/ai/suggestions/:suggestionId/:action', rateLimitAccept, async (req, res) => {
   try {
     const { suggestionId, action } = req.params;
     if (!['accept', 'reject', 'dismiss'].includes(action)) {
@@ -636,14 +842,11 @@ app.post('/api/admin/projects/ai/suggestions/:suggestionId/:action', async (req,
 
     if (!suggestion) return res.status(404).json({ error: 'Suggestion not found' });
 
-    // Update suggestion status
-    await prisma.aISuggestion.update({
-      where: { id: suggestionId },
-      data: { status: action === 'accept' ? 'accepted' : 'rejected' }
-    });
+    // Update suggestion status preemptively
+    await prisma.aISuggestion.update({ where: { id: suggestionId }, data: { status: action === 'accept' ? 'accepted' : 'rejected' } });
 
     // If accepting, apply the suggestion
-    if (action === 'accept' && suggestion.taskId) {
+    if (action === 'accept') {
       const updateData = {};
 
       switch (suggestion.type) {
@@ -670,9 +873,24 @@ app.post('/api/admin/projects/ai/suggestions/:suggestionId/:action', async (req,
             });
           }
           break;
+        case 'plan_task': {
+          // Create a new root task from the planned data
+          const data = suggestion.data || {};
+          await prisma.task.create({
+            data: {
+              title: (data.title || '').toString().slice(0, 200),
+              description: (data.description || null),
+              status: 'todo',
+              priority: ['low','medium','high'].includes((data.priority || '').toLowerCase()) ? data.priority : 'medium',
+              dueDate: data.dueDate ? new Date(data.dueDate) : null,
+              projectId: data.projectId || null
+            }
+          });
+          break;
+        }
       }
 
-      if (Object.keys(updateData).length > 0) {
+      if (suggestion.taskId && Object.keys(updateData).length > 0) {
         await prisma.task.update({
           where: { id: suggestion.taskId },
           data: updateData

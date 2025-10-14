@@ -12,7 +12,11 @@ if (!PUBLISHABLE_KEY) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      clerkJSUrl="https://clerk.yirrasystems.com/npm/@clerk/clerk-js@5.99.0/dist/clerk.browser.js"
+      frontendApi="clerk.yirrasystems.com"
+    >
       <App />
     </ClerkProvider>
   </React.StrictMode>

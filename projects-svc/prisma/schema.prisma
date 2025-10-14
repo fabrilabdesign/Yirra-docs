@@ -1,0 +1,124 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("active")
+  ownerId     String?
+  startDate   DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       Task[]
+  aiConversations AIConversation[]
+  aiSuggestions   AISuggestion[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  parentId    String?
+  parent      Task?    @relation("TaskHierarchy", fields: [parentId], references: [id])
+  children    Task[]   @relation("TaskHierarchy")
+  title       String
+  description String?
+  status      String   @default("todo")
+  priority    String   @default("medium")
+  assigneeId  String?
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  notes       TaskNote[]
+  timeEntries TimeEntry[]
+
+  @@index([projectId])
+  @@index([parentId])
+  @@index([status, priority, dueDate])
+}
+
+model TaskNote {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  noteText  String
+  authorId  String?
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+model TimeEntry {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  userId    String
+  hours     Float
+  date      DateTime
+  description String?
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([date])
+}
+
+model AIConversation {
+  id          String   @id @default(uuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  userId      String
+  messages    Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  suggestions AISuggestion[]
+
+  @@index([projectId])
+  @@index([userId])
+}
+
+model AISuggestion {
+  id             String   @id @default(uuid())
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id])
+  projectId      String?
+  project        Project? @relation(fields: [projectId], references: [id])
+  // legacy presentation fields (kept for compatibility; writes now via data)
+  rank           Int      @default(0)
+  title          String
+  description    String?
+  priority       String   @default("medium")
+  labels         String[]
+  dependencies   String[] // suggestion IDs
+  meta           Json
+  // new AI planning fields
+  type           String   @default("plan_task")
+  data           Json
+  userId         String
+  confidence     Float?
+  rationale      String?
+  // lifecycle
+  status         String   @default("pending") // pending, edited, committed, discarded
+  hash           String
+  // linkage to existing task (for priority/timeline/subtasks suggestions)
+  taskId         String?
+  createdTaskId  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([conversationId])
+  @@index([projectId])
+  @@index([status])
+  @@index([userId])
+  @@index([type])
+  @@index([hash])
+}
