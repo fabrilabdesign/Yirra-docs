@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, FileText, Calendar, ChevronLeft, ChevronRight, Eye, List, Kanban, Circle, Play, CheckCircle, BarChart3, BarChart, Folder } from 'lucide-react';
@@ -55,6 +55,8 @@ const AdminProjectManagement = () => {
   const [toast, setToast] = useState(null); // { type: 'success'|'error', message: string }
   const [viewMode, setViewMode] = useState('list'); // 'list', 'kanban', or 'reports'
   const [showAIPanel, setShowAIPanel] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [showPlanReview, setShowPlanReview] = useState(false);
   const [aiInput, setAiInput] = useState('');
   const [showProjectSidebar, setShowProjectSidebar] = useState(true);
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -363,6 +365,7 @@ const AdminProjectManagement = () => {
         }
         setProjectRefreshTrigger(prev => prev + 1);
         fetchAvailableProjects();
+        fetchTasks(); // Refresh tasks after project deletion
         showToast('success', `Project "${project.name}" deleted successfully!`);
       } else {
         const errorData = await response.json();
@@ -397,6 +400,7 @@ const AdminProjectManagement = () => {
     // Trigger sidebar refresh
     setProjectRefreshTrigger(prev => prev + 1);
     fetchAvailableProjects(); // Refresh project dropdown
+    fetchTasks(); // Also refresh tasks, in case project filters are active
     showToast('success', `Project "${project.name}" ${editingProject ? 'updated' : 'created'} successfully!`);
     setEditingProject(null);
   };
@@ -743,6 +747,26 @@ const AdminProjectManagement = () => {
           >
             🤖 AI
           </button>
+            <button
+              onClick={() => setShowAIChat(!showAIChat)}
+              aria-pressed={showAIChat}
+              aria-label="Toggle Projects Assistant chat"
+              className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
+                showAIChat ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
+              }`}
+            >
+              💬 Chat
+            </button>
+            <button
+              onClick={() => setShowPlanReview(!showPlanReview)}
+              aria-pressed={showPlanReview}
+              aria-label="Toggle Plan Review"
+              className={`h-10 px-4 rounded-10 text-sm font-medium transition ${
+                showPlanReview ? 'bg-brand text-text-inverse' : 'bg-elev1 text-text-secondary hover:text-text-primary border border-line-soft'
+              }`}
+            >
+              🗂️ Plan
+            </button>
             <Button onClick={() => openTaskModal()} className="gap-1.5 h-10 px-4 text-sm">
             <Plus size={16} />
             New Task
@@ -792,6 +816,30 @@ const AdminProjectManagement = () => {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Projects Assistant Chat */}
+      {showAIChat && (
+        <div className="mb-12">
+          <Suspense fallback={<div>Loading AI Chat...</div>}>
+            {React.createElement(
+              React.lazy(() => import('./ProjectsAssistantChat')),
+              null
+            )}
+          </Suspense>
+        </div>
+      )}
+
+      {/* Plan Review */}
+      {showPlanReview && (
+        <div className="mb-12">
+          <Suspense fallback={<div>Loading Plan Review...</div>}>
+            {React.createElement(
+              React.lazy(() => import('./PlanReview')),
+              null
+            )}
+          </Suspense>
         </div>
       )}
 

@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Build argument for Clerk key
 ARG VITE_CLERK_PUBLISHABLE_KEY
-ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+ARG VITE_CLERK_WEB_APPLICATION_ORIGIN
 
 # Copy package files
 COPY package*.json ./
@@ -17,7 +17,7 @@ RUN npm ci --only=production=false
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY VITE_CLERK_WEB_APPLICATION_ORIGIN=$VITE_CLERK_WEB_APPLICATION_ORIGIN npm run build
 
 # Production stage
 FROM nginx:alpine
