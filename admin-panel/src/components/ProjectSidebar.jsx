@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { Plus, ChevronLeft, ChevronRight, Folder, Calendar, CheckCircle, Users, Edit, Trash2 } from 'lucide-react';
 
@@ -18,6 +18,38 @@ const ProjectSidebar = ({
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
+
+  // Touch gesture handling
+  const touchStartRef = useRef(null);
+  const touchEndRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartRef.current) return;
+
+    touchEndRef.current = e.changedTouches[0].clientX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+
+    const distance = touchStartRef.current - touchEndRef.current;
+    const isLeftSwipe = distance > 50; // Swipe left (close)
+    const isRightSwipe = distance < -50; // Swipe right (open)
+
+    // Only handle swipes on mobile/tablet
+    if (window.innerWidth < 1024) {
+      if (isOpen && isLeftSwipe) {
+        onToggle(); // Close sidebar
+      } else if (!isOpen && isRightSwipe) {
+        onToggle(); // Open sidebar
+      }
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -77,8 +109,10 @@ const ProjectSidebar = ({
       {/* Toggle Button */}
       <button
         onClick={onToggle}
-        className={`fixed top-16 right-4 z-40 h-10 w-10 rounded-12 bg-surface border border-line-soft shadow-lg flex items-center justify-center hover:bg-elev1 transition-all duration-200 ${
-          isOpen ? 'right-80' : 'right-4'
+        className={`fixed top-16 z-40 h-10 w-10 rounded-12 bg-surface border border-line-soft shadow-lg flex items-center justify-center hover:bg-elev1 transition-all duration-200 ${
+          // Mobile/tablet: Always right-4 for accessibility
+          // Desktop: Adjust based on sidebar state
+          isOpen ? 'right-4 lg:right-80 xl:right-96' : 'right-4'
         }`}
         aria-label={isOpen ? 'Close projects sidebar' : 'Open projects sidebar'}
       >
@@ -89,10 +123,22 @@ const ProjectSidebar = ({
         )}
       </button>
 
-      {/* Sidebar */}
-      <div className={`fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-80 bg-surface border-l border-line-soft shadow-2xl transform transition-transform duration-300 ease-in-out z-30 ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}>
+      {/* Sidebar - Modal overlay on mobile/tablet, push on desktop */}
+      <div
+        className={`sidebar-modal fixed top-14 right-0 h-[calc(100vh-3.5rem)] bg-surface border-l border-line-soft shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+          // Mobile/tablet: Full width modal overlay
+          // Desktop: Fixed width sidebar
+          isOpen
+            ? 'w-full max-w-sm translate-x-0 lg:w-80 xl:w-96'
+            : 'w-full max-w-sm translate-x-full lg:w-80 xl:w-96'
+        }`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        role="complementary"
+        aria-label="Projects sidebar"
+        aria-hidden={!isOpen}
+        tabIndex={-1}
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-line-soft">
@@ -261,17 +307,17 @@ const ProjectSidebar = ({
         </div>
       </div>
 
-      {/* Backdrop for mobile */}
+      {/* Backdrop - covers content area but not sidebar */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-20 md:hidden"
+          className="fixed top-14 left-0 bottom-0 right-[24rem] bg-black/50 z-40 lg:bg-black/20 lg:right-80 xl:right-96"
           onClick={onToggle}
         />
       )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && projectToDelete && (
-        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-scrim flex items-center justify-center p-4 z-[55]">
           <div className="bg-elev1 rounded-16 shadow-elev2 max-w-md w-full border border-line-soft">
             <div className="flex items-center justify-between p-6 border-b border-line-soft">
               <h2 className="text-[16px] font-semibold text-text-primary">Delete Project</h2>

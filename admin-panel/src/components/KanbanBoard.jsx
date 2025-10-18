@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import React, { useCallback } from 'react';
 import { Plus, Calendar, User, AlertCircle, GripVertical } from 'lucide-react';
-import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, closestCorners, pointerWithin, KeyboardSensor, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
@@ -33,13 +32,12 @@ const getPriorityBadgeClass = (priority) => {
   }
 };
 
-const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
+const TaskCard = ({ task, onEdit, onDelete, onViewDetails, isUpdating = false }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: {
       type: 'task',
       task,
-      columnId: task.status || 'todo',
     },
   });
 
@@ -52,11 +50,36 @@ const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
     <article
       ref={setNodeRef}
       style={style}
-      className={`group rounded-12 border border-line-soft bg-elev1 p-3 shadow-elev1 hover:shadow-elev2 hover:-translate-y-px transition duration-150 ease-in ${isDragging ? 'cursor-grabbing scale-[0.998] shadow-elev2' : ''}`}
+      className={`group kanban-card rounded-12 border border-line-soft bg-elev1 p-3 shadow-elev1 hover:shadow-elev2 hover:-translate-y-px transition-all duration-200 ease-out ${
+        isDragging ? 'dragging cursor-grabbing scale-[1.02] shadow-elev3 rotate-1' : ''
+      } ${isUpdating ? 'opacity-60 pointer-events-none' : ''}`}
       {...attributes}
       {...listeners}
+      role="button"
+      tabIndex={0}
+      data-testid={`task-card-${task.id}`}
+      data-status={task.status}
+      data-priority={task.priority}
+      aria-label={`Task: ${task.title}. Status: ${task.status}. Drag to move between columns.`}
+      aria-describedby={`task-${task.id}-description`}
       onClick={!isDragging ? () => onViewDetails(task) : undefined}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onViewDetails(task);
+        }
+      }}
     >
+      {isUpdating && (
+        <div className="absolute inset-0 bg-surface/50 rounded-12 flex items-center justify-center z-10">
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-brand border-t-transparent"></div>
+        </div>
+      )}
+
+      <div id={`task-${task.id}-description`} className="sr-only">
+        {task.description || 'No description'}
+      </div>
+
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <h4 className="text-[14px] leading-[22px] font-semibold text-text-primary mb-1">{task.title}</h4>
@@ -64,12 +87,16 @@ const TaskCard = ({ task, onEdit, onDelete, onViewDetails }) => {
             <p className="text-[13px] leading-5 text-text-secondary">{task.description}</p>
           )}
         </div>
-        <button
-          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab hover:text-brand p-1 rounded hover:bg-hover"
-          {...listeners}
-        >
-          <GripVertical size={16} className="text-text-tertiary" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab hover:text-brand p-1 rounded hover:bg-hover"
+            {...listeners}
+            onClick={(e) => e.stopPropagation()}
+            aria-label="Drag handle"
+          >
+            <GripVertical size={16} className="text-text-tertiary" />
+          </button>
+        </div>
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-text-tertiary">
@@ -113,20 +140,29 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
     data: {
       type: 'column',
       status,
+      accepts: ['task']
     },
   });
-
-  const getColumnBg = () => {
-    return 'bg-surface border-line-soft';
-  };
 
   return (
     <div
       ref={setNodeRef}
-      className={`w-[360px] rounded-14 border border-line-soft bg-surface shadow-elev1 flex flex-col transition-colors duration-200 ${
-        isOver ? 'border-dashed border-brand' : ''
+      className={`relative w-full max-w-[360px] sm:w-[280px] md:w-[320px] lg:w-[360px] rounded-14 border-2 transition-all duration-200 flex flex-col ${
+        isOver
+          ? 'border-brand bg-brand/5 shadow-lg scale-[1.02] z-10'
+          : 'border-line-soft bg-surface shadow-elev1 z-0'
       }`}
+      data-testid={`kanban-column-${status}`}
+      style={{ minHeight: '400px' }}
     >
+      {isOver && (
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-20 bg-brand/5 rounded-14 border-2 border-dashed border-brand">
+          <div className="text-brand text-center font-medium bg-surface/90 px-4 py-2 rounded">
+            Drop here
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between px-3 py-3">
         <h3 className="text-[16px] leading-6 font-semibold text-text-primary flex items-center gap-2">
           <div className={`w-3 h-3 rounded-full ${
@@ -140,6 +176,7 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
         <button
           onClick={() => onAddTask(status)}
           className="text-text-tertiary hover:text-brand transition-colors p-1 rounded hover:bg-hover"
+          aria-label={`Add task to ${title}`}
         >
           <Plus size={16} />
         </button>
@@ -153,6 +190,7 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
               onEdit={onEdit}
               onDelete={onDelete}
               onViewDetails={onViewDetails}
+              isUpdating={task.isUpdating}
             />
           ))}
           {tasks.length === 0 && (
@@ -167,106 +205,38 @@ const KanbanColumn = ({ title, status, tasks, onEdit, onDelete, onViewDetails, o
   );
 };
 
-const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpdateTask, onError }) => {
-  const { getToken } = useAuth();
-  const [localTasks, setLocalTasks] = useState(tasks);
-
-  useEffect(() => {
-    setLocalTasks(tasks);
-  }, [tasks]);
+const KanbanBoard = ({
+  tasks,
+  optimisticUpdates,
+  onDragEnd,
+  onEdit,
+  onDelete,
+  onViewDetails,
+  onAddTask
+}) => {
+  // Check if a task has an optimistic update (indicating it's being updated)
+  const isTaskUpdating = useCallback((taskId) => {
+    const optimistic = optimisticUpdates.get(taskId);
+    return optimistic?.isUpdating || false;
+  }, [optimisticUpdates]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
-  const handleDragEnd = async (event) => {
-    const { active, over } = event;
-    if (!over) return;
+  const handleDragStart = useCallback((event) => {
+    console.log('Drag started:', event.active.id);
+  }, []);
 
-    const taskId = active.id;
-    const activeTask = localTasks.find(t => t.id === taskId);
-    if (!activeTask) return;
-
-    // Resolve containers (columns)
-    const sourceCol = active.data?.current?.sortable?.containerId;
-    const overIsItem = Boolean(over.data?.current?.sortable);
-    const destCol = overIsItem
-      ? over.data?.current?.sortable?.containerId
-      : over.id;
-
-    if (!sourceCol || !destCol) return;
-
-    // If moved across columns, update status
-    if (sourceCol !== destCol) {
-      const optimistic = { ...activeTask, status: destCol };
-      // setLocalTasks(prev => prev.map(t => (t.id === taskId ? optimistic : t))); // This line was removed
-
-      try {
-        const token = await getToken();
-        const response = await fetch(`/api/admin/projects/tasks/${taskId}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ status: destCol })
-        });
-
-        if (response.ok) {
-          const updatedTask = await response.json();
-          onUpdateTask({ ...updatedTask, id: taskId, status: destCol });
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          const errorMessage = errorData.error || 'Failed to update task status';
-          console.error('Failed to update task status:', errorMessage);
-          // Rollback
-          setLocalTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: sourceCol } : t)));
-          if (onError) {
-            onError(errorMessage);
-          }
-        }
-      } catch (error) {
-        console.error('Error updating task status:', error);
-        const errorMessage = 'Network error while updating task status';
-        // Rollback
-        // setLocalTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: sourceCol } : t))); // This line was removed
-        if (onError) {
-          onError(errorMessage);
-        }
-      }
-    }
-
-    // Same-column reorder
-    const columnTasks = localTasks.filter(t => t.status === sourceCol);
-    const oldIndex = columnTasks.findIndex(t => t.id === taskId);
-    const newIndex = columnTasks.findIndex(t => t.id === over.id);
-    
-    if (oldIndex !== newIndex && newIndex !== -1) {
-      const reorderedTasks = arrayMove(columnTasks, oldIndex, newIndex);
-      
-      // Update local order
-      const reorderedIds = reorderedTasks.map(t => t.id);
-      const reorderMap = new Map(reorderedIds.map((id, i) => [id, i]));
-      
-      setLocalTasks(prev =>
-        prev.map(t => {
-          if (t.status === sourceCol) {
-            return { ...t, order: reorderMap.get(t.id) };
-          }
-          return t;
-        }).sort((a, b) => {
-          if (a.status !== b.status) return 0;
-          return (a.order ?? 0) - (b.order ?? 0);
-        })
-      );
-
-      // Optionally persist ordering to server (batch or single)
-      // await fetch('/api/admin/projects/tasks/reorder', { ... })
-     }
-  };
+  // Delegate drag end handling to parent component
 
   const columns = [
     { id: 'todo', title: 'To Do', status: 'todo' },
@@ -275,7 +245,7 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
   ];
 
   const getTasksForColumn = (status) => {
-    return localTasks
+    return tasks
       .filter(task => task.status === status)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };
@@ -283,17 +253,21 @@ const KanbanBoard = ({ tasks, onEdit, onDelete, onViewDetails, onAddTask, onUpda
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragEnd={handleDragEnd}
+      collisionDetection={pointerWithin}
+      onDragStart={handleDragStart}
+      onDragEnd={onDragEnd}
     >
       <div className="overflow-x-auto">
-        <div className="flex gap-6 py-1">
+        <div className="flex gap-4 sm:gap-6 py-1 justify-start">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
               title={column.title}
               status={column.status}
-              tasks={getTasksForColumn(column.status)}
+              tasks={getTasksForColumn(column.status).map(task => ({
+                ...task,
+                isUpdating: isTaskUpdating(task.id)
+              }))}
               onEdit={onEdit}
               onDelete={onDelete}
               onViewDetails={onViewDetails}

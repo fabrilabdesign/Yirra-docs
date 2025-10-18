@@ -295,6 +295,47 @@ button, a, [role="button"], input, textarea, select {
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* Hardware acceleration for drag and drop performance */
+.kanban-card {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.kanban-card.dragging {
+  will-change: transform, opacity;
+  z-index: 999;
+}
+
+.kanban-column {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .kanban-card {
+    /* Reduce animations on mobile for better performance */
+    transition-duration: 0.15s;
+  }
+
+  .kanban-card.dragging {
+    /* Optimize for touch interactions */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Optimize sidebar animations for mobile */
+  .sidebar-modal {
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
 /* Respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

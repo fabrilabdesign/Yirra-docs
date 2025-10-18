@@ -21,6 +21,7 @@ const AdminProjectManagement = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [optimisticUpdates, setOptimisticUpdates] = useState(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -67,16 +68,24 @@ const AdminProjectManagement = () => {
   const [projectRefreshTrigger, setProjectRefreshTrigger] = useState(0);
   const [availableProjects, setAvailableProjects] = useState([]);
 
+  // Computed tasks that merge server state with optimistic updates
+  const effectiveTasks = useMemo(() => {
+    return tasks.map(task => {
+      const optimistic = optimisticUpdates.get(task.id);
+      return optimistic ? { ...task, ...optimistic } : task;
+    });
+  }, [tasks, optimisticUpdates]);
+
   // Memoized counter calculations for performance
   const { todoCount, inProgressCount, doneCount, totalCount } = useMemo(() => {
-    const t = tasks || [];
+    const t = effectiveTasks || [];
     return {
       todoCount: t.filter(task => task.status === 'todo').length,
       inProgressCount: t.filter(task => task.status === 'in_progress').length,
       doneCount: t.filter(task => task.status === 'done').length,
       totalCount: t.length
     };
-  }, [tasks]);
+  }, [effectiveTasks]);
 
   const toastTimer = useRef(null);
 
@@ -550,6 +559,84 @@ const AdminProjectManagement = () => {
     setTaskToDelete(null);
   };
 
+  const handleDragEnd = useCallback(async (event) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const taskId = active.id;
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    // Determine new status - prioritize column over task
+    let newStatus;
+    if (over.data?.current?.type === 'column') {
+      newStatus = over.id; // Direct column drop
+    } else if (over.data?.current?.type === 'task') {
+      // Find the column that contains this task
+      const targetTask = tasks.find(t => t.id === over.id);
+      newStatus = targetTask?.status;
+    } else {
+      // Fallback to over.id (should be column id)
+      newStatus = over.id;
+    }
+
+    if (!newStatus || task.status === newStatus) return;
+
+    console.log(`Moving task ${taskId} from ${task.status} to ${newStatus}`);
+
+    // Optimistic update - preserve all existing task data
+    const optimisticTask = { ...task, status: newStatus, isUpdating: true };
+    setOptimisticUpdates(prev => new Map(prev).set(taskId, optimisticTask));
+
+    try {
+      const token = await getToken();
+      const response = await fetch(`/api/admin/projects/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        const updatedTask = await response.json();
+        console.log('Task updated successfully:', updatedTask);
+
+        // Update server state
+        setTasks(prev => prev.map(t =>
+          t.id === taskId ? { ...t, ...updatedTask } : t
+        ));
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API error:', errorData);
+        throw new Error(errorData.error || 'Failed to update task');
+      }
+    } catch (error) {
+      console.error('Task update failed:', error);
+      showToast('error', 'Failed to update task status');
+
+      // Rollback optimistic update on error
+      setOptimisticUpdates(prev => {
+        const next = new Map(prev);
+        next.delete(taskId);
+        return next;
+      });
+    } finally {
+      // Clear the updating flag after a delay to show success state briefly
+      setTimeout(() => {
+        setOptimisticUpdates(prev => {
+          const next = new Map(prev);
+          const current = next.get(taskId);
+          if (current) {
+            next.set(taskId, { ...current, isUpdating: false });
+          }
+          return next;
+        });
+      }, 500);
+    }
+  }, [tasks, getToken, showToast]);
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -580,13 +667,13 @@ const AdminProjectManagement = () => {
     // otherwise your list/kanban/reports switch
     return viewMode === 'kanban' ? (
       <KanbanBoard
-        tasks={tasks}
+        tasks={effectiveTasks}
+        optimisticUpdates={optimisticUpdates}
+        onDragEnd={handleDragEnd}
         onEdit={openTaskModal}
         onDelete={openDeleteModal}
         onViewDetails={viewTaskDetails}
         onAddTask={handleAddTaskForStatus}
-        onUpdateTask={handleUpdateTask}
-        onError={(msg) => showToast('error', msg)}
       />
     ) : viewMode === 'reports' ? (
       <ProjectReports />
@@ -885,8 +972,8 @@ const AdminProjectManagement = () => {
         </div>
       )}
 
-      {/* Content Area */}
-      <div className={`pt-6 pb-8 ${showProjectSidebar ? 'lg:pr-80 xl:pr-[21rem]' : ''}`}>
+      {/* Content Area - No padding adjustments needed with overlay sidebar */}
+      <div className="pt-6 pb-8">
       {/* Stats Bar */}
         <div className="mt-4 md:mt-6 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <button onClick={() => handleFilterChange('status', 'todo')} className="bg-elev1 rounded-xl p-4 border border-line-soft hover:border-brand/40 hover:bg-elev2 transition cursor-pointer text-left" aria-pressed={filters.status === 'todo'} title="Filter: To Do">
