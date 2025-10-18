@@ -1,0 +1,11 @@
+namespace: tools-staging
+namePrefix: pm-
+resources:
+  - ../../../base
+  - configmap.tools.yaml
+patchesStrategicMerge:
+  - patch.deployment.yaml
+  - patch.service.yaml
+  - patch.service.yaml
+
+

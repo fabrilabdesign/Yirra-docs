@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: tools
+data:
+  config.yaml: |
+    # Using token-based tunnel; no credentials-file or tunnel id needed here
+    ingress:
+      # PROD
+      - hostname: pm-mcp.yirrasystems.com
+        service: http://pm-mcp-server.tools.svc.cluster.local:80
+      - hostname: fs-mcp.yirrasystems.com
+        service: http://fs-mcp-server.tools.svc.cluster.local:80
+      - hostname: git-mcp.yirrasystems.com
+        service: http://git-mcp-server.tools.svc.cluster.local:80
+      - hostname: db-mcp.yirrasystems.com
+        service: http://db-mcp-server.tools.svc.cluster.local:80
+      - hostname: fetch-mcp.yirrasystems.com
+        service: http://fetch-mcp-server.tools.svc.cluster.local:80
+      - hostname: stripe-mcp.yirrasystems.com
+        service: http://stripe-mcp-server.tools.svc.cluster.local:80
+      - hostname: n8n-mcp.addiaire.com
+        service: http://n8n-mcp-server.tools.svc.cluster.local:80
+
+      # STAGING
+      - hostname: pm-mcpstaging.yirrasystems.com
+        service: http://pm-mcp-server.tools-staging.svc.cluster.local:80
+      - hostname: fs-mcpstaging.yirrasystems.com
+        service: http://fs-mcp-server.tools-staging.svc.cluster.local:80
+      - hostname: git-mcpstaging.yirrasystems.com
+        service: http://git-mcp-server.tools-staging.svc.cluster.local:80
+      - hostname: db-mcpstaging.yirrasystems.com
+        service: http://db-mcp-server.tools-staging.svc.cluster.local:80
+      - hostname: fetch-mcpstaging.yirrasystems.com
+        service: http://fetch-mcp-server.tools-staging.svc.cluster.local:80
+      - hostname: stripe-mcpstaging.yirrasystems.com
+        service: http://stripe-mcp-server.tools-staging.svc.cluster.local:80
+      - hostname: n8n-mcpstaging.addiaire.com
+        service: http://n8n-mcp-server.tools-staging.svc.cluster.local:80
+
+      - service: http_status:404
+

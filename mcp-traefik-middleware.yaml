@@ -1,0 +1,22 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: mcp-sse
+  namespace: tools
+spec:
+  buffering:
+    maxRequestBodyBytes: 0
+    memRequestBodyBytes: 0
+    maxResponseBodyBytes: 0
+    memResponseBodyBytes: 0
+  headers:
+    customRequestHeaders:
+      X-Accel-Buffering: "no"
+    customResponseHeaders:
+      Cache-Control: "no-cache"
+      Connection: "keep-alive"
+  circuitBreaker:
+    expression: "NetworkErrorRatio() > 0.5"
+  rateLimit:
+    burst: 100
+    average: 50

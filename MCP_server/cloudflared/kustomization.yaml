@@ -1,0 +1,30 @@
+resources:
+  - serviceaccount.yaml
+  - secret-credentials.yaml
+  - configmap.yaml
+  - deployment.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+{
+  "name": "fs-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "express": "^4.19.2", "fast-glob": "^3.3.2" }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

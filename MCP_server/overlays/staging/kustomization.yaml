@@ -1,0 +1,35 @@
+resources:
+  - namespace.yaml
+  - pm
+  - fs
+  - git
+  - db
+  - fetch
+  - stripe
+  - n8n
+  - netpol
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

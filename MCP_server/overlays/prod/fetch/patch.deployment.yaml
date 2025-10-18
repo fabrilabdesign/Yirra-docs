@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fetch-mcp-server
+  labels:
+    app.kubernetes.io/name: fetch-mcp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fetch-mcp-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fetch-mcp-server
+    spec:
+      containers:
+        - name: server
+          image: localhost:5000/mcp/mcp-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - { name: PORT, value: "8080" }
+            - { name: MCP_KIND, value: "fetch" }
+            - { name: FETCH_ALLOW, value: "yirrasystems.com,addiaire.com" }
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+

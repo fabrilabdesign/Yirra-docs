@@ -25,6 +25,8 @@ spec:
                 secretKeyRef:
                   name: projects-db-secret
                   key: DATABASE_URL
+            - name: OPENAI_API_KEY
+              value: "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"
           ports:
             - containerPort: 8080
           readinessProbe:

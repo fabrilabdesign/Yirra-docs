@@ -88,7 +88,6 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
-        {to: '/blog', label: 'Changelog', position: 'left'},
         {
           href: 'https://yirrasystems.com',
           label: 'Main Site',
@@ -104,7 +103,7 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/intro',
+              to: '/docs/intro',
             },
           ],
         },
@@ -124,10 +123,6 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            {
-              label: 'Changelog',
-              to: '/blog',
-            },
             {
               label: 'Products',
               href: 'https://yirrasystems.com/products',

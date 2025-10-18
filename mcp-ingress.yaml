@@ -1,0 +1,80 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-services
+  namespace: tools
+  annotations:
+    # Basic ingress without middleware for now
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: fetch-mcp.yirrasystems.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fetch-mcp-server
+            port:
+              number: 80
+  - host: pm-mcp.yirrasystems.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pm-mcp-server
+            port:
+              number: 80
+  - host: fs-mcp.yirrasystems.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fs-mcp-server
+            port:
+              number: 80
+  - host: git-mcp.yirrasystems.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: git-mcp-server
+            port:
+              number: 80
+  - host: db-mcp.yirrasystems.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: db-mcp-server
+            port:
+              number: 80
+  - host: stripe-mcp.yirrasystems.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: stripe-mcp-server
+            port:
+              number: 80
+  - host: n8n-mcp.addiaire.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: n8n-mcp-server
+            port:
+              number: 80

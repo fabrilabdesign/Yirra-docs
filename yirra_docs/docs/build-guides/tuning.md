@@ -404,5 +404,5 @@ For ongoing issues, see [Troubleshooting](/docs/build-guides/troubleshooting).
 
 ---
 
-**Happy flying!** 🚁
+**Happy flying!**
 

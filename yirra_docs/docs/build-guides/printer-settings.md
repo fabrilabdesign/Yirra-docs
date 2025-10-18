@@ -139,7 +139,7 @@ If not using the P1S, your printer must meet these specifications:
 
 ---
 
-## 🎯 Print Quality Standards
+## Print Quality Standards
 
 Your printed parts should meet these criteria:
 

@@ -1,0 +1,8 @@
+namespace: tools-staging
+namePrefix: fetch-
+resources:
+  - ../../../base
+patchesStrategicMerge:
+  - patch.deployment.yaml
+  - patch.service.yaml
+

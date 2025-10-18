@@ -284,6 +284,6 @@ For in-depth information on each build phase:
 - **[Tuning](/docs/build-guides/tuning)** - Optimization procedures
 - **[Troubleshooting](/docs/build-guides/troubleshooting)** - Problem solving
 
-**Happy building!** 🚁
+**Happy building!**
 
 

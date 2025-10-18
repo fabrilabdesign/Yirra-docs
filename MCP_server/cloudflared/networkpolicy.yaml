@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-cloudflared-to-mcp-services
+  namespace: tools
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-server # Selects all MCP server pods
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cloudflared # Allows ingress from cloudflared pods
+      ports:
+        - protocol: TCP
+          port: 80 # Allows traffic to port 80

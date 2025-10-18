@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-tools
+  namespace: tools
+data:
+  tools.json: |
+    {
+      "baseUrl": "https://app.yirrasystems.com",
+      "auth": { "type":"header", "name":"X-Service-Token", "valueFromEnv":"PM_API_TOKEN" },
+      "tools": [
+        { "name":"list_projects","method":"GET","path":"/api/projects" },
+        { "name":"list_tasks","method":"GET","path":"/api/tasks" },
+        { "name":"get_task","method":"GET","path":"/api/tasks/{id}","pathParams":["id"] },
+        { "name":"ai_plan","method":"POST","path":"/api/ai/plan" }
+      ]
+    }
+

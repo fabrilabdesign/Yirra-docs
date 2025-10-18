@@ -120,6 +120,7 @@ Each STL file in your download pack includes recommended orientation markers. **
 ## Critical Tolerances
 
 ### Rail Channels
+
 - Must be smooth for battery slides
 - Lightly deburr after printing
 - Test fit with rail blocks before assembly
@@ -248,6 +249,71 @@ Minimum specifications for printing Replicant GEN 1 parts:
 - **Hardened Nozzle**: Steel or ruby for carbon-filled materials
 - **Enclosure**: Strongly recommended for nylon/PA
 - **Direct Drive**: Helpful for TPU (not required)
+
+## 3D Printing Files
+
+Download the pre-configured Bambu Studio project files (.3MF) and STL files for all Replicant GEN 1 components. The .3MF files contain optimized print settings, supports, and orientations for your specific printer.
+
+### Core Chassis Components
+
+![Chassis Core Bambu Studio Screenshot](/img/3d-printing/Chassis_core.png)  
+*Bambu Studio project file with optimized settings for core structural components*
+
+- **Download**: [.3MF File](/files/3d-printing/3mf/Chassis_core.3mf) | [STL Files](/files/3d-printing/stl/replicant_gen1_complete.zip)
+- **Material**: PA-CF or Nylon
+- **Print Time**: ~24-32 hours
+- **Includes**: Exospine, rail blocks, GPS mast mounting
+
+### Battery Rail System
+
+![Battery Rail Bambu Studio Screenshot](/img/3d-printing/Battery%20rail.png)  
+*Bambu Studio project with precise rail channel tolerances*
+
+- **Download**: [.3MF File](/files/3d-printing/3mf/Battery_mounting_rail.3mf) | [STL Files](/files/3d-printing/stl/replicant_gen1_complete.zip)
+- **Material**: PA-CF or Nylon
+- **Print Time**: ~8-12 hours
+- **Includes**: Rail blocks, latch mechanisms, mounting hardware
+
+### Motor Mounts & Arm Bosses
+
+![Motor Mounts & Arm Bosses Bambu Studio Screenshot](/img/3d-printing/Motor_mounts_arm_bosses.png)
+*Optimized orientation for maximum strength-to-weight ratio*
+
+- **Download**: [.3MF File](/files/3d-printing/3mf/Motor_mounts_arm_bosses.3mf) | [STL Files](/files/3d-printing/stl/replicant_gen1_complete.zip)
+- **Material**: PA-CF or Nylon
+- **Print Time**: ~16-24 hours
+- **Includes**: 4x motor mounts, 4x arm bosses, mounting hardware
+
+### Nose Cone & Aerodynamics
+
+![Nose Cone Bambu Studio Screenshot](/img/3d-printing/nose_cone.png)
+*Precision aerodynamic surface with camera isolation features*
+
+- **Download**: [.3MF File](/files/3d-printing/3mf/Nose%20cone%2004%20mount.3mf) | [STL Files](/files/3d-printing/stl/replicant_gen1_complete.zip)
+- **Material**: TPU/TPE (recommended) or PA-CF
+- **Print Time**: ~4-8 hours
+- **Includes**: Nose cone, camera mount, vibration isolation
+
+## Complete File Archive
+
+### All 3MF Project Files
+Pre-configured Bambu Studio projects with optimal print settings:
+
+- [Chassis Core Components](/files/3d-printing/3mf/Chassis_core.3mf)
+- [Battery Rail System](/files/3d-printing/3mf/Battery_mounting_rail.3mf)
+- [Motor Mounts & Arm Bosses](/files/3d-printing/3mf/Motor_mounts_arm_bosses.3mf)
+- [Nose Cone & Aerodynamics](/files/3d-printing/3mf/Nose%20cone%2004%20mount.3mf)
+
+### All STL Files (Universal)
+Standard STL files compatible with any slicer:
+
+- [Download Complete STL Package](/files/3d-printing/stl/replicant_gen1_complete.zip)
+
+:::info File Organization
+- **3MF files**: Use with Bambu Studio for optimal results
+- **STL files**: Universal format for other slicers (PrusaSlicer, Cura, etc.)
+- All files include proper orientation markers and support structures
+:::
 
 ## Next Steps
 

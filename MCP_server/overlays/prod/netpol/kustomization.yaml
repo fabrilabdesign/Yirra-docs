@@ -1,0 +1,29 @@
+resources:
+  - allow-cloudflared-to-mcps.yaml
+  - allow-dns-egress.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

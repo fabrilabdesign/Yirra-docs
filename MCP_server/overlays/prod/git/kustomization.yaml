@@ -1,0 +1,7 @@
+namespace: tools
+commonLabels:
+  app.kubernetes.io/name: git-mcp-server
+resources:
+  - patch.deployment.yaml
+
+

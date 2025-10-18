@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      serviceAccountName: cloudflared
+      containers:
+        - name: cloudflared
+          image: cloudflare/cloudflared:latest
+          args:
+            - tunnel
+            - --no-autoupdate
+            - --protocol
+            - http2
+            - --config
+            - /etc/cloudflared/config/config.yaml
+            - run
+            - --token
+            - "eyJhIjoiMTI1NzA4YmM0NWQxZjRmZDExNDUwMjZjYWNjODA2NzUiLCJ0IjoiMmU0ZjEwZjEtMGM2MS00Y2M2LWJmMjMtMjA5N2Q0ZmUwMmYyIiwicyI6Ik5UQTBNRFUxWkRRdFpHTTNNaTAwTXpVekxXSm1OV0l0TVdKa09HUm1NRFV5T1RWaSJ9"
+          volumeMounts:
+            - name: cfg
+              mountPath: /etc/cloudflared/config
+              readOnly: true
+      volumes:
+        - name: cfg
+          configMap:
+            name: cloudflared-config
+
