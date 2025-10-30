@@ -24,7 +24,7 @@ The Replicant GEN 1 (IC‑01) is a revolutionary 3D-printable long-range FPV pla
 
 Our modular battery rail system allows for tool-free battery swaps in seconds, maintaining consistent center of gravity and eliminating the need for battery straps.
 
-![3D Printable Design](/img/drone/Downloadthisdrone.png)
+![3D Printable Design](/img/drone/Above_iso_hero.png)
 
 ## Documentation Sections
 

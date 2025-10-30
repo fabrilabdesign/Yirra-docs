@@ -41,7 +41,7 @@ Complete printing specifications for all Replicant GEN 1 components.
 - Precise dimensions
 - Aesthetic appeal
 
-![Nose Cone Detail](/img/drone/nose_cone.png)
+![Nose Cone Detail](/img/drone/TPE_nose_cone.gif)
 
 ![TPE Nose Cone](/img/drone/TPE_nose_cone.gif)
 
@@ -286,7 +286,7 @@ Download the pre-configured Bambu Studio project files (.3MF) and STL files for 
 
 ### Nose Cone & Aerodynamics
 
-![Nose Cone Bambu Studio Screenshot](/img/3d-printing/nose_cone.png)
+![Nose Cone Bambu Studio Screenshot](/img/drone/TPE_nose_cone.gif)
 *Precision aerodynamic surface with camera isolation features*
 
 - **Download**: [.3MF File](/files/3d-printing/3mf/Nose%20cone%2004%20mount.3mf) | [STL Files](/files/3d-printing/stl/replicant_gen1_complete.zip)
