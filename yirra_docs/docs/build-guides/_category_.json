@@ -1,8 +1,9 @@
 {
-  "label": "Build Guides",
+  "label": "Build & Assembly",
   "position": 2,
   "link": {
     "type": "generated-index",
+    "title": "Build & Assembly",
     "description": "Complete build documentation for the Replicant GEN 1 (IC‑01) platform. From parts selection to maiden flight and beyond."
   }
 }

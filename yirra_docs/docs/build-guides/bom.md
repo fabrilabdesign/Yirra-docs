@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # Bill of Materials (BOM)
@@ -18,10 +18,10 @@ These dimensions are critical and must match the STL specifications:
 |------|--------------|----------|-------|
 | **Arm Tubes** | 11mm OD carbon fiber | 4 | Length per STL release notes |
 | **Exo-Spine Plate** | 4mm carbon fiber | 1 | Main structural reinforcement |
-| **Reinforcement Plates** | 3mm carbon fiber | 2-4 | Per assembly diagram |
-| **Reinforcement Plates** | 2mm carbon fiber | 2-4 | Per assembly diagram |
+| **Reinforcement Plate (top)** | 3mm carbon fiber | 1 | Per assembly diagram |
+| **Reinforcement Plate (bottom)** | 2mm carbon fiber | 1 | Per assembly diagram |
 
-### Printed Parts
+### Core Chassis Components
 
 Available as **Physical Frame Kits** or **Digital STL Downloads**:
 
@@ -29,13 +29,9 @@ Available as **Physical Frame Kits** or **Digital STL Downloads**:
 |------|----------|----------|---------|
 | **Arm Bosses** | CF-Nylon | 4 | Arm attachment points |
 | **Motor Mounts** | CF-Nylon | 4 | Secures motors to arms |
-| **Nose Cone** | TPE/TPU | 1 | O4 Pro compatible shroud |
-| **Top Cover** | SLA Resin | 1 | Aerodynamic shell |
-| **Front Shell** | CF-Nylon | 1 | Main body (front) |
-| **Rear Shell** | CF-Nylon | 1 | Main body (rear) |
-| **Rail Blocks** | CF-Nylon | 2 | Battery mounting rails |
-| **GPS Mast** | CF-Nylon | 1 | GPS/compass mount |
-| **Landing Pads** | TPU | 4 | Impact protection |
+| **Exospine** | CF-Nylon | 1 | Main structural backbone |
+| **Carbon Top Plate** | Carbon Fiber | 1 | Upper reinforcement |
+| **Carbon Bottom Plate** | Carbon Fiber | 1 | Lower reinforcement |
 
 :::tip Material Selection
 - **CF-Nylon**: Primary structural material for strength and heat resistance
@@ -58,33 +54,21 @@ The **iFlight Blitz E55** is the ONLY ESC that fits the unmodified shells withou
 | **Flight Controller** | F7 or H7 | 30.5mm or 25.5mm mounting pattern |
 | **Motors** | 7-8" class, 1300-1700 KV | See variant table below |
 | **Propellers** | 7-8" | 2-blade for efficiency, 3-blade for control |
-| **Video Transmitter** | DJI O4 Pro or O3 | Professional HD video |
-| **Camera** | DJI compatible | Matches your VTX choice |
+| **Video Transmitter** | DJI O4 Pro | Professional HD video |
+| **Camera** | DJI O4 Pro | Matches your VTX choice |
 | **Receiver** | ELRS 2.4 GHz recommended | Or your preferred system |
-| **GPS Module** | M10/QMC5883 class | With compass |
+| **GPS Module** | Mako Air M10 GPS | With compass |
 | **Capacitor** | ≥1000µF, 35-50V | Low-ESR, close to ESC |
-
-### Motor/Prop Combinations by Variant
-
-| Build Type | Motors (6S) | Props | Target Use |
-|------------|-------------|-------|------------|
-| **Endurance (LR‑E)** | 1500-1600 KV, 2328 stator | 7-8" 2-blade | Maximum range/flight time |
-| **All‑Rounder (AR)** | 1700 KV, 2225 stator | 7" 3-blade | Balance of range and performance |
-| **Payload/Cine (PC)** | 1300-1500 KV, 2528 stator | 7-8" 2-blade | Smooth footage, heavy payloads |
 
 ## Power System
 
 | Component | Specification | Quantity | Notes |
 |-----------|--------------|----------|-------|
 | **Battery** | 6S modular pack (rail-mounted) | 1-2 | 3000-5000 mAh Li-ion or LiPo |
-| **Main Connector** | XT60 or XT90 | 1 | Match battery connector |
+| **Main Connector** | XT60 | 1 | Match battery connector |
 | **Balance Lead** | JST-XH 7-pin | 1 | With strain relief |
 
 ![Molicel Battery Cells](/img/drone/Molicel_p50b.PNG)
-
-### Camera Mount Options
-
-![GoPro Mount](/img/drone/go_pro_mount.png)
 
 :::info Battery Options
 - **Li-ion cells**: Best for long-range (higher energy density)
@@ -123,18 +107,18 @@ See the [Tools & Materials](/docs/build-guides/tools) page for complete tool lis
 
 ## Where to Purchase
 
-### Official Yirra Products
-- **STL Digital Packs**: [yirrasystems.com/stl-files](https://yirrasystems.com/stl-files)
-- **Physical Frame Kits**: [yirrasystems.com/products](https://yirrasystems.com/products)
-- **Complete Solutions**: [yirrasystems.com/products](https://yirrasystems.com/products)
+### Open Source Frame
+- **Frame STL Files**: Available as open source
+- **Documentation**: Complete build guides and specifications
 
 ### Electronics
-- **ESC**: iFlight official store or authorized dealers
+- **ESC**: Authorized dealers
 - **Motors, Props, FC**: Major FPV retailers (RDQ, GetFPV, etc.)
-- **DJI O4 Pro/O3**: DJI authorized dealers
+- **DJI O4 Pro**: DJI authorized dealers
 
 ### Carbon Fiber
 - Carbon tube and plate specialists
+- Carbon fibre pieces can be ordered from Yirra Systems
 - Ensure 11mm OD tubes and specified plate thicknesses
 
 ## Next Steps

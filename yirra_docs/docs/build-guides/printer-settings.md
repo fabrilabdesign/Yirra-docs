@@ -1,8 +1,8 @@
 ---
-sidebar_position: 3.5
+sidebar_position: 5.1
 ---
 
-# 🖨️ Printer & Filament Settings
+# Printer & Filament Settings
 
 This section outlines the recommended hardware and print settings for manufacturing the **Replicant GEN 1 FPV Drone** components.  
 All configurations below have been tested for dimensional accuracy, strength, and print reliability with carbon-fiber-reinforced nylon and flexible TPU materials.
@@ -127,14 +127,12 @@ If not using the P1S, your printer must meet these specifications:
 
 | **Component** | **Material** | **Notes** |
 |----------------|--------------|-----------|
-| Frame shells (front/rear) | PA6-CF Nylon | 4-6 walls, 50% infill |
+| Top shell | PA6-CF Nylon | 4-6 walls, 50% infill |
 | Arm bosses / Motor mounts | PA6-CF Nylon | 6 walls, 80% infill (high stress) |
-| Exospine / Rail blocks | PA6-CF Nylon | 5 walls, 60% infill |
+| Exospine / Rail mount | PA6-CF Nylon | 5 walls, 60% infill |
 | Nose cone | SpiderMaker TPE 75A | Black matte finish |
-| Landing pads | SpiderMaker TPE 75A | 2 walls, 20% infill |
 | Camera isolation mounts | SpiderMaker TPE 75A | Flexible, vibration dampening |
 | Battery latch | PA6-CF Nylon | 5 walls, 70% infill |
-| GPS mast | PA6-CF Nylon | 4 walls, 40% infill |
 | Test fits / Jigs | PETG | Not for flight — dimensional verification only |
 
 ---
@@ -164,12 +162,11 @@ Use digital calipers to verify critical dimensions:
 
 | **Part** | **Material** | **Print Time** | **Filament Used** |
 |----------|--------------|----------------|-------------------|
-| Front shell | PA6-CF | 8-12 hours | 150-200g |
-| Rear shell | PA6-CF | 8-12 hours | 150-200g |
+| Top shell | PA6-CF | 8-12 hours | 150-200g |
 | Arm boss (x4) | PA6-CF | 2-3 hours each | 40-60g each |
+| Rail mount | PA6-CF | 2-3 hours | 40-60g |
 | Nose cone | TPE 75A | 3-5 hours | 50-80g |
-| Landing pads (x4) | TPE 75A | 1-2 hours total | 20-30g total |
-| **Complete Frame Set** | Mixed | **40-60 hours** | **600-800g total** |
+| **Complete Frame Set** | Mixed | **25-35 hours** | **450-600g total** |
 
 ---
 

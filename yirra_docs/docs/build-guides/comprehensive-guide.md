@@ -1,6 +1,6 @@
 ---
-sidebar_position: 1
-title: Comprehensive Build Guide
+sidebar_position: 2
+title: Build Guide
 ---
 
 # Building the Replicant GEN 1 (IC‑01)
@@ -22,44 +22,6 @@ Complete start-to-finish reference for the GEN 1 platform.
 
 This guide aligns with the [Drone Features](https://yirrasystems.com/drone-features) and [Products](https://yirrasystems.com/products) pages on our main site.
 
-## Build Variants & Configuration Matrix
-
-Choose your configuration based on intended use:
-
-### Endurance (LR‑E)
-**Goal:** Maximum flight time and range
-
-- **Props:** 7–8″ 2‑blade
-- **Motors:** 1500–1600 KV, 2328 stator (6S)
-- **ESC:** iFlight Blitz E55 (55-65A)
-- **Battery:** 6S 3000–4000 mAh Li‑ion (rail-mounted)
-- **Flying Style:** Cruise efficiency, gentle throttle response
-- **Expected Flight Time:** 25-40 minutes (depends on conditions)
-
-### All‑Rounder (AR)
-**Goal:** Balance of performance and endurance
-
-- **Props:** 7″ 3‑blade
-- **Motors:** 1700 KV, 2225 stator (6S)
-- **ESC:** iFlight Blitz E55 (45-55A)
-- **Battery:** 6S 2200–3000 mAh LiPo (rail-mounted)
-- **Flying Style:** Balanced punch and range
-- **Expected Flight Time:** 15-25 minutes
-
-### Payload/Cine (PC)
-**Goal:** Smooth footage with payload capacity
-
-- **Props:** 7–8″ 2‑blade
-- **Motors:** 1300–1500 KV, 2528 stator (6S)
-- **ESC:** iFlight Blitz E55 (55-65A)
-- **Battery:** 6S 3000–5000 mAh Li‑ion (rail-mounted)
-- **Flying Style:** Smooth control for cinema work
-- **Payload Capacity:** +200-400g over base config
-
-:::info Choosing Your Variant
-First-time builders should start with **All-Rounder (AR)** configuration. It provides the most versatile performance while you learn the platform.
-:::
-
 ## Complete Build Process
 
 The build is organized into these major phases:
@@ -70,7 +32,7 @@ The build is organized into these major phases:
 3. Order or download STL files
 
 ### Phase 2: Fabrication
-1. [3D Print](/docs/build-guides/printing) all frame parts (48-74 hours)
+1. [3D Print](/docs/build-guides/printing) all frame parts
 2. Cut carbon fiber tubes and plates
 3. Install heat-set inserts
 4. Post-process printed parts

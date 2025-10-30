@@ -72,25 +72,83 @@ const config: Config = {
     image: 'img/yirra-social-card.jpg',
     colorMode: {
       defaultMode: 'light',
-      disableSwitch: false,
-      respectPrefersColorScheme: true,
+      disableSwitch: true, // Clean light-only experience
+      respectPrefersColorScheme: false,
+    },
+    algolia: {
+      appId: 'YOUR_APP_ID', // TODO: Set up Algolia search
+      apiKey: 'YOUR_API_KEY',
+      indexName: 'yirra-docs',
+      contextualSearch: true,
+      searchParameters: {},
+      searchPagePath: false,
     },
     navbar: {
-      title: 'Yirra Docs',
+      title: 'Yirra Systems',
       logo: {
         alt: 'Yirra Systems Logo',
         src: 'img/logo.png',
       },
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          label: 'Home',
+          to: '/',
           position: 'left',
-          label: 'Documentation',
+        },
+        {
+          type: 'dropdown',
+          label: 'Build',
+          position: 'left',
+          items: [
+            {
+              label: 'Platform Overview',
+              to: '/docs/build-guides/overview',
+            },
+            {
+              label: 'Build Guide',
+              to: '/docs/build-guides/comprehensive-guide',
+            },
+            {
+              label: 'Bill of Materials',
+              to: '/docs/build-guides/bom',
+            },
+            {
+              label: 'Assembly Instructions',
+              to: '/docs/build-guides/assembly',
+            },
+          ],
+        },
+        {
+          type: 'dropdown',
+          label: 'Resources',
+          position: 'left',
+          items: [
+            {
+              label: '3D Models & STL Files',
+              to: '/docs/stl-files',
+            },
+            {
+              label: 'Firmware & Software',
+              to: '/docs/firmware',
+            },
+            {
+              label: 'Tools & Equipment',
+              to: '/docs/build-guides/tools',
+            },
+            {
+              label: 'Troubleshooting',
+              to: '/docs/build-guides/troubleshooting',
+            },
+          ],
         },
         {
           href: 'https://yirrasystems.com',
-          label: 'Main Site',
+          label: 'Store',
+          position: 'right',
+        },
+        {
+          href: 'https://yirrasystems.com/contact',
+          label: 'Support',
           position: 'right',
         },
       ],

@@ -3,10 +3,9 @@ kind: Ingress
 metadata:
   name: docs-ingress
   namespace: drone-store
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-    # No TLS at K8s level - Cloudflare handles SSL termination
 spec:
+  ingressClassName: traefik
+  # No TLS at K8s level - Cloudflare handles SSL termination
   rules:
   - host: docs.yirrasystems.com
     http:

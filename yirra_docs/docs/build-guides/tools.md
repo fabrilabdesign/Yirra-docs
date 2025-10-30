@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Tools & Materials
@@ -47,10 +47,9 @@ Everything you need to build the Replicant GEN 1.
 - **Hobby knife** — Cleanup, trimming
 - **Helping hands** or PCB holder
 - **Magnifier/loupe** for small work
-- **Tap set** (M2, M3, M4) for thread repair
-- **Center punch** for marking
 - **Deburring tool** for carbon edges
-- **Custom carbon-tube cutting jig** — For precise, square cuts
+
+### Carbon Tube Cutting
 
 ![Carbon Tube Cutting Jig](/img/drone/Cutting_jig.PNG)
 
