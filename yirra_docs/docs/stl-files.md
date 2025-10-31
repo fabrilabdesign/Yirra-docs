@@ -1,89 +1,41 @@
 ---
-sidebar_position: 10
-title: 3D Models & STL Files
+sidebar_position: 4
+title: 3D Models & STL / 3MF Files
 ---
 
-# 3D Models & STL Files
+# 3D Models & STL / 3MF Files
 
-Download all printable parts for the Replicant GEN 1 (IC‑01) platform.
+## Where to Download
 
-## Complete STL File Library
+Access the complete library from the [main site STL library](https://yirrasystems.com/stl-files). Files are available as individual STLs or complete packages.
 
-Access all 3D-printable components for your drone build.
+## Required vs Optional / Cosmetic
 
-### Core Airframe Components
+### Required Parts (Structural)
 
-- **Shell Components** (6 parts)
-  - Upper shell
-  - Lower shell
-  - Nose cone
-  - Battery rails (2x)
-  - Power button assembly
+These are essential for the core airframe:
 
-- **Structural Elements** (4 parts)
-  - Main chassis
-  - Arm roots (4x)
-  - Carbon tube adapters
+| Part | Material | Quantity | Notes |
+|------|----------|----------|-------|
+| **Chassis Core** | CF-Nylon | 1 | Main structure; print first |
+| **Arm Bosses** | CF-Nylon | 4 | Arm attachments; print first |
+| **Motor Mounts** | CF-Nylon | 4 | Motor securing; print first |
+| **Top Cover** | CF-Nylon | 1 | Enclosure |
+| **Nose Cone** | TPE | 1 | GPS pocket; see versioning note |
+| **Battery Rails** | CF-Nylon | 2 | Modular mounting |
 
-### Hardware Integration Parts
+### Optional / Cosmetic Parts
 
-- **Flight Controller Mounts**
-- **ESC Mounting Plates**
-- **Motor Mounts**
-- **GPS Mount**
+For enhancements or aesthetics:
 
-### Optional Accessories
+- **Propeller Guards**: TPE; safety in testing
+- **LED Light Housings**: CF-Nylon; optional lighting
+- **Camera Mounts**: TPE; alternative isolation
 
-- **Camera Mounts**
-- **LED Light Housings**
-- **Propeller Guards**
+## Notes on Versioning
 
-## Download Options
+Always use the latest release. Print the latest nose cone if GPS pocket changed.
 
-### Individual Files
-Download specific components as needed for repairs or modifications.
+## Next Steps
 
-### Complete Kit
-All files packaged together for full builds.
-
-### Version History
-Access previous versions for compatibility with existing builds.
-
-## Creo Parametric Integration
-
-:::info Native CAD Integration
-We're developing direct integration with Creo Parametric for real-time model viewing and updates.
-
-**Coming Soon:**
-- Interactive Creo model viewer
-- Live dimension annotations
-- Parametric modifications
-- Direct download from CAD
-:::
-
-## File Specifications
-
-- **Format:** Binary STL (.stl)
-- **Units:** Millimeters
-- **Orientation:** Print-ready (no supports needed for most parts)
-- **Tolerances:** ±0.1mm for critical fits
-
-## Print Settings
-
-See our [Printing Guide](/docs/build-guides/printing) for detailed settings.
-
-## Quality Assurance
-
-All STL files are:
-- Generated from Creo Parametric
-- Tested on real hardware
-- Updated with build feedback
-- Version controlled
-
-## Need Custom Modifications?
-
-Contact our engineering team for custom part modifications or new component development.
-
----
-
-**Ready to download?** Visit our [main site](https://yirrasystems.com/stl-files) for the complete STL library.
+Download files and proceed to [3D Printing Guide](/docs/3d-printing-guide) for printing instructions.

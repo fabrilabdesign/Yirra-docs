@@ -1,0 +1,52 @@
+config:
+  target: 'https://hot-sauce.addiaire.com'
+  phases:
+    # Warm-up phase
+    - duration: 30
+      arrivalRate: 2
+      name: "Warm-up"
+    # Main load phase
+    - duration: 120
+      arrivalRate: 5
+      name: "Main load"
+    # Spike test
+    - duration: 60
+      arrivalRate: 20
+      name: "Spike test"
+  defaults:
+    headers:
+      Authorization: 'Bearer {{ $processEnvironment.JWT_TOKEN }}'
+      Content-Type: 'application/json'
+
+scenarios:
+  - name: 'Health Check'
+    weight: 20
+    requests:
+      - get:
+          url: '/health'
+
+  - name: 'Fetch Score'
+    weight: 50
+    requests:
+      - get:
+          url: '/fetchScore'
+          qs:
+            targetId: 't3_test123'
+
+  - name: 'Send Vote Action'
+    weight: 30
+    requests:
+      - post:
+          url: '/sendAction'
+          json:
+            account: 'test_account'
+            targetId: 't3_test123'
+            direction: 'up'
+
+before:
+  flow:
+    - log: "Starting load test against {{ $config.target }}"
+
+after:
+  flow:
+    - log: "Load test completed"

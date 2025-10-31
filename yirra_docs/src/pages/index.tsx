@@ -18,13 +18,13 @@ function HomepageHeader() {
                 Complete documentation for professional FPV drone building
               </p>
               <div className="homepage-nav">
-                <Link to="/docs/build-guides/overview" className="nav-link primary">
+                <Link to="/docs/platform-overview" className="nav-link primary">
                   Start Building →
                 </Link>
                 <Link to="/docs/stl-files" className="nav-link secondary">
                   Download Files
                 </Link>
-                <Link to="/docs/firmware" className="nav-link secondary">
+                <Link to="/docs/firmware-software" className="nav-link secondary">
                   Firmware Guide
                 </Link>
               </div>
@@ -192,7 +192,7 @@ function BuildProcess() {
         </div>
 
         <div className="build-cta">
-          <Link to="/docs/build-guides/overview" className="button button--primary">
+          <Link to="/docs/platform-overview" className="button button--primary">
             Start Build Process →
           </Link>
         </div>

@@ -14,7 +14,7 @@ const FeatureList: FeatureItem[] = [
     title: 'Build Your Drone',
     icon: '🔧',
     description: 'Complete step-by-step guides for assembling the Replicant GEN 1 platform. From printing to maiden flight.',
-    link: '/docs/build-guides/overview',
+    link: '/docs/platform-overview',
     linkText: 'Start Building →'
   },
   {
@@ -28,7 +28,7 @@ const FeatureList: FeatureItem[] = [
     title: 'Technical Specs',
     icon: '⚙️',
     description: 'Detailed specifications, performance data, and engineering documentation.',
-    link: '/docs/build-guides/comprehensive-guide',
+    link: '/docs/assembly-guide',
     linkText: 'View Specs →'
   },
   {

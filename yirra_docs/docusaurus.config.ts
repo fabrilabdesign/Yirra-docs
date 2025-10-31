@@ -24,7 +24,7 @@ const config: Config = {
   organizationName: 'yirra-systems', // Usually your GitHub org/user name.
   projectName: 'yirra-docs', // Usually your repo name.
 
-  onBrokenLinks: 'warn', // Allow build with warnings for now
+  onBrokenLinks: 'throw', // Fail build on broken links
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -39,7 +39,7 @@ const config: Config = {
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.ts',
+          sidebarPath: require.resolve('./sidebars.ts'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
@@ -97,47 +97,52 @@ const config: Config = {
         },
         {
           type: 'dropdown',
-          label: 'Build',
+          label: 'Build Guide',
           position: 'left',
           items: [
             {
               label: 'Platform Overview',
-              to: '/docs/build-guides/overview',
-            },
-            {
-              label: 'Build Guide',
-              to: '/docs/build-guides/comprehensive-guide',
+              to: '/docs/platform-overview',
             },
             {
               label: 'Bill of Materials',
-              to: '/docs/build-guides/bom',
+              to: '/docs/bill-of-materials',
             },
             {
-              label: 'Assembly Instructions',
-              to: '/docs/build-guides/assembly',
+              label: 'Tools & Materials',
+              to: '/docs/tools-materials',
             },
-          ],
-        },
-        {
-          type: 'dropdown',
-          label: 'Resources',
-          position: 'left',
-          items: [
             {
-              label: '3D Models & STL Files',
+              label: '3D Models & STL / 3MF Files',
               to: '/docs/stl-files',
             },
             {
-              label: 'Firmware & Software',
-              to: '/docs/firmware',
+              label: '3D Printing Guide',
+              to: '/docs/3d-printing-guide',
             },
             {
-              label: 'Tools & Equipment',
-              to: '/docs/build-guides/tools',
+              label: 'Carbon Arm Preparation',
+              to: '/docs/carbon-arm-preparation',
+            },
+            {
+              label: 'Arm Bonding (DP-409 Workflow)',
+              to: '/docs/arm-bonding-dp409',
+            },
+            {
+              label: 'Assembly Guide',
+              to: '/docs/assembly-guide',
+            },
+            {
+              label: 'Firmware & Software (iNav – light)',
+              to: '/docs/firmware-software-inav',
+            },
+            {
+              label: 'Tuning & Maiden Flight (minimal)',
+              to: '/docs/tuning-maiden-flight',
             },
             {
               label: 'Troubleshooting',
-              to: '/docs/build-guides/troubleshooting',
+              to: '/docs/troubleshooting',
             },
           ],
         },
@@ -161,7 +166,7 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/intro',
+              to: '/docs/platform-overview',
             },
           ],
         },
