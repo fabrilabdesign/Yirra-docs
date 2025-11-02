@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fabrilab
+  namespace: fabrilab
+  labels:
+    app: fabrilab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fabrilab
+  template:
+    metadata:
+      labels:
+        app: fabrilab
+    spec:
+      containers:
+      - name: fabrilab
+        image: localhost:5000/fabrilab:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3

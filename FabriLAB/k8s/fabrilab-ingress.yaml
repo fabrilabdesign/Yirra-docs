@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fabrilab
+  namespace: fabrilab
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: fabrilab.com.au
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fabrilab
+            port:
+              number: 80
+  - host: api.fabrilab.com.au
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: contact-api
+            port:
+              number: 3001

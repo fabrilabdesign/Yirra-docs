@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contact-api-config
+  namespace: fabrilab
+data:
+  contact_email: "james@fabrilab.com.au"
+  from_email: "FabriLab <james@fabrilab.com.au>"

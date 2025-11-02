@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traefik-to-fabrilab
+  namespace: fabrilab
+spec:
+  podSelector: {} # An empty podSelector selects all pods in the namespace
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system # Allow from the kube-system namespace
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: traefik # Specifically from the Traefik pods
+    ports:
+    - protocol: TCP
+      port: 80 # Port for the fabrilab frontend
+    - protocol: TCP
+      port: 3001 # Port for the contact API
+  - from:
+    - podSelector: {} # Allow traffic from any pod within the fabrilab namespace
