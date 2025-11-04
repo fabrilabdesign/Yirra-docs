@@ -225,7 +225,7 @@ describe('Frontend-Backend Integration', () => {
   test('complete voting workflow', async () => {
     // Start voting automation via API
     // Verify database record created
-    // Check N8N workflow triggered
+    // Check scheduler service triggered
     // Verify vote applied on Reddit
   });
 
@@ -237,12 +237,12 @@ describe('Frontend-Backend Integration', () => {
 });
 ```
 
-### 2.3 N8N Workflow Integration
+### 2.3 Scheduler Service Integration
 
 #### Workflow Testing
 ```bash
-# Test N8N workflows via API calls
-curl -X POST https://flows.addiaire.com/webhook/test-start \
+# Test scheduler service via API calls
+curl -X POST https://your-domain.com/sweeps/keyword/run \
   -H "Content-Type: application/json" \
   -H "x-internal-token: YOUR_SECRET" \
   -d '{"targetId": "t3_test123", "mode": "absolute", "direction": "up", "voteCount": 5}'
@@ -382,7 +382,7 @@ EXPLAIN ANALYZE SELECT * FROM voting_automations WHERE status = 'active';
 -- Test index effectiveness
 ```
 
-### 4.3 N8N Workflow Performance
+### 4.3 Scheduler Service Performance
 
 #### Workflow Execution Time
 - Monitor execution duration
@@ -478,7 +478,7 @@ kubectl rollout status deployment/voting-server -n drone-store
 - Error rates by endpoint
 - Database connection pool usage
 - Redis cache hit rates
-- N8N workflow success rates
+- Scheduler service success rates
 - Kubernetes pod resource usage
 
 #### Alert Conditions

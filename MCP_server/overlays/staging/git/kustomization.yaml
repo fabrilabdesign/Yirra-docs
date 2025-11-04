@@ -1,9 +1,0 @@
-namespace: tools-staging
-namePrefix: git-
-resources:
-  - ../../../base
-patchesStrategicMerge:
-  - patch.deployment.yaml
-  - patch.service.yaml
-
-

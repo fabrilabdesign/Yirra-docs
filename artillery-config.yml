@@ -1,47 +1,177 @@
 config:
-  target: 'https://hot-sauce.addiaire.com'
+  target: 'https://magic-sauce.addiaire.com'
+  processor: './load-test-helpers.js'
   phases:
-    # Warm-up phase
-    - duration: 30
-      arrivalRate: 2
-      name: "Warm-up"
-    # Main load phase
-    - duration: 120
-      arrivalRate: 5
-      name: "Main load"
-    # Spike test
+    # Warm-up phase - light load to ensure system is ready
     - duration: 60
-      arrivalRate: 20
+      arrivalRate: 1
+      name: "Warm-up"
+    # Normal load phase - typical expected traffic
+    - duration: 180
+      arrivalRate: 3
+      name: "Normal load"
+    # Heavy load phase - stress testing
+    - duration: 120
+      arrivalRate: 10
+      name: "Heavy load"
+    # Spike test - sudden traffic spike
+    - duration: 30
+      arrivalRate: 50
       name: "Spike test"
+    # Recovery phase - ensure system recovers
+    - duration: 60
+      arrivalRate: 2
+      name: "Recovery"
   defaults:
     headers:
-      Authorization: 'Bearer {{ $processEnvironment.JWT_TOKEN }}'
       Content-Type: 'application/json'
+      User-Agent: 'Artillery-Load-Test/1.0'
 
 scenarios:
+  # Health monitoring - most frequent requests
   - name: 'Health Check'
-    weight: 20
+    weight: 30
     requests:
       - get:
           url: '/health'
+          expect:
+            - statusCode: 200
 
-  - name: 'Fetch Score'
-    weight: 50
+  - name: 'Readiness Check'
+    weight: 10
     requests:
       - get:
-          url: '/fetchScore'
-          qs:
-            targetId: 't3_test123'
+          url: '/ready'
+          expect:
+            - statusCode: 200
 
-  - name: 'Send Vote Action'
-    weight: 30
+  # Authentication and status checks
+  - name: 'Auth Status Check'
+    weight: 15
+    requests:
+      - get:
+          url: '/auth/status'
+          expect:
+            - statusCode: 200
+
+  - name: 'Quota Check'
+    weight: 10
+    requests:
+      - get:
+          url: '/quota'
+          expect:
+            - statusCode: 200
+
+  # Users API operations
+  - name: 'List Users'
+    weight: 8
+    requests:
+      - get:
+          url: '/users'
+          expect:
+            - statusCode: 200
+
+  - name: 'Search Users'
+    weight: 5
+    requests:
+      - get:
+          url: '/users'
+          qs:
+            search: '{{ randomUserSearch() }}'
+          expect:
+            - statusCode: 200
+
+  - name: 'Create User'
+    weight: 2
     requests:
       - post:
-          url: '/sendAction'
+          url: '/users'
           json:
-            account: 'test_account'
-            targetId: 't3_test123'
-            direction: 'up'
+            username: 'loadtest_user_{{ $randomInt }}'
+            tags: ['load-test']
+            notes: 'Created by Artillery load test'
+          expect:
+            - statusCode: [200, 201]
+
+  # Reddit automation operations (will likely fail without auth, but tests endpoint availability)
+  - name: 'Vote Action'
+    weight: 5
+    requests:
+      - post:
+          url: '/ms/v1/action/vote'
+          json:
+            targetId: 't3_loadtest_{{ $randomInt }}'
+            targetType: 'post'
+            direction: '{{ randomVoteDirection() }}'
+            voteMode: 'absolute'
+            voteCount: 1
+          expect:
+            - statusCode: [200, 400, 401, 403]
+
+  - name: 'Start Automation'
+    weight: 3
+    requests:
+      - post:
+          url: '/ms/v1/automation/start'
+          json:
+            targetId: 't3_loadtest_{{ $randomInt }}'
+            targetType: 'post'
+            mode: 'absolute'
+            voteCount: '{{ randomInt(1, 5) }}'
+          expect:
+            - statusCode: [200, 400, 401, 403]
+
+  - name: 'Automation Status'
+    weight: 4
+    requests:
+      - get:
+          url: '/ms/v1/automation/status/t3_loadtest_{{ $randomInt }}'
+          expect:
+            - statusCode: [200, 401, 404]
+
+  - name: 'Keywords List'
+    weight: 3
+    requests:
+      - get:
+          url: '/ms/v1/lists/keywords'
+          qs:
+            action: 'list'
+          expect:
+            - statusCode: [200, 401]
+
+  - name: 'Content Tracking'
+    weight: 3
+    requests:
+      - post:
+          url: '/ms/v1/track/content'
+          json:
+            fullname: 't3_loadtest_{{ $randomInt }}'
+            type: 'post'
+            username: 'loadtest_user'
+            subreddit: 'loadtest'
+            title: 'Load Test Post {{ $randomInt }}'
+            body: 'This is a load test content tracking request'
+            score: '{{ randomInt(0, 100) }}'
+            created_utc: '{{ $randomInt(1609459200, 1672531200) }}'
+          expect:
+            - statusCode: [200, 400, 401]
+
+  # Error scenarios to test robustness
+  - name: 'Invalid Endpoint'
+    weight: 1
+    requests:
+      - get:
+          url: '/invalid-endpoint-{{ $randomInt }}'
+          expect:
+            - statusCode: 404
+
+  - name: 'Method Not Allowed'
+    weight: 1
+    requests:
+      - put:
+          url: '/health'
+          expect:
+            - statusCode: [404, 405]
 
 before:
   flow:

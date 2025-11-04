@@ -1,0 +1,11 @@
+[0;35m========================================[0m
+[0;35mMAGIC SAUCE APP - COMPLETE TEST SUITE[0m
+[0;35m========================================[0m
+[0;34m[INFO][0m Target URL: https://magic-sauce.addiaire.com
+[0;34m[INFO][0m Test Results: /home/james/yirra_systems_app/test-results-20251101-075901
+[0;34m[INFO][0m Test Mode: full
+[0;34m[INFO][0m Checking test dependencies...
+[1;33m[WARNING][0m Artillery not found - load tests will be skipped
+[0;34m[INFO][0m Core dependencies available (optional: artillery)
+[0;36m[TEST SUITE][0m Running Connectivity Tests
+[0;31m[ERROR][0m Connectivity tests failed to execute

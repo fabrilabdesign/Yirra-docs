@@ -5,7 +5,7 @@ const Hero: React.FC = () => {
     <section id="hero" className="fl-hero">
       <video
         className="fl-hero-video"
-        src="/hero.mp4"
+        src="/hero-v4.mp4"
         autoPlay
         loop
         muted

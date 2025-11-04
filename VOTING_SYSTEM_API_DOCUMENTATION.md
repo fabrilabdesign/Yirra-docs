@@ -200,7 +200,7 @@ CLIENT_SECRET=your_script_app_client_secret
 USER_AGENT=voting-server/1.0 (by /u/your_username)
 
 # CORS
-N8N_DOMAIN=https://flows.addiaire.com
+CORS_ORIGINS=https://your-domain.com
 ```
 
 ### Rate Limiting

@@ -34,7 +34,7 @@ echo "📊 EXPECTED RESULTS:"
 echo "--------------------"
 echo "• 4 Reddit accounts in database with credentials"
 echo "• API endpoints working with account-specific auth"
-echo "• N8N workflows using distributed voting"
+echo "• Scheduler service using distributed voting"
 echo "• Rate limiting working per account"
 echo ""
 

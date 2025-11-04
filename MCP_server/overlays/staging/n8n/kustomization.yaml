@@ -1,9 +1,0 @@
-namespace: tools-staging
-namePrefix: n8n-
-resources:
-  - ../../../base
-  - configmap.tools.yaml
-patchesStrategicMerge:
-  - patch.deployment.yaml
-  - patch.service.yaml
-

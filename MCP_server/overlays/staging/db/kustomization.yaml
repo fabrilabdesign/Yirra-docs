@@ -1,9 +1,0 @@
-namespace: tools-staging
-namePrefix: db-
-resources:
-  - ../../../base
-patchesStrategicMerge:
-  - patch.deployment.yaml
-  - patch.service.yaml
-
-

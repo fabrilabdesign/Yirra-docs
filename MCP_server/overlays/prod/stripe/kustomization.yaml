@@ -1,7 +1,0 @@
-namespace: tools
-commonLabels:
-  app.kubernetes.io/name: stripe-mcp-server
-resources:
-  - patch.deployment.yaml
-
-

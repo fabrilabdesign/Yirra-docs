@@ -1,6 +1,0 @@
-namespace: tools
-commonLabels:
-  app.kubernetes.io/name: fetch-mcp-server
-resources:
-  - patch.deployment.yaml
-

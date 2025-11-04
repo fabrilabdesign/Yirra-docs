@@ -34,7 +34,8 @@ body {
 .fl-header {
   position: fixed;
   top: 14px;
-  width: 100%;
+  left: 14px;
+  right: 14px;
   z-index: 50;
   pointer-events: none; /* so video hero still scrolls, inner shell gets events */
 }
@@ -97,17 +98,31 @@ body {
 .fl-cta {
   background: #fff;
   color: #020617;
-  border: none;
-  border-radius: 8px;
-  padding: 0.45rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.5rem 1.5rem;
   font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: 0.12s ease-out;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .fl-cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.fl-cta:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.fl-cta:active {
+  transform: translateY(0);
 }
 
 

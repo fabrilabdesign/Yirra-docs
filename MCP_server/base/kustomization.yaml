@@ -1,4 +1,0 @@
-resources:
-  - mcp-server-deployment.yaml
-  - mcp-server-service.yaml
-

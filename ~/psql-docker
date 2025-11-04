@@ -1,0 +1,5 @@
+#!/bin/bash
+# PostgreSQL client via Docker
+# Usage: ./psql-docker [psql arguments]
+
+docker run --rm -it --network host postgres:17-alpine psql "$@"

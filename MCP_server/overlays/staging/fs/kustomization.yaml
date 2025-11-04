@@ -1,8 +1,0 @@
-namespace: tools-staging
-namePrefix: fs-
-resources:
-  - ../../../base
-patchesStrategicMerge:
-  - patch.deployment.yaml
-  - patch.service.yaml
-
