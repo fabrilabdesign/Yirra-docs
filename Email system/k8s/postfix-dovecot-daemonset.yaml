@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mailedge
+  namespace: email-system
+spec:
+  selector:
+    matchLabels: { app: mailedge }
+  template:
+    metadata:
+      labels: { app: mailedge }
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: lucy  # Your k3s control-plane node
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        fsGroup: 5000
+      initContainers:
+        - name: init-maildirs
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args: ["mkdir -p /var/vmail/admin /var/vmail/test && chown -R 5000:5000 /var/vmail"]
+          volumeMounts:
+            - { name: vmail, mountPath: /var/vmail }
+      containers:
+        - name: postfix
+          image: boky/postfix
+          env:
+            - name: ALLOWED_SENDER_DOMAINS
+              value: gaudy.com.au
+            - name: SMTPD_SASL_AUTH_ENABLE
+              value: "yes"
+            - name: SMTPD_SASL_TYPE
+              value: "cyrus"
+            - name: SMTPD_SASL_PATH
+              value: "smtpd"
+            - name: SASL_AUTHD_PATH
+              value: "/var/spool/postfix/private/auth"
+          ports:
+            - { name: smtp,       containerPort: 25,  hostPort: 25 }
+            - { name: smtps,      containerPort: 465, hostPort: 465 }
+            - { name: submission, containerPort: 587, hostPort: 587 }
+          securityContext:
+            capabilities: { add: ["NET_BIND_SERVICE"] }
+        - name: dovecot
+          image: dovecot/dovecot:2.3
+          ports:
+            - { name: imap, containerPort: 143, hostPort: 143 }
+            - { name: imaps, containerPort: 993, hostPort: 993 }
+          volumeMounts:
+            - { name: dovecot-conf,  mountPath: /etc/dovecot/dovecot.conf, subPath: dovecot.conf }
+            - { name: vmail,         mountPath: /var/vmail }
+            - { name: dovecot-auth,  mountPath: /etc/dovecot/users.passwd, subPath: users.passwd }
+            - { name: tls,           mountPath: /tls, readOnly: true }
+            - { name: dh,            mountPath: /etc/ssl/dhparams.pem, subPath: dhparams.pem }
+            - { name: sockets,       mountPath: /var/spool/postfix/private }  # same path -> same unix sockets
+      volumes:
+        - name: postfix-config
+          configMap: { name: postfix-main }
+        - name: postfix-maps
+          configMap: { name: postfix-maps }
+        - name: dovecot-conf
+          configMap: { name: dovecot-conf, items: [{ key: dovecot.conf, path: dovecot.conf }] }
+        - name: dovecot-auth
+          secret: { secretName: dovecot-auth }
+        - name: tls
+          secret: { secretName: mail-tls }
+        - name: dh
+          secret: { secretName: tls-dhparams }
+        - name: sockets
+          emptyDir: {}                           # shared unix sockets
+        - name: vmail
+          persistentVolumeClaim: { claimName: vmail-pvc }

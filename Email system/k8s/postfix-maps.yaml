@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postfix-maps
+  namespace: email-system
+data:
+  virtual_mailbox: |
+    # Virtual mailbox mappings: user@domain mailbox_path
+    admin@gaudy.com.au admin/
+    test@gaudy.com.au test/
+  virtual_alias: |
+    # Virtual alias mappings: alias@domain actual@domain
+    postmaster@gaudy.com.au admin@gaudy.com.au
+    abuse@gaudy.com.au admin@gaudy.com.au
+    root@gaudy.com.au admin@gaudy.com.au

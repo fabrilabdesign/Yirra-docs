@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dovecot-conf
+  namespace: email-system
+data:
+  dovecot.conf: |
+    # Basic configuration
+    listen = *
+    protocols = imap
+    disable_plaintext_auth = no
+    auth_mechanisms = plain login
+    mail_location = maildir:/var/vmail/%u
+
+    # SSL configuration
+    ssl = yes
+    ssl_cert = </tls/tls.crt
+    ssl_key = </tls/tls.key
+
+    # Authentication
+    passdb {
+      driver = passwd-file
+      args = scheme=plain /etc/dovecot/users.passwd
+    }
+
+    userdb {
+      driver = static
+      args = uid=5000 gid=5000 home=/var/vmail/%u
+    }
+
+    # Services
+    service imap-login {
+      inet_listener imap {
+        port = 143
+      }
+      inet_listener imaps {
+        port = 993
+        ssl = yes
+      }
+    }
+
+    # Basic IMAP configuration
+    protocol imap {
+    }
+
+    service auth {
+      unix_listener /var/spool/postfix/private/auth {
+        mode = 0666
+      }
+    }

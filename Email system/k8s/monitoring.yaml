@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postfix-exporter
+  namespace: email-system
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: postfix-exporter } }
+  template:
+    metadata: { labels: { app: postfix-exporter } }
+    spec:
+      containers:
+        - name: exporter
+          image: boky/postfix-exporter
+          args: ["-postfix.socket_path=/var/spool/postfix/private/showq"]
+          ports: [{ containerPort: 9154 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postfix-exporter
+  namespace: email-system
+spec:
+  selector: { app: postfix-exporter }
+  ports:
+    - { name: http, port: 9154, targetPort: 9154 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rspamd-exporter
+  namespace: email-system
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: rspamd-exporter } }
+  template:
+    metadata: { labels: { app: rspamd-exporter } }
+    spec:
+      containers:
+        - name: exporter
+          image: badsmoke/rspamd-exporter
+          args: ["-rspamd.uri", "http://rspamd.email-system.svc.cluster.local:11334"]
+          ports: [{ containerPort: 9814 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rspamd-exporter
+  namespace: email-system
+spec:
+  selector: { app: rspamd-exporter }
+  ports:
+    - { name: http, port: 9814, targetPort: 9814 }

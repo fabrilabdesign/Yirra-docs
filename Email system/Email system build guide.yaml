@@ -1,0 +1,496 @@
+Love this—great peer review. I’ve folded the strongest points into a clean “patch set” so you can drop it straight into your repo. The big changes:
+
+* Fix the Postfix↔Dovecot socket issue by **co-locating them in one Pod** (shared unix sockets).
+* Remove the IMAPS socat hack.
+* Tighten Postfix, fix ClamAV config, make MTA-STS start in **testing** mode.
+* Optional: switch cert-manager to **DNS-01**.
+* Add minimal monitoring + a real backup job.
+
+Below are concise diffs/new files only (assume your previous files exist).
+
+---
+
+# 1) Replace Postfix (DaemonSet) + Dovecot (Deployment) with a single Pod
+
+## **mail/postfix-dovecot-daemonset.yaml** (new; replaces both old Postfix DaemonSet and Dovecot Deployment)
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mailedge
+  namespace: email-system
+spec:
+  selector:
+    matchLabels: { app: mailedge }
+  template:
+    metadata:
+      labels: { app: mailedge }
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: lucy  # Your k3s control-plane node
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        fsGroup: 5000
+      containers:
+        - name: postfix
+          image: ghcr.io/camptocamp/postfix:3.8
+          ports:
+            - { name: smtp,       containerPort: 25,  hostPort: 25  }
+            - { name: smtps,      containerPort: 465, hostPort: 465 }
+            - { name: submission, containerPort: 587, hostPort: 587 }
+          securityContext:
+            capabilities: { add: ["NET_BIND_SERVICE"] }
+          volumeMounts:
+            - { name: postfix-main,   mountPath: /etc/postfix/main.cf,   subPath: main.cf }
+            - { name: postfix-master, mountPath: /etc/postfix/master.cf, subPath: master.cf }
+            - { name: postfix-maps,   mountPath: /etc/postfix/virtual_mailbox, subPath: virtual_mailbox }
+            - { name: postfix-maps,   mountPath: /etc/postfix/virtual_alias,   subPath: virtual_alias }
+            - { name: tls,            mountPath: /tls, readOnly: true }
+            - { name: dh,             mountPath: /etc/ssl/dhparams.pem, subPath: dhparams.pem }
+            - { name: sockets,        mountPath: /var/spool/postfix/private }  # shared with dovecot
+        - name: dovecot
+          image: dovecot/dovecot:2.3
+          ports:
+            - { name: imaps, containerPort: 993, hostPort: 993 }
+          volumeMounts:
+            - { name: dovecot-conf,  mountPath: /etc/dovecot/dovecot.conf, subPath: dovecot.conf }
+            - { name: vmail,         mountPath: /var/vmail }
+            - { name: dovecot-auth,  mountPath: /etc/dovecot/users.passwd, subPath: users.passwd }
+            - { name: tls,           mountPath: /tls, readOnly: true }
+            - { name: dh,            mountPath: /etc/ssl/dhparams.pem, subPath: dhparams.pem }
+            - { name: sockets,       mountPath: /var/spool/postfix/private }  # same path -> same unix sockets
+      volumes:
+        - name: postfix-main
+          configMap: { name: postfix-main, items: [{ key: main.cf, path: main.cf }] }
+        - name: postfix-master
+          configMap: { name: postfix-main, items: [{ key: master.cf, path: master.cf }] }
+        - name: postfix-maps
+          configMap: { name: postfix-maps }
+        - name: dovecot-conf
+          configMap: { name: dovecot-conf, items: [{ key: dovecot.conf, path: dovecot.conf }] }
+        - name: dovecot-auth
+          secret: { secretName: dovecot-auth }
+        - name: tls
+          secret: { secretName: mail-tls }
+        - name: dh
+          secret: { secretName: tls-dhparams }
+        - name: sockets
+          emptyDir: {}                           # shared unix sockets
+        - name: vmail
+          persistentVolumeClaim: { claimName: vmail-pvc }
+```
+
+> Remove your old `postfix-daemonset.yaml` and `dovecot.yaml`. This single DaemonSet binds 25/465/587/993 and shares `/var/spool/postfix/private` for SASL + LMTP sockets—no more socat.
+
+---
+
+# 2) Postfix config tweaks (maps + restrictions)
+
+## **mail/postfix-config.yaml** (patch)
+
+```diff
+ data:
+   main.cf: |
+     myhostname = mail.gaudy.com.au
+     mydomain = gaudy.com.au
+     myorigin = $mydomain
+     inet_interfaces = all
+     inet_protocols = all
+     mydestination = localhost
+     relayhost =
+     message_size_limit = 52428800
++    smtputf8_enable = yes
+
+     # TLS
+     smtpd_tls_cert_file = /tls/tls.crt
+     smtpd_tls_key_file  = /tls/tls.key
+     smtpd_tls_dh1024_param_file = /etc/ssl/dhparams.pem
+     smtpd_tls_security_level = may
+     smtp_tls_security_level  = may
+     smtpd_tls_mandatory_protocols = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
+     smtpd_tls_protocols = !SSLv2,!SSLv3
+     smtpd_tls_loglevel = 1
+     smtpd_tls_auth_only = yes
+     smtpd_tls_received_header = yes
+     smtp_tls_loglevel = 1
+
+     # Auth via Dovecot (unix socket inside the shared volume)
+     smtpd_sasl_type = dovecot
+     smtpd_sasl_path = /var/spool/postfix/private/auth
+     smtpd_sasl_auth_enable = yes
+     smtpd_sasl_security_options = noanonymous
+-    smtpd_recipient_restrictions =
+-        permit_mynetworks,
+-        permit_sasl_authenticated,
+-        reject_unauth_destination
++    smtpd_recipient_restrictions =
++        permit_mynetworks,
++        permit_sasl_authenticated,
++        reject_unauth_destination
++    smtpd_relay_restrictions =
++        permit_mynetworks,
++        permit_sasl_authenticated,
++        defer_unauth_destination
+
+     # LMTP to Dovecot
+     virtual_transport = lmtp:unix:private/dovecot-lmtp
+-    virtual_mailbox_domains = example.com
+-    virtual_mailbox_maps = hash:/etc/postfix/virtual_mailbox
+-    virtual_alias_maps = hash:/etc/postfix/virtual_alias
++    virtual_mailbox_domains = gaudy.com.au
++    # Use texthash to avoid postmap step inside containers
++    virtual_mailbox_maps = texthash:/etc/postfix/virtual_mailbox
++    virtual_alias_maps   = texthash:/etc/postfix/virtual_alias
+
+     # Rspamd milter (spam/virus, DKIM/ARC signing)
+     milter_default_action = accept
+     milter_protocol = 6
+     smtpd_milters = inet:rspamd.mail.svc.cluster.local:11333
+     non_smtpd_milters = $smtpd_milters
+
++    # Optional: postscreen to drop junk before smtpd (enable master.cf section below)
++    postscreen_greet_action = enforce
++    postscreen_dnsbl_action = enforce
+
+   master.cf: |
+-    smtp      inet  n       -       n       -       -       smtpd
++    smtp      inet  n       -       n       -       1       postscreen
++    smtpd     pass  -       -       n       -       -       smtpd
++    dnsblog   unix  -       -       n       -       0       dnsblog
++    tlsproxy  unix  -       -       n       -       0       tlsproxy
+     smtps     inet  n       -       n       -       -       smtpd
+       -o smtpd_tls_wrappermode=yes
+       -o smtpd_sasl_auth_enable=yes
+     submission inet n       -       n       -       -       smtpd
+       -o smtpd_tls_security_level=encrypt
+       -o smtpd_sasl_auth_enable=yes
+       -o milter_macro_daemon_name=ORIGINATING
+
+     cleanup   unix  n       -       n       -       0       cleanup
+     qmgr      unix  n       -       n       300     1       qmgr
+     pickup    unix  n       -       n       60      1       pickup
+     relay     unix  -       -       n       -       -       smtp
+     lmtp      unix  -       -       n       -       -       lmtp
+     anvil     unix  -       -       n       -       -       anvil
+     scache    unix  -       -       n       -       -       scache
+```
+
+No change required to `postfix-maps.yaml` content, only the lookup type (now `texthash`) as shown above.
+
+---
+
+# 3) ClamAV config that actually starts
+
+## **mail/clamav.yaml** (replace)
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clamav-conf
+  namespace: email-system
+data:
+  clamd.conf: |
+    LogTime yes
+    TCPSocket 3310
+    TCPAddr 0.0.0.0
+    MaxThreads 12
+    Foreground yes
+    PidFile /run/clamav/clamd.pid
+    DatabaseDirectory /var/lib/clamav
+  freshclam.conf: |
+    DatabaseMirror database.clamav.net
+    UpdateLogFile /var/log/clamav/freshclam.log
+    Checks 12
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clamav
+  namespace: email-system
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: clamav } }
+  template:
+    metadata: { labels: { app: clamav } }
+    spec:
+      initContainers:
+        - name: seed-db
+          image: clamav/clamav:1.3
+          command: ["sh","-c","freshclam --foreground --datadir=/var/lib/clamav || true"]
+          volumeMounts:
+            - { name: db, mountPath: /var/lib/clamav }
+      containers:
+        - name: clamd
+          image: clamav/clamav:1.3
+          args: ["-c","/etc/clamav/clamd.conf"]
+          ports: [{ containerPort: 3310 }]
+          resources:
+            requests: { cpu: "200m", memory: "1Gi" }
+            limits:   { cpu: "2",    memory: "3Gi" }
+          volumeMounts:
+            - { name: conf, mountPath: /etc/clamav }
+            - { name: db,   mountPath: /var/lib/clamav }
+        - name: freshclam
+          image: clamav/clamav:1.3
+          args: ["freshclam","--foreground","--daemon"]
+          volumeMounts:
+            - { name: conf, mountPath: /etc/clamav }
+            - { name: db,   mountPath: /var/lib/clamav }
+      volumes:
+        - name: conf
+          configMap: { name: clamav-conf }
+        - name: db
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clamav
+  namespace: email-system
+spec:
+  selector: { app: clamav }
+  ports:
+    - { name: clamd, port: 3310, targetPort: 3310 }
+```
+
+---
+
+# 4) MTA-STS: start in testing, fix mount
+
+## **mail/mta-sts-site.yaml** (patch)
+
+```diff
+ data:
+-  index.html: |
+-    # MTA-STS policy
+-    version: STSv1
+-    mode: enforce
+-    mx: mail.gaudy.com.au
+-    max_age: 86400
++  index.html: |
++    version: STSv1
++    mode: testing
++    mx: mail.gaudy.com.au
++    max_age: 86400
+---
+ apiVersion: apps/v1
+ kind: Deployment
+ ...
+       containers:
+         - name: nginx
+           image: nginx:alpine
+           ports: [{ containerPort: 80 }]
+-          volumeMounts:
+-            - name: site
+-              mountPath: /usr/share/nginx/html/.well-known
+-              subPath: well-known
+-            - name: tls
+-              mountPath: /etc/tls
+-              readOnly: true
++          volumeMounts:
++            - name: site
++              mountPath: /usr/share/nginx/html/.well-known
+       volumes:
+         - name: site
+-          projected:
+-            sources:
+-              - configMap:
+-                  name: mta-sts-site
+-                  items:
+-                    - key: index.html
+-                      path: mta-sts.txt
+-        - name: tls
+-          secret:
+-            secretName: mta-sts-tls
++          configMap:
++            name: mta-sts-site
++            items:
++              - key: index.html
++                path: mta-sts.txt
+```
+
+(Your existing Ingress with `cert-manager.io/cluster-issuer` is fine.)
+
+---
+
+# 5) Optional: cert-manager DNS-01 solver (SKIP - using Cloudflare SSL termination)
+
+## **mail/issuer-dns01.yaml** (new; use instead of HTTP-01)
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token
+  namespace: cert-manager
+type: Opaque
+stringData:
+  api-token: "<CLOUDFLARE_DNS_TOKEN>"
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: le-dns
+spec:
+  acme:
+    email: postmaster@gaudy.com.au
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef: { name: le-dns-key }
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+```
+
+Then update your `Certificate`/`Ingress` annotations to use `le-dns`.
+
+---
+
+# 6) Monitoring (tiny and useful)
+
+## **mail/monitoring.yaml** (new)
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postfix-exporter
+  namespace: email-system
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: postfix-exporter } }
+  template:
+    metadata: { labels: { app: postfix-exporter } }
+    spec:
+      containers:
+        - name: exporter
+          image: kunickiaj/postfix-exporter:latest
+          ports: [{ containerPort: 9154 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postfix-exporter
+  namespace: email-system
+spec:
+  selector: { app: postfix-exporter }
+  ports:
+    - { name: http, port: 9154, targetPort: 9154 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rspamd-exporter
+  namespace: email-system
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: rspamd-exporter } }
+  template:
+    metadata: { labels: { app: rspamd-exporter } }
+    spec:
+      containers:
+        - name: exporter
+          image: harborsp/rspamd_exporter:latest
+          args: ["-rspamd.uri=http://rspamd.email-system.svc.cluster.local:11334"]
+          ports: [{ containerPort: 9814 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rspamd-exporter
+  namespace: email-system
+spec:
+  selector: { app: rspamd-exporter }
+  ports:
+    - { name: http, port: 9814, targetPort: 9814 }
+```
+
+(If you run Prometheus Operator, add ServiceMonitor objects; otherwise scrape these endpoints manually.)
+
+---
+
+# 7) Backups (restic to S3/MinIO) — nightly
+
+## **mail/backup-cronjob.yaml** (new)
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: restic-env
+  namespace: email-system
+type: Opaque
+stringData:
+  RESTIC_REPOSITORY: "s3:https://minio.gaudy.com.au/mail-backups"
+  RESTIC_PASSWORD: "<strong-password>"
+  AWS_ACCESS_KEY_ID: "<minio-access>"
+  AWS_SECRET_ACCESS_KEY: "<minio-secret>"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vmail-backup
+  namespace: email-system
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: restic
+              image: restic/restic:0.16
+              envFrom: [{ secretRef: { name: restic-env } }]
+              volumeMounts:
+                - { name: vmail, mountPath: /data }
+              args: ["backup","/data"]
+          volumes:
+            - name: vmail
+              persistentVolumeClaim: { claimName: vmail-pvc }
+```
+
+> Test restore separately (e.g., `restic snapshots` and `restic restore …` to a scratch PVC).
+
+---
+
+# 8) Small QoL additions
+
+* **Dovecot password hash command** (generate once, paste into `users.passwd`):
+
+  ```bash
+  docker run --rm dovecot/dovecot:2.3 doveadm pw -s SHA512-CRYPT -p 'YourStrongPass'
+  ```
+
+* **DKIM public key (TXT-formatted)**:
+
+  ```bash
+  openssl rsa -in s1.key -pubout -outform PEM | grep -v '----' | tr -d '\n'
+  ```
+
+* **DNS validation quick check**:
+
+  ```bash
+  dig +short MX gaudy.com.au
+  dig +short TXT _dmarc.gaudy.com.au
+  dig +short TXT s1._domainkey.gaudy.com.au
+  dig +short TXT _mta-sts.gaudy.com.au
+  ```
+
+---
+
+## What this buys you
+
+* Postfix↔Dovecot communication is now **correct and robust** (shared unix sockets).
+* No more socat; one Pod binds all four ports (25/465/587/993).
+* ClamAV actually runs with signatures; resources capped.
+* Safer MTA-STS rollout (`testing` first).
+* Optional, more resilient ACME via DNS-01.
+* Basic metrics + real, nightly mailbox backups.
+
+If you want me to parameterise this for your actual **domain/selector** and produce the exact DNS records + ready-to-apply YAML bundle, say the word and I’ll output the finalised files.

@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rspamd
+  namespace: email-system
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: rspamd } }
+  template:
+    metadata: { labels: { app: rspamd } }
+    spec:
+      containers:
+        - name: rspamd
+          image: rspamd/rspamd:latest
+          ports:
+            - { containerPort: 11332, name: http }
+            - { containerPort: 11333, name: milter }
+            - { containerPort: 11334, name: controller }
+          volumeMounts:
+            - { name: config, mountPath: /etc/rspamd/local.d }
+      volumes:
+        - name: config
+          configMap: { name: rspamd-local }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rspamd-local
+  namespace: email-system
+data:
+  # DKIM signing configuration
+  dkim_signing.conf: |
+    # Enable DKIM signing
+    enabled = true;
+    # Domain selector mapping
+    domain {
+      gaudy.com.au {
+        path = "/var/lib/rspamd/dkim/s1.key";
+        selector = "s1";
+      }
+    }
+
+  # ARC signing configuration
+  arc.conf: |
+    # Enable ARC signing
+    enabled = true;
+    # Use same keys as DKIM
+    domain {
+      gaudy.com.au {
+        path = "/var/lib/rspamd/dkim/s1.key";
+        selector = "s1";
+      }
+    }
+
+  # DMARC configuration
+  dmarc.conf: |
+    # Enable DMARC checking
+    enabled = true;
+    # Report settings
+    reporting {
+      enabled = true;
+      email = "postmaster@gaudy.com.au";
+    }
+
+  # Antivirus configuration
+  antivirus.conf: |
+    # Enable antivirus scanning
+    enabled = true;
+    # Use ClamAV
+    clamav {
+      servers = "clamav.email-system.svc.cluster.local:3310";
+      timeout = 30s;
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rspamd
+  namespace: email-system
+spec:
+  selector: { app: rspamd }
+  ports:
+    - { name: milter, port: 11333, targetPort: 11333 }
+    - { name: controller, port: 11334, targetPort: 11334 }
