@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-dovecot-config
+  namespace: email-system
+data:
+  dovecot.conf: |
+    # Basic configuration
+    listen = *
+    protocols = imap lmtp
+    disable_plaintext_auth = no
+    auth_mechanisms = plain login
+    mail_location = maildir:/var/vmail/%d/%n/Maildir
+
+    # SSL configuration
+    ssl = yes
+    ssl_cert = </etc/ssl/certs/mail.crt
+    ssl_key = </etc/ssl/private/mail.key
+
+    # Database authentication
+    passdb {
+      driver = sql
+      args = /etc/dovecot/dovecot-sql.conf.ext
+    }
+
+    userdb {
+      driver = sql
+      args = /etc/dovecot/dovecot-sql.conf.ext
+    }
+
+    # Services
+    service imap-login {
+      inet_listener imap {
+        port = 143
+      }
+      inet_listener imaps {
+        port = 993
+        ssl = yes
+      }
+    }
+
+    service lmtp {
+      unix_listener /var/spool/postfix/private/dovecot-lmtp {
+        mode = 0666
+      }
+    }
+
+    service auth {
+      unix_listener /var/spool/postfix/private/auth {
+        mode = 0666
+      }
+    }
+
+    # IMAP configuration
+    protocol imap {
+      mail_max_userip_connections = 10
+    }
+
+    # LMTP configuration
+    protocol lmtp {
+      mail_plugins = $mail_plugins sieve
+    }
+
+  dovecot-sql.conf.ext: |
+    driver = pgsql
+    connect = host=email-postgres.email-system.svc.cluster.local dbname=emaildb user=emailuser password=emailuser
+    default_pass_scheme = SHA512-CRYPT
+
+    password_query = SELECT email as user, password FROM users WHERE email='%u' AND active=true
+    user_query = SELECT 'gaudy.com.au'::text as home, 5000::integer as uid, 5000::integer as gid, CONCAT('*:storage=', '10240000') as quota_rule FROM users WHERE email='%u' AND active=true
+
+    iterate_query = SELECT email FROM users WHERE active=true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-dovecot
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-dovecot
+  template:
+    metadata:
+      labels:
+        app: email-dovecot
+    spec:
+      containers:
+      - name: dovecot
+        image: dovecot/dovecot:2.3
+        ports:
+        - containerPort: 143
+          name: imap
+        - containerPort: 993
+          name: imaps
+        volumeMounts:
+        - name: dovecot-config
+          mountPath: /etc/dovecot/dovecot.conf
+          subPath: dovecot.conf
+        - name: dovecot-sql
+          mountPath: /etc/dovecot/dovecot-sql.conf.ext
+          subPath: dovecot-sql.conf.ext
+        - name: maildata
+          mountPath: /var/vmail
+        - name: mail-cert
+          mountPath: /etc/ssl/certs
+          readOnly: true
+        - name: mail-key
+          mountPath: /etc/ssl/private
+          readOnly: true
+        - name: sockets
+          mountPath: /var/spool/postfix/private
+      volumes:
+      - name: dovecot-config
+        configMap:
+          name: email-dovecot-config
+          items:
+          - key: dovecot.conf
+            path: dovecot.conf
+      - name: dovecot-sql
+        configMap:
+          name: email-dovecot-config
+          items:
+          - key: dovecot-sql.conf.ext
+            path: dovecot-sql.conf.ext
+      - name: maildata
+        persistentVolumeClaim:
+          claimName: vmail-pvc
+      - name: mail-cert
+        secret:
+          secretName: mail-tls
+          items:
+          - key: tls.crt
+            path: mail.crt
+      - name: mail-key
+        secret:
+          secretName: mail-tls
+          items:
+          - key: tls.key
+            path: mail.key
+      - name: sockets
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-dovecot
+  namespace: email-system
+spec:
+  selector:
+    app: email-dovecot
+  ports:
+  - name: imap
+    port: 143
+    targetPort: 143
+  - name: imaps
+    port: 993
+    targetPort: 993

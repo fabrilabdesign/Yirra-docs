@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailu
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailu
+  template:
+    metadata:
+      labels:
+        app: mailu
+    spec:
+      containers:
+      - name: mailu
+        image: mailu/mailu:latest
+        env:
+        - name: SECRET_KEY
+          value: "your-secret-key-here"
+        - name: DOMAIN
+          value: "gaudy.com.au"
+        - name: HOSTNAMES
+          value: "mail.gaudy.com.au"
+        - name: POSTMASTER
+          value: "admin@gaudy.com.au"
+        - name: TLS_FLAVOR
+          value: "mail-letsencrypt"
+        - name: AUTH_RATELIMIT
+          value: "100/hour"
+        - name: DISABLE_STATISTICS
+          value: "True"
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 25
+          name: smtp
+        - containerPort: 587
+          name: submission
+        - containerPort: 993
+          name: imaps
+        - containerPort: 143
+          name: imap
+        - containerPort: 465
+          name: smtps
+        volumeMounts:
+        - name: maildata
+          mountPath: /data
+        - name: mailstate
+          mountPath: /queue
+        securityContext:
+          capabilities:
+            add: ["NET_BIND_SERVICE"]
+      volumes:
+      - name: maildata
+        persistentVolumeClaim:
+          claimName: vmail-pvc
+      - name: mailstate
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailu
+  namespace: email-system
+spec:
+  selector:
+    app: mailu
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443
+  - name: smtp
+    port: 25
+    targetPort: 25
+  - name: submission
+    port: 587
+    targetPort: 587
+  - name: imaps
+    port: 993
+    targetPort: 993
+  - name: imap
+    port: 143
+    targetPort: 143
+  - name: smtps
+    port: 465
+    targetPort: 465

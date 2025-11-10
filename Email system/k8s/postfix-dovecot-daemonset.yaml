@@ -29,6 +29,8 @@ spec:
           env:
             - name: ALLOWED_SENDER_DOMAINS
               value: gaudy.com.au
+            - name: MYNETWORKS
+              value: 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,0.0.0.0/0
             - name: SMTPD_SASL_AUTH_ENABLE
               value: "yes"
             - name: SMTPD_SASL_TYPE

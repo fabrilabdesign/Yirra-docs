@@ -48,3 +48,9 @@ data:
         mode = 0666
       }
     }
+
+    service lmtp {
+      unix_listener /var/spool/postfix/private/dovecot-lmtp {
+        mode = 0666
+      }
+    }

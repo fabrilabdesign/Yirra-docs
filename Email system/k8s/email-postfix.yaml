@@ -1,0 +1,239 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-postfix-config
+  namespace: email-system
+data:
+  main.cf: |
+    # Basic configuration
+    myhostname = mail.gaudy.com.au
+    mydomain = gaudy.com.au
+    myorigin = $mydomain
+    inet_interfaces = all
+    inet_protocols = ipv4
+    mydestination = localhost
+    relayhost =
+
+    # Queue and performance
+    message_size_limit = 52428800
+    smtputf8_enable = yes
+    mailbox_size_limit = 0
+
+    # TLS configuration
+    smtpd_tls_cert_file = /etc/ssl/certs/mail.crt
+    smtpd_tls_key_file = /etc/ssl/private/mail.key
+    smtpd_tls_security_level = may
+    smtp_tls_security_level = may
+    smtpd_tls_loglevel = 1
+    smtp_tls_loglevel = 1
+    smtpd_tls_auth_only = no
+    smtpd_tls_received_header = yes
+    tls_preempt_cipherlist = no
+
+    # SASL authentication
+    smtpd_sasl_auth_enable = yes
+    smtpd_sasl_type = dovecot
+    smtpd_sasl_path = private/auth
+    smtpd_sasl_security_options = noanonymous
+    smtpd_sasl_local_domain = $myhostname
+    smtpd_sasl_mechanism_filter = plain, login
+    smtpd_delay_open_until_valid_rcpt = no
+
+    # SMTP restrictions
+    smtpd_client_restrictions =
+        permit_mynetworks,
+        permit_sasl_authenticated,
+        reject
+    smtpd_recipient_restrictions =
+        permit_mynetworks,
+        permit_sasl_authenticated,
+        reject_unauth_destination
+    smtpd_relay_restrictions =
+        permit_mynetworks,
+        permit_sasl_authenticated,
+        defer_unauth_destination
+    mynetworks = 127.0.0.0/8 [::1]/128
+
+    # Database integration for virtual users
+    virtual_mailbox_domains = pgsql:/etc/postfix/pgsql/domains.cf
+    virtual_mailbox_maps = pgsql:/etc/postfix/pgsql/mailbox.cf
+    virtual_alias_maps = pgsql:/etc/postfix/pgsql/alias.cf
+
+    # LMTP delivery to Dovecot
+    virtual_transport = lmtp:unix:private/dovecot-lmtp
+    virtual_mailbox_base = /
+
+    # Milter for spam/virus filtering
+    smtpd_milters = inet:rspamd.email-system.svc.cluster.local:11333
+    non_smtpd_milters = $smtpd_milters
+    milter_default_action = accept
+    milter_protocol = 6
+
+    # Disable some features for simplicity
+    postscreen_dnsbl_sites =
+    postscreen_dnsbl_threshold = 0
+    postscreen_greet_action = ignore
+    postscreen_dnsbl_action = ignore
+
+  master.cf: |
+    smtp      inet  n       -       n       -       -       smtpd
+    smtpd     pass  -       -       n       -       -       smtpd
+    dnsblog   unix  -       -       n       -       0       dnsblog
+    tlsproxy  unix  -       -       n       -       0       tlsproxy
+    submission inet n       -       n       -       -       smtpd
+      -o smtpd_sasl_auth_enable=yes
+      -o smtpd_recipient_restrictions=permit_sasl_authenticated,reject
+      -o milter_macro_daemon_name=ORIGINATING
+    smtps     inet  n       -       n       -       -       smtpd
+      -o smtpd_tls_wrappermode=yes
+      -o smtpd_sasl_auth_enable=yes
+    cleanup   unix  n       -       n       -       0       cleanup
+    qmgr      unix  n       -       n       300     1       qmgr
+    tlsmgr    unix  -       -       n       -       -       tlsmgr
+    rewrite   unix  -       -       n       -       -       trivial-rewrite
+    bounce    unix  -       -       n       -       0       bounce
+    defer     unix  -       -       n       -       0       bounce
+    trace     unix  -       -       n       -       0       bounce
+    verify    unix  -       -       n       -       0       verify
+    flush     unix  n       -       n       1000?   0       flush
+    proxymap  unix  -       -       n       -       -       proxymap
+    proxywrite unix -       -       n       -       1       proxymap
+    smtp      unix  -       -       n       -       -       smtp
+    relay     unix  -       -       n       -       -       smtp
+    showq     unix  n       -       n       -       -       showq
+    error     unix  -       -       n       -       -       error
+    retry     unix  -       -       n       -       -       error
+    discard   unix  -       -       n       -       -       discard
+    local     unix  -       n       n       -       -       local
+    virtual   unix  -       n       n       -       -       virtual
+    lmtp      unix  -       -       n       -       -       lmtp
+    anvil     unix  -       -       n       -       1       anvil
+    scache    unix  -       -       n       -       1       scache
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-postfix-pgsql
+  namespace: email-system
+data:
+  domains.cf: |
+    user = emailuser
+    password = emailuser
+    hosts = email-postgres.email-system.svc.cluster.local
+    dbname = emaildb
+    query = SELECT domain FROM domains WHERE domain='%s' AND active=true;
+
+  mailbox.cf: |
+    user = emailuser
+    password = emailuser
+    hosts = email-postgres.email-system.svc.cluster.local
+    dbname = emaildb
+    query = SELECT CONCAT('gaudy.com.au/', REPLACE(email, '@', '/'), '/Maildir/') FROM users WHERE email='%s' AND active=true;
+
+  alias.cf: |
+    user = emailuser
+    password = emailuser
+    hosts = email-postgres.email-system.svc.cluster.local
+    dbname = emaildb
+    query = SELECT destination FROM aliases WHERE source='%s' AND active=true;
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-postfix
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-postfix
+  template:
+    metadata:
+      labels:
+        app: email-postfix
+    spec:
+      containers:
+      - name: postfix
+        image: juanluisbaptiste/postfix:latest
+        env:
+        - name: MYNETWORKS
+          value: "127.0.0.0/8 [::1]/128"
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          # Copy configuration files
+          cp /config/main.cf /etc/postfix/main.cf
+          cp /config/master.cf /etc/postfix/master.cf
+          mkdir -p /etc/postfix/pgsql
+          cp /pgsql/domains.cf /etc/postfix/pgsql/
+          cp /pgsql/mailbox.cf /etc/postfix/pgsql/
+          cp /pgsql/alias.cf /etc/postfix/pgsql/
+
+          # Create necessary directories
+          mkdir -p /var/spool/postfix/private
+
+          # Start Postfix
+          /usr/sbin/postfix start-fg
+        ports:
+        - containerPort: 25
+          name: smtp
+        - containerPort: 587
+          name: submission
+        - containerPort: 465
+          name: smtps
+        volumeMounts:
+        - name: postfix-config
+          mountPath: /config
+        - name: postfix-pgsql
+          mountPath: /pgsql
+        - name: mail-cert
+          mountPath: /etc/ssl/certs
+          readOnly: true
+        - name: mail-key
+          mountPath: /etc/ssl/private
+          readOnly: true
+        - name: sockets
+          mountPath: /var/spool/postfix/private
+      volumes:
+      - name: postfix-config
+        configMap:
+          name: email-postfix-config
+      - name: postfix-pgsql
+        configMap:
+          name: email-postfix-pgsql
+      - name: mail-cert
+        secret:
+          secretName: mail-tls
+          items:
+          - key: tls.crt
+            path: mail.crt
+      - name: mail-key
+        secret:
+          secretName: mail-tls
+          items:
+          - key: tls.key
+            path: mail.key
+      - name: sockets
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-postfix
+  namespace: email-system
+spec:
+  selector:
+    app: email-postfix
+  ports:
+  - name: smtp
+    port: 25
+    targetPort: 25
+  - name: submission
+    port: 587
+    targetPort: 587
+  - name: smtps
+    port: 465
+    targetPort: 465

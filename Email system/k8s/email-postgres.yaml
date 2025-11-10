@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: email-postgres-secret
+  namespace: email-system
+type: Opaque
+data:
+  # Base64 encoded: "emailadmin"
+  postgres-password: ZW1haWxhZG1pbg==
+  # Base64 encoded: "emailuser"
+  postgres-user: ZW1haWx1c2Vy
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-postgres-init
+  namespace: email-system
+data:
+  init.sql: |
+    -- Create email database and user
+    CREATE DATABASE emaildb;
+    CREATE USER emailuser WITH ENCRYPTED PASSWORD 'emailuser';
+    GRANT ALL PRIVILEGES ON DATABASE emaildb TO emailuser;
+
+    -- Connect to email database and create tables
+    \c emaildb;
+
+    -- Users table
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(255),
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Domains table
+    CREATE TABLE domains (
+        id SERIAL PRIMARY KEY,
+        domain VARCHAR(255) UNIQUE NOT NULL,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Aliases table
+    CREATE TABLE aliases (
+        id SERIAL PRIMARY KEY,
+        source VARCHAR(255) NOT NULL,
+        destination VARCHAR(255) NOT NULL,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(source, destination)
+    );
+
+    -- Insert default domain and user
+    INSERT INTO domains (domain) VALUES ('gaudy.com.au');
+
+    INSERT INTO users (email, password, name) VALUES
+    ('admin@gaudy.com.au', '{SHA512-CRYPT}$6$duK53o5PhWmbHvnh$zSTX8Vd7qF8Z4ilvstDTxeQPSrYhHWPJuunmIRy4OEI.dC8IvGzg0ktZ63DGci3DEmkdywma0GADp60ZHNG6O/', 'Administrator'),
+    ('test@gaudy.com.au', '{SHA512-CRYPT}$6$duK53o5PhWmbHvnh$zSTX8Vd7qF8Z4ilvstDTxeQPSrYhHWPJuunmIRy4OEI.dC8IvGzg0ktZ63DGci3DEmkdywma0GADp60ZHNG6O/', 'Test User');
+
+    -- Insert aliases
+    INSERT INTO aliases (source, destination) VALUES
+    ('postmaster@gaudy.com.au', 'admin@gaudy.com.au'),
+    ('abuse@gaudy.com.au', 'admin@gaudy.com.au');
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-postgres
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-postgres
+  template:
+    metadata:
+      labels:
+        app: email-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: email-postgres-secret
+              key: postgres-password
+        - name: POSTGRES_USER
+          value: postgres
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-init
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: email-postgres-pvc
+      - name: postgres-init
+        configMap:
+          name: email-postgres-init
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: email-postgres-pvc
+  namespace: email-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-postgres
+  namespace: email-system
+spec:
+  selector:
+    app: email-postgres
+  ports:
+  - port: 5432
+    targetPort: 5432

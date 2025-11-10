@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iredmail
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iredmail
+  template:
+    metadata:
+      labels:
+        app: iredmail
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: iredmail
+        image: iredmail/mariadb:stable
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "iredmail-secret"
+        - name: SOGO_WORKERS
+          value: "1"
+        - name: IREDMAIL_HOSTNAME
+          value: "mail.gaudy.com.au"
+        - name: IREDMAIL_DOMAIN
+          value: "gaudy.com.au"
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 25
+          name: smtp
+        - containerPort: 587
+          name: submission
+        - containerPort: 993
+          name: imaps
+        - containerPort: 143
+          name: imap
+        - containerPort: 465
+          name: smtps
+        - containerPort: 110
+          name: pop3
+        - containerPort: 995
+          name: pop3s
+        volumeMounts:
+        - name: maildata
+          mountPath: /var/vmail
+        - name: iredmail-data
+          mountPath: /var/lib/mysql
+        - name: iredmail-backup
+          mountPath: /var/backup
+        securityContext:
+          capabilities:
+            add: ["NET_BIND_SERVICE"]
+          privileged: true
+      volumes:
+      - name: maildata
+        persistentVolumeClaim:
+          claimName: vmail-pvc
+      - name: iredmail-data
+        persistentVolumeClaim:
+          claimName: iredmail-data-pvc
+      - name: iredmail-backup
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: iredmail-data-pvc
+  namespace: email-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iredmail
+  namespace: email-system
+spec:
+  selector:
+    app: iredmail
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443
+  - name: smtp
+    port: 25
+    targetPort: 25
+  - name: submission
+    port: 587
+    targetPort: 587
+  - name: imaps
+    port: 993
+    targetPort: 993
+  - name: imap
+    port: 143
+    targetPort: 143
+  - name: smtps
+    port: 465
+    targetPort: 465
+  - name: pop3
+    port: 110
+    targetPort: 110
+  - name: pop3s
+    port: 995
+    targetPort: 995
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: iredmail-ingress
+  namespace: email-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - mail.gaudy.com.au
+    secretName: mail-tls
+  rules:
+  - host: mail.gaudy.com.au
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: iredmail
+            port:
+              number: 80

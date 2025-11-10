@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailserver
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailserver
+  template:
+    metadata:
+      labels:
+        app: mailserver
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: mailserver
+        image: mailserver/docker-mailserver:latest
+        env:
+        - name: SSL_TYPE
+          value: "manual"
+        - name: SSL_CERT_PATH
+          value: "/tmp/ssl/cert"
+        - name: SSL_KEY_PATH
+          value: "/tmp/ssl/key"
+        - name: DOMAINNAME
+          value: "gaudy.com.au"
+        - name: HOSTNAME
+          value: "mail.gaudy.com.au"
+        - name: CONTAINER_NAME
+          value: "mailserver"
+        - name: PERMIT_DOCKER
+          value: "host"
+        - name: ENABLE_SPAMASSASSIN
+          value: "0"
+        - name: ENABLE_CLAMAV
+          value: "0"
+        - name: ENABLE_FAIL2BAN
+          value: "0"
+        - name: ENABLE_POSTGREY
+          value: "0"
+        - name: ENABLE_SASLAUTHD
+          value: "0"
+        - name: ENABLE_OPENDMARC
+          value: "0"
+        - name: ENABLE_OPENDKIM
+          value: "0"
+        - name: ENABLE_POLICYD_SPF
+          value: "0"
+        - name: ENABLE_AMAVIS
+          value: "0"
+        - name: ENABLE_DNSBL
+          value: "0"
+        - name: ENABLE_MANAGESIEVE
+          value: "0"
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: SPOOF_PROTECTION
+          value: "0"
+        - name: ENABLE_LDAP
+          value: "0"
+        ports:
+        - containerPort: 25
+          name: smtp
+        - containerPort: 587
+          name: submission
+        - containerPort: 993
+          name: imaps
+        - containerPort: 143
+          name: imap
+        - containerPort: 465
+          name: smtps
+        volumeMounts:
+        - name: maildata
+          mountPath: /var/mail
+        - name: mailstate
+          mountPath: /var/mail-state
+        - name: config
+          mountPath: /tmp/docker-mailserver
+        - name: ssl-cert
+          mountPath: /tmp/ssl
+        securityContext:
+          capabilities:
+            add: ["NET_BIND_SERVICE"]
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          mkdir -p /tmp/docker-mailserver
+          echo "admin@gaudy.com.au|{SHA512-CRYPT}$6$duK53o5PhWmbHvnh$zSTX8Vd7qF8Z4ilvstDTxeQPSrYhHWPJuunmIRy4OEI.dC8IvGzg0ktZ63DGci3DEmkdywma0GADp60ZHNG6O/" > /tmp/docker-mailserver/postfix-accounts.cf
+          echo "test@gaudy.com.au|{SHA512-CRYPT}$6$duK53o5PhWmbHvnh$zSTX8Vd7qF8Z4ilvstDTxeQPSrYhHWPJuunmIRy4OEI.dC8IvGzg0ktZ63DGci3DEmkdywma0GADp60ZHNG6O/" >> /tmp/docker-mailserver/postfix-accounts.cf
+          echo "admin@gaudy.com.au admin@gaudy.com.au" > /tmp/docker-mailserver/postfix-virtual.cf
+          echo "test@gaudy.com.au test@gaudy.com.au" >> /tmp/docker-mailserver/postfix-virtual.cf
+          /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+      volumes:
+      - name: maildata
+        persistentVolumeClaim:
+          claimName: vmail-pvc
+      - name: mailstate
+        emptyDir: {}
+      - name: config
+        emptyDir: {}
+      - name: ssl-cert
+        secret:
+          secretName: mail-tls
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailserver
+  namespace: email-system
+spec:
+  selector:
+    app: mailserver
+  ports:
+  - name: smtp
+    port: 25
+    targetPort: 25
+  - name: submission
+    port: 587
+    targetPort: 587
+  - name: imaps
+    port: 993
+    targetPort: 993
+  - name: imap
+    port: 143
+    targetPort: 143
+  - name: smtps
+    port: 465
+    targetPort: 465

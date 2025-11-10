@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: email-roundcube-secret
+  namespace: email-system
+type: Opaque
+data:
+  # Roundcube database password - base64 encoded "roundcube"
+  db-password: cm91bmRjdWJl
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-roundcube-config
+  namespace: email-system
+data:
+  config.inc.php: |
+    <?php
+
+    $config = array();
+
+    // Database connection
+    $config['db_dsnw'] = 'pgsql://roundcube:roundcube@email-postgres.email-system.svc.cluster.local/roundcubedb';
+
+    // IMAP settings
+    $config['default_host'] = 'tls://email-dovecot.email-system.svc.cluster.local';
+    $config['default_port'] = 993;
+
+    // SMTP settings
+    $config['smtp_server'] = 'tls://email-postfix.email-system.svc.cluster.local';
+    $config['smtp_port'] = 587;
+    $config['smtp_user'] = '%u';
+    $config['smtp_pass'] = '%p';
+
+    // General settings
+    $config['product_name'] = 'Gaudy Mail';
+    $config['des_key'] = 'rcmail-!24ByteDESkey*Str';
+    $config['plugins'] = array('archive', 'zipdownload');
+    $config['skin'] = 'elastic';
+
+    // Security
+    $config['force_https'] = true;
+    $config['ip_check'] = true;
+
+    // Features
+    $config['managesieve_host'] = 'email-dovecot.email-system.svc.cluster.local';
+    $config['managesieve_port'] = 4190;
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-roundcube
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-roundcube
+  template:
+    metadata:
+      labels:
+        app: email-roundcube
+    spec:
+      containers:
+      - name: roundcube
+        image: roundcube/roundcubemail:latest
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: roundcube-config
+          mountPath: /var/roundcube/config/config.inc.php
+          subPath: config.inc.php
+      volumes:
+      - name: roundcube-config
+        configMap:
+          name: email-roundcube-config
+          items:
+          - key: config.inc.php
+            path: config.inc.php
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-roundcube
+  namespace: email-system
+spec:
+  selector:
+    app: email-roundcube
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: email-roundcube-ingress
+  namespace: email-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - mail.gaudy.com.au
+    secretName: mail-tls
+  rules:
+  - host: mail.gaudy.com.au
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: email-roundcube
+            port:
+              number: 80

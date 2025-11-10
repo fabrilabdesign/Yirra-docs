@@ -28,7 +28,9 @@ data:
     smtpd_tls_received_header = yes
     smtp_tls_loglevel = 1
 
+    smtpd_client_restrictions =
     smtpd_delay_open_until_valid_rcpt = no
+    virtual_mailbox_domains = gaudy.com.au
     smtpd_recipient_restrictions =
         permit_mynetworks,
         permit_sasl_authenticated,
@@ -39,12 +41,8 @@ data:
         defer_unauth_destination
     mynetworks = 127.0.0.0/8 [::1]/128
 
-    # LMTP to Dovecot (disabled for testing)
-    # virtual_transport = lmtp:unix:private/dovecot-lmtp
-    # virtual_mailbox_domains = gaudy.com.au
-    # Use texthash to avoid postmap step inside containers
-    # virtual_mailbox_maps = texthash:/etc/postfix/virtual_mailbox
-    # virtual_alias_maps   = texthash:/etc/postfix/virtual_alias
+    # Local delivery
+    home_mailbox = Maildir/
 
     # Rspamd milter (spam/virus, DKIM/ARC signing)
     milter_default_action = accept
@@ -73,7 +71,9 @@ data:
       -o smtpd_tls_wrappermode=yes
       -o smtpd_sasl_auth_enable=yes
     submission inet n       -       n       -       -       smtpd
+      -o smtpd_client_restrictions=permit_sasl_authenticated,reject
       -o smtpd_sasl_auth_enable=yes
+      -o smtpd_recipient_restrictions=permit_sasl_authenticated,reject
       -o milter_macro_daemon_name=ORIGINATING
 
     cleanup   unix  n       -       n       -       0       cleanup

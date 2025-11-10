@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mailserver-setup
+  namespace: email-system
+data:
+  postfix-accounts.cf: |
+    admin@gaudy.com.au|{SHA512-CRYPT}$6$duK53o5PhWmbHvnh$zSTX8Vd7qF8Z4ilvstDTxeQPSrYhHWPJuunmIRy4OEI.dC8IvGzg0ktZ63DGci3DEmkdywma0GADp60ZHNG6O/
+    test@gaudy.com.au|{SHA512-CRYPT}$6$duK53o5PhWmbHvnh$zSTX8Vd7qF8Z4ilvstDTxeQPSrYhHWPJuunmIRy4OEI.dC8IvGzg0ktZ63DGci3DEmkdywma0GADp60ZHNG6O/
+
+  postfix-virtual.cf: |
+    admin@gaudy.com.au admin@gaudy.com.au
+    test@gaudy.com.au test@gaudy.com.au
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mailserver-setup
+  namespace: email-system
+spec:
+  template:
+    spec:
+      containers:
+      - name: setup
+        image: mailserver/docker-mailserver:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          mkdir -p /tmp/docker-mailserver
+          cp /config/postfix-accounts.cf /tmp/docker-mailserver/
+          cp /config/postfix-virtual.cf /tmp/docker-mailserver/
+          echo "Setup complete"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: mailstate
+          mountPath: /var/mail-state
+      volumes:
+      - name: config
+        configMap:
+          name: mailserver-setup
+      - name: mailstate
+        emptyDir: {}
+      restartPolicy: Never

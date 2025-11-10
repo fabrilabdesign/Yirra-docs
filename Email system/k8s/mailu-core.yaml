@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailu-core
+  namespace: email-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailu-core
+  template:
+    metadata:
+      labels:
+        app: mailu-core
+    spec:
+      containers:
+      - name: mailu
+        image: mailu/mailu:latest
+        envFrom:
+        - configMapRef:
+            name: mailu-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mailu-secrets
+              key: db-password
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mailu-secrets
+              key: redis-password
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 25
+          name: smtp
+        - containerPort: 587
+          name: submission
+        - containerPort: 993
+          name: imaps
+        - containerPort: 143
+          name: imap
+        - containerPort: 465
+          name: smtps
+        - containerPort: 110
+          name: pop3
+        - containerPort: 995
+          name: pop3s
+        volumeMounts:
+        - name: maildata
+          mountPath: /mail
+        - name: overrides
+          mountPath: /overrides
+        securityContext:
+          capabilities:
+            add: ["NET_BIND_SERVICE"]
+      volumes:
+      - name: maildata
+        persistentVolumeClaim:
+          claimName: vmail-pvc
+      - name: overrides
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailu-core
+  namespace: email-system
+spec:
+  selector:
+    app: mailu-core
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443
+  - name: smtp
+    port: 25
+    targetPort: 25
+  - name: submission
+    port: 587
+    targetPort: 587
+  - name: imaps
+    port: 993
+    targetPort: 993
+  - name: imap
+    port: 143
+    targetPort: 143
+  - name: smtps
+    port: 465
+    targetPort: 465
+  - name: pop3
+    port: 110
+    targetPort: 110
+  - name: pop3s
+    port: 995
+    targetPort: 995
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mailu-ingress
+  namespace: email-system
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  tls:
+  - hosts:
+    - mail.gaudy.com.au
+    secretName: mail-tls
+  rules:
+  - host: mail.gaudy.com.au
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mailu-core
+            port:
+              number: 80
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mailu-init
+  namespace: email-system
+spec:
+  template:
+    spec:
+      containers:
+      - name: mailu-init
+        image: mailu/mailu:latest
+        envFrom:
+        - configMapRef:
+            name: mailu-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mailu-secrets
+              key: db-password
+        - name: INITIAL_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mailu-secrets
+              key: admin-password
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo "Waiting for database..."
+          while ! nc -z mailu-postgres 5432; do sleep 1; done
+          echo "Database ready, initializing Mailu..."
+          /app/manage.py db upgrade
+          echo "Creating admin user..."
+          /app/manage.py admin admin gaudy.com.au $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+          echo "Mailu initialization complete"
+      restartPolicy: Never
