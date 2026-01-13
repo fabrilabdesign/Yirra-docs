@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: docs
-        image: localhost:5000/yirra-docs:latest
+        image: localhost:5000/yirra-docs:v2-assembly
         ports:
         - containerPort: 4000
           name: http

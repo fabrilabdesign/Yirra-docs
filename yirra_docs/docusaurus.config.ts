@@ -24,7 +24,7 @@ const config: Config = {
   organizationName: 'yirra-systems', // Usually your GitHub org/user name.
   projectName: 'yirra-docs', // Usually your repo name.
 
-  onBrokenLinks: 'throw', // Fail build on broken links
+  onBrokenLinks: 'warn', // Warn on broken links during transition
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -71,17 +71,9 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/yirra-social-card.jpg',
     colorMode: {
-      defaultMode: 'light',
-      disableSwitch: true, // Clean light-only experience
+      defaultMode: 'dark',
+      disableSwitch: true,
       respectPrefersColorScheme: false,
-    },
-    algolia: {
-      appId: 'YOUR_APP_ID', // TODO: Set up Algolia search
-      apiKey: 'YOUR_API_KEY',
-      indexName: 'yirra-docs',
-      contextualSearch: true,
-      searchParameters: {},
-      searchPagePath: false,
     },
     navbar: {
       title: 'Yirra Systems',
@@ -91,58 +83,40 @@ const config: Config = {
       },
       items: [
         {
-          label: 'Home',
-          to: '/',
-          position: 'left',
-        },
-        {
           type: 'dropdown',
-          label: 'Build Guide',
+          label: 'Files & Parts',
           position: 'left',
           items: [
             {
-              label: 'Platform Overview',
-              to: '/docs/platform-overview',
+              label: 'CAD Downloads',
+              to: '/docs/downloads',
             },
             {
-              label: 'Bill of Materials',
-              to: '/docs/bill-of-materials',
+              label: 'Parts List',
+              to: '/docs/bom',
+            },
+          ],
+        },
+        {
+          type: 'dropdown',
+          label: 'Build',
+          position: 'left',
+          items: [
+            {
+              label: '3D Printing',
+              to: '/docs/nylon-printing',
             },
             {
-              label: 'Tools & Materials',
-              to: '/docs/tools-materials',
+              label: 'Arm Bonding',
+              to: '/docs/arm-bonding',
             },
             {
-              label: '3D Models & STL / 3MF Files',
-              to: '/docs/stl-files',
+              label: 'Assembly',
+              to: '/docs/assembly',
             },
             {
-              label: '3D Printing Guide',
-              to: '/docs/3d-printing-guide',
-            },
-            {
-              label: 'Carbon Arm Preparation',
-              to: '/docs/carbon-arm-preparation',
-            },
-            {
-              label: 'Arm Bonding (DP-409 Workflow)',
-              to: '/docs/arm-bonding-dp409',
-            },
-            {
-              label: 'Assembly Guide',
-              to: '/docs/assembly-guide',
-            },
-            {
-              label: 'Firmware & Software (iNav – light)',
-              to: '/docs/firmware-software-inav',
-            },
-            {
-              label: 'Tuning & Maiden Flight (minimal)',
-              to: '/docs/tuning-maiden-flight',
-            },
-            {
-              label: 'Troubleshooting',
-              to: '/docs/troubleshooting',
+              label: 'Firmware',
+              to: '/docs/inav',
             },
           ],
         },
@@ -151,49 +125,56 @@ const config: Config = {
           label: 'Store',
           position: 'right',
         },
-        {
-          href: 'https://yirrasystems.com/contact',
-          label: 'Support',
-          position: 'right',
-        },
       ],
     },
     footer: {
       style: 'dark',
       links: [
         {
-          title: 'Documentation',
+          title: 'Files & Parts',
           items: [
             {
-              label: 'Getting Started',
-              to: '/docs/platform-overview',
+              label: 'CAD Downloads',
+              to: '/docs/downloads',
+            },
+            {
+              label: 'Parts List',
+              to: '/docs/bom',
             },
           ],
         },
         {
-          title: 'Community',
+          title: 'Build',
           items: [
             {
-              label: 'Main Website',
+              label: '3D Printing',
+              to: '/docs/nylon-printing',
+            },
+            {
+              label: 'Arm Bonding',
+              to: '/docs/arm-bonding',
+            },
+            {
+              label: 'Assembly',
+              to: '/docs/assembly',
+            },
+            {
+              label: 'Firmware',
+              to: '/docs/inav',
+            },
+          ],
+        },
+        {
+          title: 'Yirra Systems',
+          items: [
+            {
+              label: 'Store',
               href: 'https://yirrasystems.com',
-            },
-            {
-              label: 'Contact',
-              href: 'https://yirrasystems.com/contact',
-            },
-          ],
-        },
-        {
-          title: 'More',
-          items: [
-            {
-              label: 'Products',
-              href: 'https://yirrasystems.com/products',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Yirra Systems. All rights reserved.`,
+      copyright: `© ${new Date().getFullYear()} Yirra Systems`,
     },
     prism: {
       theme: prismThemes.github,

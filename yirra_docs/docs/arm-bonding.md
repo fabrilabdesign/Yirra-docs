@@ -1,39 +1,157 @@
 ---
-sidebar_position: 7
+sidebar_position: 4
+title: Arm Bonding
 ---
 
-# 7. Arm Bonding (DP-409 Workflow)
+# Arm Bonding
 
-7.1 **Small batches**
+The most critical step in your build. Each arm is a carbon tube bonded between a motor mount and arm boss using 3M Scotch-Weld DP-490 structural epoxy.
 
-* Mix only enough 3M DP-409 for **1–2 arms** — alignment is more important than speed.
+![Properly assembled arm](/img/arm_bonding/Properly%20assembled%20arm.jpg)
 
-7.2 **Wet both sides**
+:::info Engineered interfaces provide positional accuracy, control joint flow and keying for torsional strength
+![Resin channel annotation](/img/arm_bonding/Resin%20channel%20annotation.png)
+:::
 
-* Epoxy in the motor-mount socket
+---
 
-* Epoxy in the arm-boss socket
+## What You Need
 
-* Epoxy on the CF tube bond area
+| Item | Notes |
+|------|-------|
+| 3M Scotch-Weld DP-490 Epoxy | Structural adhesive with applicator gun |
+| Carbon tubes | 11mm OD, cut to length |
+| Motor mounts | 4x printed in CF-Nylon |
+| Arm bosses | 4x printed in CF-Nylon |
+| Acetone | Surface prep (preferred) — isopropyl also works |
+| Mixing nozzles | Included with DP-490 |
+| Spacer block | For alignment (printed or scrap) |
 
-![Adhesive Placement](/img/drone/Adhesive_placement.PNG)
+### The Epoxy System
 
-7.3 **Assemble in order**
+We use 3M Scotch-Weld DP-490 structural epoxy applied with a manual applicator gun. This two-part adhesive provides exceptional bond strength for carbon-to-nylon joints.
 
-1. Tube → motor mount
+![Scotch-Weld DP-490 epoxy cartridge](/img/arm_bonding/Scotchweld%20DP-490.jpg)
 
-2. Tube → arm boss
+![Manual applicator gun for DP-490](/img/arm_bonding/Scotch%20weld%20applicator%20gun.jpg)
 
-7.4 **Indexing & planarity**
+---
 
-* Put the **spacer under the arm-boss end** so the whole arm sits **flat and planar**
+## Process
 
-* Sight down the arm and rotate until **motor mount and arm boss are in the same plane**
+### 1. Small Batches
 
-7.5 **Cure**
+Work on **1-2 arms at a time**.
 
-* Lay flat, undisturbed
+Alignment is more important than speed. DP-490 gives you approximately 90 minutes of working time, but don't rush—get each arm right before moving on.
 
-* **24 hours** full cure
+---
 
-* Recommended: do **two arms at a time**, not four
+### 2. Surface Prep
+
+- Scuff bond areas with 120-grit sandpaper
+- Clean all surfaces with acetone (preferred) or isopropyl alcohol
+- Let dry completely
+
+---
+
+### 3. Epoxy Injection System
+
+The CF-Nylon motor mounts feature **internal injection ports** that perfectly distribute epoxy around the carbon tube. This design ensures complete, void-free coverage of the bond surface.
+
+![Internal injection port in the motor mount](/img/arm_bonding/Epoxy%20injection%20port.png)
+
+#### Injection Process
+
+1. Insert the carbon tube into the motor mount socket until seated
+2. Attach the mixing nozzle to your DP-490 cartridge
+3. Insert the nozzle tip into the injection port
+4. Slowly inject epoxy until you see it appear at the opposite end
+
+![Epoxy being injected through the internal port](/img/arm_bonding/Epoxy_injection.jpg)
+
+![Epoxy distribution through the internal channels](/img/arm_bonding/Epoxy_injection_2.jpg)
+
+The internal channels ensure epoxy flows completely around the tube, creating a stronger bond than traditional surface application.
+
+:::tip
+Inject slowly and steadily. You'll see epoxy appear at the gap between the tube and socket when the cavity is full. Stop injecting at this point.
+:::
+
+![Adhesive placement reference](/img/arm_bonding/Explode_resin_interface.png)
+
+---
+
+### 4. Assemble In Order
+
+1. Insert tube into **motor mount** first
+2. Then insert other end into **arm boss**
+
+Push until seated. Small amount of squeeze-out is normal.
+
+![Carbon tube insertion](/img/arm_bonding/Screw_insertion.png)
+
+![Carbon tube fully seated in the motor mount](/img/arm_bonding/Tube%20seated%20annotation.png)
+
+---
+
+### 5. Alignment Check
+
+**Critical step.**
+
+1. Place spacer under the arm boss end
+2. Whole arm should sit **flat and planar**
+3. Sight down the arm axis
+4. Rotate until motor mount and arm boss are **in the same plane**
+
+![Arm alignment reference](/img/arm_bonding/ISO_view%20not%20annotated.png)
+
+---
+
+### 6. Cure
+
+- Lay flat, undisturbed
+- **24 hours** minimum for full cure
+- Recommended: do **two arms at a time**, not all four
+
+---
+
+## High Performance Motor Mounts
+
+:::warning High performance motor mounts for critical applications
+
+We offer the option of printing motor mounts with the high performance **Continuous Carbon Fiber** printing process provided by Markforged printers. This part can be up to **335% stronger** depending on the exact load case.
+
+**Not all applications will require this level of safety factor.** Though if your drone is used in professional applications requiring elevated safety factors, this is a go-to upgrade.
+
+![High performance motor mounts for critical applications](/img/arm_bonding/Critical_applications.png)
+:::
+
+---
+
+## Acceptance Criteria
+
+✅ No visible gaps at bond joints  
+✅ Motor mount and arm boss are coplanar  
+✅ Arm sits flat on surface (no twist)  
+✅ Squeeze-out cleaned before cure
+
+---
+
+## Common Mistakes
+
+| Mistake | Result |
+|---------|--------|
+| Arms not aligned | Motors not in plane, vibration issues |
+| Too much epoxy | Messy, adds weight |
+| Not enough epoxy | Weak bond, may fail |
+| Moving before cure | Bond failure |
+| Wet nylon parts | Weak adhesion |
+
+---
+
+## Next Steps
+
+1. Allow 24 hours cure time
+2. Proceed to [Assembly](/docs/assembly)
+3. See [Firmware](/docs/inav) for iNav configuration

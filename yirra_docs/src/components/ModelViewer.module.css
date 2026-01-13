@@ -1,0 +1,432 @@
+/**
+ * ModelViewer Component Styles
+ * Premium dark theme matching Yirra Systems homepage
+ */
+
+.viewerContainer {
+  --viewer-height: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f0f0f 0%, #0a0a0a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 10px 15px -3px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(14, 165, 233, 0.05);
+  margin: 2rem 0;
+  transition: box-shadow 0.4s ease, transform 0.4s ease, border-color 0.4s ease;
+}
+
+.viewerContainer:hover {
+  border-color: rgba(14, 165, 233, 0.15);
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.4),
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(14, 165, 233, 0.1);
+}
+
+.viewerContainer:fullscreen {
+  border-radius: 0;
+  margin: 0;
+  background: #0f172a;
+}
+
+.viewerContainer:fullscreen .viewerHeader {
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.viewerContainer:fullscreen .viewerTitle {
+  color: white;
+}
+
+.viewerContainer:fullscreen .viewerDescription {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.viewerContainer:fullscreen .badge {
+  background: rgba(14, 165, 233, 0.2);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.viewerContainer:fullscreen .viewerWrapper {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+.viewerContainer:fullscreen .controlsOverlay {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.viewerContainer:fullscreen .controlButton {
+  background: rgba(30, 41, 59, 0.9);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.viewerContainer:fullscreen .controlButton:hover {
+  background: rgba(51, 65, 85, 0.9);
+  color: white;
+}
+
+.viewerContainer:fullscreen .interactionHint {
+  background: rgba(15, 23, 42, 0.8);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Header */
+.viewerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(180deg, #141414 0%, #0f0f0f 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.viewerTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.viewerDescription {
+  font-size: 0.875rem;
+  color: #737373;
+  margin: 0.25rem 0 0 0;
+}
+
+.headerBadge {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 6px;
+  background: rgba(14, 165, 233, 0.1);
+  color: #38bdf8;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+/* Viewer wrapper */
+.viewerWrapper {
+  position: relative;
+  background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+  background-image: 
+    radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.015) 2%, transparent 0%),
+    radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.015) 2%, transparent 0%);
+  background-size: 100px 100px;
+}
+
+/* Loading overlay */
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 5, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #262626;
+  border-top-color: #0ea5e9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #737373;
+}
+
+.progressBar {
+  width: 200px;
+  height: 4px;
+  background: #262626;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}
+
+.progressText {
+  font-size: 0.75rem;
+  color: #525252;
+  font-variant-numeric: tabular-nums;
+}
+
+/* AR Button */
+.arButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: absolute;
+  bottom: 4.5rem;
+  right: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+  transition: all 0.2s ease;
+}
+
+.arButton:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px -1px rgba(14, 165, 233, 0.4);
+}
+
+.arButton:active {
+  transform: translateY(0);
+}
+
+/* Controls overlay */
+.controlsOverlay {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 5;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.controlButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(38, 38, 38, 0.9);
+  color: #a3a3a3;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.controlButton:hover {
+  background: #333333;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.controlButton.active {
+  background: #0ea5e9;
+  color: white;
+  border-color: #0ea5e9;
+}
+
+.controlButton.active:hover {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: white;
+}
+
+.controlButton svg {
+  flex-shrink: 0;
+}
+
+/* Interaction hint */
+.interactionHint {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #737373;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fadeInUp 0.5s ease 0.5s both;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .viewerContainer {
+    margin: 1rem 0;
+    border-radius: 8px;
+  }
+
+  .viewerHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .headerBadge {
+    align-self: flex-start;
+  }
+
+  .controlsOverlay {
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.375rem;
+  }
+
+  .controlButton {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  .controlButton span {
+    display: none;
+  }
+
+  .interactionHint {
+    font-size: 0.6875rem;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .arButton {
+    bottom: 4rem;
+    right: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Dark mode support */
+[data-theme='dark'] .viewerContainer {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-color: #334155;
+}
+
+[data-theme='dark'] .viewerHeader {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+[data-theme='dark'] .viewerTitle {
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .viewerDescription {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .badge {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+[data-theme='dark'] .viewerWrapper {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  background-image: 
+    radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.02) 2%, transparent 0%),
+    radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.02) 2%, transparent 0%);
+}
+
+[data-theme='dark'] .loadingOverlay {
+  background: rgba(15, 23, 42, 0.95);
+}
+
+[data-theme='dark'] .loadingText {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .progressBar {
+  background: #334155;
+}
+
+[data-theme='dark'] .controlsOverlay {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .controlButton {
+  background: rgba(51, 65, 85, 0.9);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .controlButton:hover {
+  background: #475569;
+  color: white;
+}
+
+[data-theme='dark'] .interactionHint {
+  background: rgba(30, 41, 59, 0.85);
+  color: #94a3b8;
+}
+
+
+
+
+
+
+
+
+

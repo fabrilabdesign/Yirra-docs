@@ -72,7 +72,7 @@ fi
 echo -e "${GREEN}✓ Images pushed successfully${NC}"
 
 # Manually kill the port-forward process and remove the trap for a clean exit
-kill $PORT_FORWARD_PID
+kill $PORT_FORWARD_PID 2>/dev/null || true
 trap - EXIT
 
 # Check if deployment exists
