@@ -9,10 +9,6 @@ const config: Config = {
   tagline: 'Build guides, technical specifications, and developer resources for the Yirra drone platform',
   favicon: 'img/favicon.ico',
 
-  // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
-  future: {
-    v4: true, // Improve compatibility with the upcoming Docusaurus v4
-  },
 
   // Set the production url of your site here
   url: 'https://docs.yirrasystems.com',
@@ -33,6 +29,7 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+
 
   presets: [
     [
@@ -79,7 +76,7 @@ const config: Config = {
       title: 'Yirra Systems',
       logo: {
         alt: 'Yirra Systems Logo',
-        src: 'img/logo.png',
+        src: 'img/drone/Logo (3).png',
       },
       items: [
         {

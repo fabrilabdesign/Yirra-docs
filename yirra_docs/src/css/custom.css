@@ -74,6 +74,16 @@ body {
   color: #ffffff;
 }
 
+.navbar__logo {
+  height: 32px;
+  width: auto;
+}
+
+.navbar__logo img {
+  height: 32px;
+  width: auto;
+}
+
 .navbar__link {
   color: #a3a3a3;
   font-weight: 500;
@@ -339,9 +349,63 @@ tr:last-child td {
   border-bottom: none;
 }
 
-/* Images */
+/* Images - Optimized for Performance */
 img {
   border-radius: 8px;
+  transition: transform 0.2s ease;
+  max-width: 100%;
+  height: auto;
+}
+
+img:hover {
+  transform: scale(1.02);
+}
+
+/* Lazy loading support - browser native, no opacity tricks needed */
+img[loading="lazy"] {
+  /* Let the browser handle lazy loading natively */
+  transition: opacity 0.3s ease;
+}
+
+/* Large image optimization */
+.theme-doc-markdown img[src*="/img/arm_bonding/"] {
+  max-width: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.theme-doc-markdown img[width][height] {
+  aspect-ratio: auto;
+}
+
+/* Responsive image optimization */
+.theme-doc-markdown img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+}
+
+/* Technical images (diagrams, schematics) */
+.theme-doc-markdown img[alt*="schematic"],
+.theme-doc-markdown img[alt*="diagram"],
+.theme-doc-markdown img[alt*="technical"] {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #262626;
+}
+
+/* Product images */
+.theme-doc-markdown img[alt*="drone"],
+.theme-doc-markdown img[alt*="motor"],
+.theme-doc-markdown img[alt*="battery"] {
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Screenshot images */
+.theme-doc-markdown img[alt*="screen"],
+.theme-doc-markdown img[alt*="interface"],
+.theme-doc-markdown img[alt*="preview"] {
+  border: 1px solid #404040;
+  background: #1a1a1a;
 }
 
 /* Horizontal rules */

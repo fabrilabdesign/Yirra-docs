@@ -18,17 +18,53 @@ Components you need to buy for the **Replicant GEN 1** build.
 | Component | Qty | Notes |
 |-----------|-----|-------|
 | **Iflight Borg stack or e55/s** | 1 | Flight controller + ESC combo. |
+| **BLITZ E55S-4IN1-R4 ESC** | 1 | Electronic speed controller reference. |
 | **Mico air GPS (M10G-5883)** | 1 | GPS module with UART connection. |
 | **DJI O4 Pro Air Unit** | 1 | HD video transmission system. |
 | **DJI O4 Pro Camera** | 1 | Camera module for the O4 system. |
 | **Matek true diversity ELRS Receiver** | 1 | ELRS receiver with true diversity. |
 | **Power Management Board** | 1 | Power distribution and management. <PurchaseButton href="https://yirrasystems.com/product/prod_T4TaxIrK5JjUMI" variant="inline">Buy</PurchaseButton> |
+| **Arm/Disarm Button** | 1 | 12mm momentary push button with green LED. <PurchaseButton href="https://www.aliexpress.com/item/1005007422880341.html" variant="inline">Buy</PurchaseButton> |
 
 ### Power Management Board
 
 Custom PCB that handles power distribution, voltage regulation, and battery monitoring for the Replicant platform.
 
 ![Power Management Board](/img/drone/Power_managementPCB.png)
+
+### BLITZ E55S-4IN1-R4 ESC & Iflight Borg Stack (20x20)
+
+Choose between these two electronic speed controller options for your Replicant build:
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', margin: '24px 0' }}>
+  <div>
+    <h4>BLITZ E55S-4IN1-R4 ESC</h4>
+    <img src="/img/drone/BLITZ-E55S-4IN1-R4.png" alt="BLITZ E55S-4IN1-R4 ESC" style={{ width: '100%', borderRadius: '8px' }} />
+    <p style={{ fontSize: '14px', marginTop: '8px' }}>High-performance 4-in-1 ESC for 7-inch platforms</p>
+  </div>
+  <div>
+    <h4>Iflight Borg Stack (20x20)</h4>
+    <img src="/img/drone/Borg.png" alt="Iflight Borg Stack" style={{ width: '100%', borderRadius: '8px' }} />
+    <p style={{ fontSize: '14px', marginTop: '8px' }}>Recommended 20x20 flight controller + ESC combo</p>
+  </div>
+</div>
+
+### Arm/Disarm Button
+
+12mm momentary push button with integrated green LED indicator. Provides tactile feedback for arming/disarming the drone.
+
+| Specification | Value |
+|---------------|-------|
+| **Diameter** | 12mm |
+| **Type** | Momentary push button |
+| **LED Color** | Green |
+| **Voltage Range** | 12-24V |
+| **Mounting** | Panel mount |
+| **Switch Rating** | 50mA @ 24VDC |
+
+:::info Button Behavior
+The button uses a microcontroller for intelligent operation: press and hold for 2 seconds to arm, shorter hold to disarm. This prevents accidental disarming during flight.
+:::
 
 ---
 
@@ -202,57 +238,140 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
 |-----------|-----|---------------|
 | **6S LiPo Battery** | 1 | 5000mAh, Molicel P50B cells |
 
+![Battery connector](/img/drone/battery_connector_iso.png)
+
 ---
 
 ## Purchaseable Parts
 
-<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', margin: '24px 0' }}>
-  <ProductCard product={{
-    id: 'prod_TlNyUSO8eHGzCV',
-    name: 'Complete Fastener Kit',
-    category: 'Hardware',
-    description: 'Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric with standard pitches.',
-    purchaseUrl: 'https://yirrasystems.com/product/prod_TlNyUSO8eHGzCV'
-  }} />
-  <ProductCard product={{
-    id: 'prod_T4TaxIrK5JjUMI',
-    name: 'Power Management Board',
-    category: 'Electronics',
-    description: 'Custom PCB that handles power distribution, voltage regulation, and battery monitoring.',
-    purchaseUrl: 'https://yirrasystems.com/product/prod_T4TaxIrK5JjUMI'
-  }} />
-  <ProductCard product={{
-    id: 'prod_SUaZIcnKA0qSXg',
-    name: 'Carbon Fiber Spine',
-    category: 'Structure',
-    description: 'CNC machined 4mm carbon fiber spine for the drone frame.',
-    purchaseUrl: 'https://yirrasystems.com/product/prod_SUaZIcnKA0qSXg'
-  }} />
-  <ProductCard product={{
-    id: 'prod_SUaVaLa36ydpSg',
-    name: 'Carbon Fiber Bottom Plate',
-    category: 'Structure',
-    description: 'CNC machined 2mm carbon fiber bottom plate.',
-    purchaseUrl: 'https://yirrasystems.com/product/prod_SUaVaLa36ydpSg'
-  }} />
-  <ProductCard product={{
-    id: 'prod_SUaQiz6E625P9V',
-    name: 'Carbon Fiber Top Plate',
-    category: 'Structure',
-    description: 'CNC machined 3mm carbon fiber top plate.',
-    purchaseUrl: 'https://yirrasystems.com/product/prod_SUaQiz6E625P9V'
-  }} />
-  <ProductCard product={{
-    id: 'prod_SR6kjyZnXCaSC0',
-    name: '6S LiPo Battery',
-    category: 'Power',
-    description: '5000mAh 6S LiPo battery with Molicel P50B cells.',
-    purchaseUrl: 'https://yirrasystems.com/product/prod_SR6kjyZnXCaSC0'
-  }} />
+:::info Custom vs. Off-the-Shelf Parts
+**Battery and Power Management Board** are essential custom items that must be purchased from Yirra Systems. **BOM and files are available for the carbon parts and fasteners** so these components could be made or purchased elsewhere if preferred.
+:::
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', margin: '24px 0' }}>
+  {/* Fastener Kit */}
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Fastener Kit Image</span>
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Replicant Fastener kit</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>Complete fastener kit for the replicant drone</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$25</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_TlNyUSO8eHGzCV" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+    </div>
+  </div>
+
+  {/* Power Management Board */}
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Power Board Image</span>
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Power management board</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>Power management board. This is what makes the power button work.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$80</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_T4TaxIrK5JjUMI" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+    </div>
+  </div>
+
+  {/* Replicant Exospine */}
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Exospine Image</span>
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Replicant Exospine</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>Spine reinforcement plate.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$27</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_SUaZIcnKA0qSXg" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+    </div>
+  </div>
+
+  {/* Replicant Carbon Bottom plate */}
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Bottom Plate Image</span>
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Replicant Carbon Bottom plate</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>Bottom reinforcement plate for the IC-01 drone</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$23</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_SUaVaLa36ydpSg" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+    </div>
+  </div>
+
+  {/* Replicant Carbon Top plate */}
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Top Plate Image</span>
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Replicant Carbon Top plate</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>Top reinforcement plate for the IC-01 Chassis</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$25</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_SUaQiz6E625P9V" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+    </div>
+  </div>
+
+  {/* 6S Modular Battery Pack */}
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Battery Image</span>
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>6S Modular Battery Pack</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>Rail Mountable 6S modular Pack for the IC-01 long range drone system</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$229</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_SR6kjyZnXCaSC0" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+    </div>
+  </div>
 </div>
 
 ## Next Steps
 
 1. [CAD Downloads](/docs/downloads) - Get print files
-2. [3D Printing](/docs/nylon-printing) - Print preparation
+2. [3D Printing](/docs/3d-printing) - Print preparation
 3. [Arm Bonding](/docs/arm-bonding) - Start assembly

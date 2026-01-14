@@ -21,11 +21,16 @@ The most critical step in your build. Each arm is a carbon tube bonded between a
 |------|-------|
 | 3M Scotch-Weld DP-490 Epoxy | Structural adhesive with applicator gun |
 | Carbon tubes | 11mm OD, cut to length |
+| Cutting jig | Precision cutting tool for carbon tubes |
 | Motor mounts | 4x printed in CF-Nylon |
 | Arm bosses | 4x printed in CF-Nylon |
 | Acetone | Surface prep (preferred) — isopropyl also works |
 | Mixing nozzles | Included with DP-490 |
 | Spacer block | For alignment (printed or scrap) |
+
+![Carbon tube cutting jig](/img/tools/Cutting_jig.PNG)
+
+**Cutting Jig:** This precision jig ensures accurate carbon tube lengths for perfect arm assembly. While the jig improves cutting accuracy and consistency, measuring and cutting by hand is sufficient if you prefer not to print it.
 
 ### The Epoxy System
 

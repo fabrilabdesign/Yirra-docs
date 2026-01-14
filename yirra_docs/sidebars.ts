@@ -2,9 +2,10 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
 const sidebars: SidebarsConfig = {
   docs: [
+    'platform',
     'downloads',
     'bom',
-    'nylon-printing',
+    '3d-printing',
     'arm-bonding',
     'assembly',
     'inav',
