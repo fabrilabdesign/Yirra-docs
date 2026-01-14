@@ -5,10 +5,13 @@ title: CAD Downloads
 
 import { ModelViewer } from '@site/src/components/ModelViewer';
 
-# Downloads
+# Downloads - Temporarily Unavailable
 
-All files needed to build the Replicant GEN 1.
+:::warning Downloads Disabled
+All download files are currently undergoing maintenance and will be available again soon. Please check back later.
+:::
 
+<!-- ModelViewer temporarily disabled
 <ModelViewer
   modelPath="/files/3d-models/Replicant_Gen1.glb"
   title="Replicant GEN 1"
@@ -18,19 +21,7 @@ All files needed to build the Replicant GEN 1.
   showFullscreenToggle={true}
   autoRotate={true}
 />
-
----
-
-## 3MF Files (Recommended)
-
-Pre-configured for Bambu Studio with correct orientation, supports, and settings.
-
-| Part | Download |
-|------|----------|
-| Chassis Core | [Download 3MF](/files/3d-printing/3mf/Chassis_core.3mf) |
-| Motor Mounts & Arm Bosses | [Download 3MF](/files/3d-printing/3mf/Motor_mounts_arm_bosses.3mf) |
-| Battery Rails | [Download 3MF](/files/3d-printing/3mf/Battery_mounting_rail.3mf) |
-| Nose Cone (O4 Mount) | [Download 3MF](/files/3d-printing/3mf/Nose cone 04 mount.3mf) |
+-->
 
 ---
 
@@ -38,11 +29,33 @@ Pre-configured for Bambu Studio with correct orientation, supports, and settings
 
 Complete model files for printing and CAD modification.
 
-| Format | Use Case | Download |
-|--------|----------|----------|
-| **STL** | Universal - any slicer | [Download STL (47MB)](/files/STL_Files/replicant_gen1.stl) |
-| **STEP** | CAD modification - editable geometry | [Download STEP](/files/STEP_Files/Replicant_gen1.stp) |
-| **GLB** | Web viewing - 3D preview | Interactive model above |
+### Pre-configured 3MF Files
+For optimized Bambu Studio printing with correct orientation, supports, and settings, see the [3D Printing section](/docs/3d-printing#3mf-files--print-previews).
+
+### STEP Files (Editable CAD)
+Full parametric models for CAD modification and custom adaptations.
+
+#### Complete Assembly
+
+| Component | Description | Download |
+|-----------|-------------|----------|
+| **Complete Assembly** | Full drone assembly with all components | Temporarily Unavailable |
+
+#### Sub-Components
+
+| Component | Description | Download |
+|-----------|-------------|----------|
+| **Chassis Core** | Main structural chassis component | Temporarily Unavailable |
+| **Motor Mount** | High-strength motor mounting bracket | Temporarily Unavailable |
+| **Front Left Arm Boss** | Precision mounting interface for front left arm | Temporarily Unavailable |
+| **Front Right Arm Boss** | Precision mounting interface for front right arm | Temporarily Unavailable |
+| **Rear Left Arm Boss** | Precision mounting interface for rear left arm | Temporarily Unavailable |
+| **Rear Right Arm Boss** | Precision mounting interface for rear right arm | Temporarily Unavailable |
+| **Upper Shell** | Top cover and enclosure component | Temporarily Unavailable |
+| **04cm Component** | 4cm diameter mounting component | Temporarily Unavailable |
+| **Exo Spine** | External structural spine/frame component | Temporarily Unavailable |
+| **Top Plate** | Upper mounting plate component | Temporarily Unavailable |
+| **Bottom Plate** | Lower mounting plate component | Temporarily Unavailable |
 
 ---
 
@@ -50,14 +63,15 @@ Complete model files for printing and CAD modification.
 
 All structural parts require **CF-Nylon** (carbon fiber reinforced nylon).
 
-- **Chassis Core** - Print first
-- **Motor Mounts** - Print first  
-- **Arm Bosses** - Print first
-- **Battery Rails** - CF-Nylon
-- **Nose Cone** - TPE (flexible)
+**Print Order:**
+1. **Arm Bosses** - Start with these
+2. **Motor Mounts** - Print next
+3. **Assemble and bond the arms** while Chassis Core is printing
+4. **Battery Rails** - Print last (CF-Nylon)
+5. **Nose Cone** - TPE (flexible) - Change to 0.6mm nozzle
 
 :::warning Nylon Must Be Dry
-Wet nylon = weak parts. See [Nylon Printing Guide](/docs/nylon-printing) before printing.
+Wet nylon = weak parts. See [3D Printing Guide](/docs/3d-printing) before printing.
 :::
 
 ---
@@ -65,6 +79,6 @@ Wet nylon = weak parts. See [Nylon Printing Guide](/docs/nylon-printing) before 
 ## Next Steps
 
 1. [Parts List](/docs/bom) - Get electronics and carbon fiber
-2. [3D Printing](/docs/nylon-printing) - Proper material handling
+2. [3D Printing](/docs/3d-printing) - Proper material handling
 3. [Arm Bonding](/docs/arm-bonding) - Start assembly
 
