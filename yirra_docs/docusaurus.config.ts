@@ -101,7 +101,7 @@ const config: Config = {
           items: [
             {
               label: '3D Printing',
-              to: '/docs/nylon-printing',
+              to: '/docs/3d-printing',
             },
             {
               label: 'Arm Bonding',
@@ -145,7 +145,7 @@ const config: Config = {
           items: [
             {
               label: '3D Printing',
-              to: '/docs/nylon-printing',
+              to: '/docs/3d-printing',
             },
             {
               label: 'Arm Bonding',

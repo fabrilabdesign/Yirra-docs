@@ -5,24 +5,15 @@
 
 .viewerContainer {
   --viewer-height: 500px;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  background: linear-gradient(135deg, #0f0f0f 0%, #0a0a0a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 10px 15px -3px rgba(0, 0, 0, 0.2),
-    0 0 40px rgba(14, 165, 233, 0.05);
+  background: transparent;
+  border: none;
   margin: 2rem 0;
-  transition: box-shadow 0.4s ease, transform 0.4s ease, border-color 0.4s ease;
 }
 
 .viewerContainer:hover {
-  border-color: rgba(14, 165, 233, 0.15);
-  box-shadow: 
-    0 10px 15px -3px rgba(0, 0, 0, 0.4),
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 0 60px rgba(14, 165, 233, 0.1);
+  /* No hover effects for borderless look */
 }
 
 .viewerContainer:fullscreen {
@@ -76,14 +67,9 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Header */
+/* Header - hidden by default for borderless look */
 .viewerHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background: linear-gradient(180deg, #141414 0%, #0f0f0f 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: none;
 }
 
 .headerInfo {
@@ -126,11 +112,9 @@
 /* Viewer wrapper */
 .viewerWrapper {
   position: relative;
-  background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
-  background-image: 
-    radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.015) 2%, transparent 0%),
-    radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.015) 2%, transparent 0%);
-  background-size: 100px 100px;
+  background: transparent;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* Loading overlay */
@@ -234,12 +218,12 @@
   flex-direction: column;
   gap: 0.5rem;
   z-index: 5;
-  background: rgba(20, 20, 20, 0.85);
+  background: rgba(5, 13, 26, 0.7);
   backdrop-filter: blur(12px);
   padding: 0.5rem;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .controlButton {
@@ -247,9 +231,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(38, 38, 38, 0.9);
-  color: #a3a3a3;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 22, 40, 0.8);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(14, 165, 233, 0.2);
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 500;
@@ -259,10 +243,10 @@
 }
 
 .controlButton:hover {
-  background: #333333;
+  background: rgba(14, 165, 233, 0.2);
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-color: rgba(14, 165, 233, 0.4);
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
 }
 
 .controlButton.active {
@@ -287,17 +271,17 @@
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(20, 20, 20, 0.85);
+  background: rgba(5, 13, 26, 0.7);
   backdrop-filter: blur(8px);
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.75rem;
-  color: #737373;
+  color: rgba(255, 255, 255, 0.5);
   white-space: nowrap;
   pointer-events: none;
   animation: fadeInUp 0.5s ease 0.5s both;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(14, 165, 233, 0.1);
 }
 
 @keyframes fadeInUp {

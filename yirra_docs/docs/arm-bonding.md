@@ -28,9 +28,25 @@ The most critical step in your build. Each arm is a carbon tube bonded between a
 | Mixing nozzles | Included with DP-490 |
 | Spacer block | For alignment (printed or scrap) |
 
+### Arm Cutting Jig
+
+This precision jig ensures accurate carbon tube lengths for perfect arm assembly. While the jig improves cutting accuracy and consistency, measuring and cutting by hand is sufficient if you prefer not to print it.
+
 ![Carbon tube cutting jig](/img/tools/Cutting_jig.PNG)
 
-**Cutting Jig:** This precision jig ensures accurate carbon tube lengths for perfect arm assembly. While the jig improves cutting accuracy and consistency, measuring and cutting by hand is sufficient if you prefer not to print it.
+### Carbon Tube Lengths
+
+Different drone platforms require different arm lengths. Use the appropriate lengths for your platform:
+
+| Platform | Component | Qty | Front Arm Length | Rear Arm Length |
+|----------|-----------|-----|------------------|-----------------|
+| 6 inch | Carbon Tubes | 4 | 93mm | 118mm |
+| 7 inch | Carbon Tubes | 4 | 105mm | 134mm |
+| 8 inch | Carbon Tubes | 4 | 133mm | 157mm |
+
+:::info Platform Selection
+Choose the correct arm lengths based on your motor-propeller combination and desired flight characteristics. The 6-inch platform is more compact and maneuverable, while the 7-inch platform offers better stability and payload capacity.
+:::
 
 ### The Epoxy System
 
@@ -39,6 +55,16 @@ We use 3M Scotch-Weld DP-490 structural epoxy applied with a manual applicator g
 ![Scotch-Weld DP-490 epoxy cartridge](/img/arm_bonding/Scotchweld%20DP-490.jpg)
 
 ![Manual applicator gun for DP-490](/img/arm_bonding/Scotch%20weld%20applicator%20gun.jpg)
+
+:::tip Alternative Epoxies
+If you can't source DP-490, these 2-part structural epoxies also work well:
+- Gorilla 2-Part Epoxy
+- Pattex Epoxy
+- UHU Plus
+- Loctite Epoxy
+
+Any quality 2-part epoxy with good adhesion to plastics and composites will work. Avoid quick-set formulas — you need working time for alignment.
+:::
 
 ---
 
@@ -89,14 +115,14 @@ Inject slowly and steadily. You'll see epoxy appear at the gap between the tube 
 
 ### 4. Assemble In Order
 
-1. Insert tube into **motor mount** first
-2. Then insert other end into **arm boss**
+1. Insert tube into **arm boss** first
+2. Then insert other end into **motor mount**
 
 Push until seated. Small amount of squeeze-out is normal.
 
-![Carbon tube insertion](/img/arm_bonding/Screw_insertion.png)
-
 ![Carbon tube fully seated in the motor mount](/img/arm_bonding/Tube%20seated%20annotation.png)
+
+![Carbon tube insertion](/img/arm_bonding/Screw_insertion.png)
 
 ---
 
@@ -110,6 +136,14 @@ Push until seated. Small amount of squeeze-out is normal.
 4. Rotate until motor mount and arm boss are **in the same plane**
 
 ![Arm alignment reference](/img/arm_bonding/ISO_view%20not%20annotated.png)
+
+---
+
+### 5. Clean Up Bleed Out
+
+Remove any epoxy that has squeezed out from the joint using a clean cloth or paper towel while the epoxy is still wet. This prevents a messy appearance and ensures the joint is clean.
+
+![Epoxy bleed out cleanup](/img/arm_bonding/Bleed_out_clean_up.jpg)
 
 ---
 

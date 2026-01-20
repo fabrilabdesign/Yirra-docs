@@ -121,7 +121,7 @@ The foundation of each arm assembly - these precision-machined nylon bosses prov
 
 ![Arm Bosses 3MF Preview](/img/3MF%20screen%20shots/Arms_bosses.png)
 
-**Download:** [Arm Bosses 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf)
+**Download:** [Arm Bosses 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf) | [Arm Bosses STEP Files](/files/STEP_Files/)
 
 *Print these first - small, fast prints that establish your material and settings before committing to larger parts.*
 
@@ -131,7 +131,7 @@ High-strength motor mounting brackets with integrated epoxy injection ports for 
 
 ![Motor Mounts 3MF Preview](/img/3MF%20screen%20shots/Motor_mounts.png)
 
-**Download:** [Motor Mounts 3MF](/files/3d-printing/3mf/Motor_mounts.gcode.3mf)
+**Download:** [Motor Mounts 3MF](/files/3d-printing/3mf/Motor_mounts.gcode.3mf) | [Motor Mount STEP](/files/STEP_Files/Motor_mount.stp)
 
 *Complex internal channels ensure complete epoxy distribution around the carbon tubes for maximum bond strength.*
 
@@ -141,7 +141,15 @@ The structural heart of the Replicant - this monolithic chassis core houses all 
 
 ![Chassis Core 3MF Preview](/img/3MF%20screen%20shots/Chassis_core.png)
 
-**Download:** [Chassis Core 3MF](/files/3d-printing/3mf/Chassis_core.gcode.3mf)
+**Download STEP:** [Chassis Core CAD](/files/STEP_Files/Chassis_core.stp)
+
+:::warning USB Orientation Options
+Choose the appropriate chassis version based on your flight controller USB port orientation:
+- **[Left USB Version](/files/3d-printing/3mf/Chassis_core_left_USB.gcode.3mf)** - USB port faces left when viewed from above
+- **[Right USB Version](/files/3d-printing/3mf/Chassis_core_right_USB.gcode.3mf)** - USB port faces right when viewed from above
+
+**Both versions are compatible with 20x20mm and 30x30mm flight controller stack sizes.**
+:::
 
 *The largest and most complex print - features integrated cable management, vibration isolation, and precise mounting tolerances.*
 
@@ -151,7 +159,7 @@ Precision battery mounting rail with integrated securing features and vibration 
 
 ![Battery Rail Male 3MF Preview](/img/3MF%20screen%20shots/Battery_rail_male.png)
 
-**Download:** [Battery Rail Male 3MF](/files/3d-printing/3mf/Battery_rail_male.gcode.3mf)
+**Download:** [Battery Rail Male 3MF](/files/3d-printing/3mf/Battery_rail_male.gcode.3mf) | [Battery Rail STEP](/files/STEP_Files/battery_rail_male.stp)
 
 *Critical for secure battery mounting and optimal center of gravity positioning.*
 
@@ -163,6 +171,7 @@ Precision battery mounting rail with integrated securing features and vibration 
 
 **Key TPE Printing Requirements:**
 - **Direct drive extruder** - TPE's elasticity requires direct filament feeding to reduce friction
+- **Direct filament feeding** - Take the top of the printer and place the reel immediately adjacent to the print for optimal TPE feeding
 - **0.6mm nozzle** - Essential for proper flow control with flexible filament
 - **Thorough drying** - Dry at 50°C for 8-12 hours before printing
 
@@ -189,6 +198,17 @@ These 3MF files include:
 - ✅ Bambu Studio-specific settings
 - ✅ CF-Nylon material profiles
 - ✅ Quality assurance checkpoints
+
+## STEP Files
+
+Additional STEP files for CAD design, modification, and analysis:
+
+- **[Complete Replicant Gen1 Assembly](/files/STEP_Files/Replicant_gen1.stp)** - Full assembly model
+- **[Bottom Plate](/files/STEP_Files/bottom_plate.stp)** - Base mounting plate
+- **[Top Plate](/files/STEP_Files/top_plate.stp)** - Upper mounting plate
+- **[Upper Shell](/files/STEP_Files/upper_shell.stp)** - Protective housing
+- **[Exo Spine](/files/STEP_Files/Exo_spine.stp)** - Structural backbone
+- **[04cm Mount](/files/STEP_Files/04cm.stp)** - Small mounting bracket
 
 ---
 

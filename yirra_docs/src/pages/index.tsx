@@ -172,11 +172,11 @@ function ModelSection() {
         <span>Interactive Model</span>
         <span className={styles.labelLine} />
       </div>
-      <ModelViewer 
-        modelPath="/files/3d-models/IC-01.glb"
+      <ModelViewer
+        modelPath="/files/3d-models/Replicant_Gen1.glb"
         title="Replicant GEN 1"
         description="Rotate, zoom, and explore the complete drone assembly"
-        height="600px"
+        height="750px"
         showWireframeToggle={true}
         showFullscreenToggle={true}
         autoRotate={true}
@@ -220,8 +220,8 @@ function ExplodedSection() {
         <div className={styles.explodedImage}>
           <div className={styles.imageGlow} />
           <img 
-            src="/img/drone/Explode_view.png" 
-            alt="Exploded view of Replicant GEN 1"
+            src="/img/Drone_updates/Hero_ALT.png" 
+            alt="Replicant GEN 1 overview"
           />
         </div>
         <div className={styles.explodedContent}>
@@ -244,7 +244,7 @@ function ExplodedSection() {
   );
 }
 
-function ArmAssemblySection() {
+function BatterySystemSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -263,25 +263,24 @@ function ArmAssemblySection() {
         <div className={styles.armContent}>
           <div className={styles.sectionLabel}>
             <span className={styles.labelLine} />
-            <span>Critical Assembly</span>
+            <span>Modular Power</span>
             <span className={styles.labelLine} />
           </div>
-          <h2>Arm Assembly</h2>
+          <h2>Rail-Mounted Battery System</h2>
           <p className={styles.armDescription}>
-            Each arm consists of a carbon fiber tube bonded between a motor mount and arm boss using 3M DP-409 epoxy. This creates an incredibly rigid structure that transfers thrust directly to the frame.
+            No more velcro straps. Our rail-mounted system enables rapid, repeatable battery swaps with consistent CG positioning. The underslung mass dampens vibrations and improves flight characteristics.
           </p>
-          <Link to="/docs/arm-bonding" className={styles.btnPrimary}>
-            <span>View Bonding Guide</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </Link>
+          <div className={styles.featureList}>
+            <span>5000mAh Molicel P50B cells</span>
+            <span>Sub-second swaps</span>
+            <span>Integrated balance leads</span>
+          </div>
         </div>
         <div className={styles.armImage}>
           <div className={styles.imageGlow} />
           <img 
-            src="/img/drone/iso_arm_explode_2.png" 
-            alt="Arm assembly exploded view"
+            src="/img/drone/Battery_removal.gif" 
+            alt="Rail-mounted battery swap system"
           />
         </div>
       </div>
@@ -289,52 +288,7 @@ function ArmAssemblySection() {
   );
 }
 
-function GallerySection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  const items = [
-    { src: '/img/drone/Carbon_frame.gif', label: 'Carbon Frame' },
-    { src: '/img/drone/Chassis.gif', label: 'Chassis Core' },
-    { src: '/img/drone/Battery_removal.gif', label: 'Battery System' },
-    { src: '/img/drone/Digital_forge.gif', label: 'Digital Design' },
-    { src: '/img/drone/Flight_footage.gif', label: 'Flight Performance' },
-    { src: '/img/drone/super-stable-flight-12.gif', label: 'Stable Flight' },
-  ];
-
-  return (
-    <section ref={sectionRef} className={`${styles.gallerySection} ${isVisible ? styles.visible : ''}`}>
-      <div className={styles.sectionLabel}>
-        <span className={styles.labelLine} />
-        <span>In Motion</span>
-        <span className={styles.labelLine} />
-      </div>
-      <div className={styles.galleryGrid}>
-        {items.map((item, index) => (
-          <div 
-            key={item.label} 
-            className={styles.galleryItem}
-            style={{ '--delay': `${index * 0.1}s` } as React.CSSProperties}
-          >
-            <img src={item.src} alt={item.label} />
-            <div className={styles.galleryLabel}>{item.label}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function QuickLinksSection() {
+function PrintabilitySection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -347,94 +301,66 @@ function QuickLinksSection() {
     return () => observer.disconnect();
   }, []);
 
-  const links = [
-    {
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7,10 12,15 17,10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-      ),
-      title: 'Downloads',
-      desc: 'STL, 3MF, and STEP files',
-      link: '/docs/downloads',
-      cta: 'Get Files',
-    },
-    {
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <circle cx="9" cy="21" r="1"/>
-          <circle cx="20" cy="21" r="1"/>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-        </svg>
-      ),
-      title: 'Purchase',
-      desc: 'Electronics and carbon fiber',
-      link: '/docs/bom',
-      cta: 'Component List',
-    },
-    {
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-        </svg>
-      ),
-      title: 'Arm Bonding',
-      desc: 'DP-409 epoxy workflow',
-      link: '/docs/arm-bonding',
-      cta: 'Build Guide',
-    },
-    {
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <rect x="4" y="4" width="16" height="16" rx="2"/>
-          <path d="M9 9h6v6H9z"/>
-          <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>
-        </svg>
-      ),
-      title: 'Nylon Printing',
-      desc: 'Drying and handling',
-      link: '/docs/nylon-printing',
-      cta: 'Print Guide',
-    },
-  ];
-
   return (
-    <section ref={sectionRef} className={`${styles.quickLinksSection} ${isVisible ? styles.visible : ''}`}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.sectionLabel}>
-          <span className={styles.labelLine} />
-          <span>Quick Access</span>
-          <span className={styles.labelLine} />
+    <section ref={sectionRef} className={`${styles.armSection} ${styles.reversed} ${isVisible ? styles.visible : ''}`}>
+      <div className={styles.armGrid}>
+        <div className={styles.armContent}>
+          <div className={styles.sectionLabel}>
+            <span className={styles.labelLine} />
+            <span>Builder Accessible</span>
+            <span className={styles.labelLine} />
+          </div>
+          <h2>3D Printed. Repairable. Yours.</h2>
+          <p className={styles.armDescription}>
+            The entire chassis prints in CF-Nylon on consumer-grade printers. Crash an arm? Print another. Want to modify the frame? The CAD is yours. No waiting for shipping, no proprietary lock-in.
+          </p>
+          <div className={styles.featureList}>
+            <span>Full STEP files included</span>
+            <span>Bambu-ready 3MF configs</span>
+            <span>Strategic carbon reinforcement</span>
+          </div>
         </div>
-        <h2>Start Building</h2>
-        <p>Everything you need to bring Replicant to life</p>
-      </div>
-      <div className={styles.quickLinks}>
-        {links.map((item, index) => (
-          <Link 
-            key={item.title} 
-            to={item.link} 
-            className={styles.linkCard}
-            style={{ '--delay': `${index * 0.1}s` } as React.CSSProperties}
-          >
-            <div className={styles.cardGlow} />
-            <div className={styles.cardIcon}>{item.icon}</div>
-            <h3>{item.title}</h3>
-            <p>{item.desc}</p>
-            <span className={styles.cardCta}>
-              {item.cta}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </span>
-          </Link>
-        ))}
+        <div className={styles.armImage}>
+          <div className={styles.imageGlow} />
+          <img 
+            src="/img/Drone_updates/Carbon where it counts.png" 
+            alt="Hybrid carbon and 3D printed construction"
+          />
+        </div>
       </div>
     </section>
   );
 }
+
+function ClosingSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.3 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section ref={sectionRef} className={`${styles.closingSection} ${isVisible ? styles.visible : ''}`}>
+      <div className={styles.closingContent}>
+        <h2>Every file. Every detail. Yours to build.</h2>
+        <p>Full CAD, print configs, assembly guides, and firmware — everything you need to build, modify, and repair.</p>
+        <Link to="/docs/platform" className={styles.btnPrimary}>
+          <span>Explore the Platform</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 
 export default function Home(): JSX.Element {
   return (
@@ -445,9 +371,9 @@ export default function Home(): JSX.Element {
         <HeroSection />
         <ModelSection />
         <ExplodedSection />
-        <ArmAssemblySection />
-        <GallerySection />
-        <QuickLinksSection />
+        <BatterySystemSection />
+        <PrintabilitySection />
+        <ClosingSection />
       </main>
     </Layout>
   );

@@ -5,13 +5,10 @@ title: CAD Downloads
 
 import { ModelViewer } from '@site/src/components/ModelViewer';
 
-# Downloads - Temporarily Unavailable
+# CAD Downloads
 
-:::warning Downloads Disabled
-All download files are currently undergoing maintenance and will be available again soon. Please check back later.
-:::
+Download all files needed to build your Replicant GEN 1 drone platform.
 
-<!-- ModelViewer temporarily disabled
 <ModelViewer
   modelPath="/files/3d-models/Replicant_Gen1.glb"
   title="Replicant GEN 1"
@@ -21,7 +18,6 @@ All download files are currently undergoing maintenance and will be available ag
   showFullscreenToggle={true}
   autoRotate={true}
 />
--->
 
 ---
 
@@ -39,23 +35,60 @@ Full parametric models for CAD modification and custom adaptations.
 
 | Component | Description | Download |
 |-----------|-------------|----------|
-| **Complete Assembly** | Full drone assembly with all components | Temporarily Unavailable |
+| **Complete Assembly** | Full drone assembly with all components | [Download STEP](/files/STEP_Files/Replicant_gen1.stp) |
 
 #### Sub-Components
 
 | Component | Description | Download |
 |-----------|-------------|----------|
-| **Chassis Core** | Main structural chassis component | Temporarily Unavailable |
-| **Motor Mount** | High-strength motor mounting bracket | Temporarily Unavailable |
-| **Front Left Arm Boss** | Precision mounting interface for front left arm | Temporarily Unavailable |
-| **Front Right Arm Boss** | Precision mounting interface for front right arm | Temporarily Unavailable |
-| **Rear Left Arm Boss** | Precision mounting interface for rear left arm | Temporarily Unavailable |
-| **Rear Right Arm Boss** | Precision mounting interface for rear right arm | Temporarily Unavailable |
-| **Upper Shell** | Top cover and enclosure component | Temporarily Unavailable |
-| **04cm Component** | 4cm diameter mounting component | Temporarily Unavailable |
-| **Exo Spine** | External structural spine/frame component | Temporarily Unavailable |
-| **Top Plate** | Upper mounting plate component | Temporarily Unavailable |
-| **Bottom Plate** | Lower mounting plate component | Temporarily Unavailable |
+| **Chassis Core** | Main structural chassis component | [Download STEP](/files/STEP_Files/Chassis_core.stp) |
+| **Motor Mount** | High-strength motor mounting bracket | [Download STEP](/files/STEP_Files/Motor_mount.stp) |
+| **Front Left Arm Boss** | Precision mounting interface for front left arm | [Download STEP](/files/STEP_Files/Front_left_arm_boss.stp) |
+| **Front Right Arm Boss** | Precision mounting interface for front right arm | [Download STEP](/files/STEP_Files/front_right_arm_boss.stp) |
+| **Rear Left Arm Boss** | Precision mounting interface for rear left arm | [Download STEP](/files/STEP_Files/Rear_left_arm_boss.stp) |
+| **Rear Right Arm Boss** | Precision mounting interface for rear right arm | [Download STEP](/files/STEP_Files/Rear_right_arm_boss.stp) |
+| **Upper Shell** | Top cover and enclosure component | [Download STEP](/files/STEP_Files/upper_shell.stp) |
+| **04cm Component** | 4cm diameter mounting component | [Download STEP](/files/STEP_Files/04cm.stp) |
+| **Exo Spine** | External structural spine/frame component | [Download STEP](/files/STEP_Files/Exo_spine.stp) |
+| **Top Plate** | Upper mounting plate component | [Download STEP](/files/STEP_Files/top_plate.stp) |
+| **Bottom Plate** | Lower mounting plate component | [Download STEP](/files/STEP_Files/bottom_plate.stp) |
+| **Battery Rail Male** | Battery mounting rail component | [Download STEP](/files/STEP_Files/battery_rail_male.stp) |
+
+---
+
+## STL Files
+
+Mesh files for 3D printing with any slicer software.
+
+| Component | Description | Download |
+|-----------|-------------|----------|
+| **Complete Assembly** | Full drone assembly mesh | [Download STL](/files/STL_Files/replicant_gen1.stl) |
+| **Complete Assembly (ZIP)** | All STL files in a compressed archive | [Download ZIP](/files/3d-printing/stl/replicant_gen1_complete.zip) |
+
+---
+
+## 3MF Files (Bambu Studio Optimized)
+
+Pre-configured Bambu Studio files with optimal print settings, supports, and orientations.
+
+| Component | Description | Download |
+|-----------|-------------|----------|
+| **Chassis Core (Left USB)** | Main structural component - USB port on left | [Download 3MF](/files/3d-printing/3mf/Chassis_core_left_USB.gcode.3mf) |
+| **Chassis Core (Right USB)** | Main structural component - USB port on right | [Download 3MF](/files/3d-printing/3mf/Chassis_core_right_USB.gcode.3mf) |
+| **Arm Bosses** | All four arm mounting interfaces | [Download 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf) |
+| **Motor Mounts** | High-strength motor mounting brackets | [Download 3MF](/files/3d-printing/3mf/Motor_mounts.gcode.3mf) |
+| **Nose Cone 04 Mount** | Camera and antenna mounting component | [Download 3MF](/files/3d-printing/3mf/Nose cone 04 mount.gcode.3mf) |
+| **Battery Rail Male** | Battery mounting rail component | [Download 3MF](/files/3d-printing/3mf/Battery_rail_male.gcode.3mf) |
+
+---
+
+## Documentation
+
+Technical specifications and material data sheets.
+
+| Document | Description | Download |
+|----------|-------------|----------|
+| **CF-Nylon Technical Data Sheet** | Material specifications for carbon fiber reinforced nylon | [Download PDF](/files/PDF's/TDS_FIBERON-PA6-CF20_V1.1_EN.pdf) |
 
 ---
 

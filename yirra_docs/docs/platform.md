@@ -9,7 +9,7 @@ import ImageToggle from '@site/src/components/ImageToggle';
 
 ![Replicant GEN 1 Platform Hero](/img/drone/Hero_image_comp.jpg)
 
-The Replicant represents a fundamental rethinking of FPV drone design, moving beyond outdated construction methods toward a professional, builder-focused platform that prioritizes performance, reliability, and user experience.
+The Replicant represents a fundamental rethinking of FPV drone design, embracing traditional construction methods, while leaning heavily on 3D printed components for both loaded and case components. Resulting in an extremely light, strong and aerodynamic structure.
 
 ---
 
@@ -57,7 +57,7 @@ Our rail-mounted battery system provides secure mounting with rapid swap capabil
 ![Battery removal animation](/img/drone/Battery_removal.gif)
 
 **Battery Specifications:**
-- **Cells:** Molicel P50B in 6S1P configuration
+- **Cells:** Eve 50 PL in 6S1P configuration
 - **Capacity:** 5000mAh per pack
 - **Mounting:** Rail-based system for rapid, secure swaps
 - **Design:** Single pack configuration optimized for current build
@@ -160,26 +160,27 @@ No other drone physically isolates the GPS better than ours. With our underslung
 
 ---
 
-## Take Charge of Repairs: Full Open-Source Philosophy
+## Open Source Airframe, Professional Power System
 
-If you crash a drone, the most likely thing you're going to break is your ego. A close second is a drone arm. We want to keep you flying as much as we can, that's why we're fully open-sourcing the entire Replicant drone design.
+If you crash a drone, the most likely thing you're going to break is your ego. A close second is a drone arm. We want to keep you flying, so we're open-sourcing the Replicant airframe — print it, mod it, fix it.
 
-From the 3D printed chassis to the custom electronics stack, every component is documented and available for repair or modification. Whether you need to replace a broken arm, modify the frame for a custom payload, or even build an entirely new variant, you have complete access to make it happen.
-
-**Full Open-Source Benefits:**
-- **Complete CAD files** for all 3D printed components
-- **Electronics documentation** for custom builds and repairs
-- **3D printable parts** using CF-Nylon for structural components
-- **TPE flexible parts** for vibration dampening
-- **Modular construction** for easy component replacement
-- **Professional bonding techniques** for structural integrity
+**What's Open Source:**
+- **Complete CAD files** (STEP/3MF) for all 3D printed components
+- **DXF files** for carbon fiber plates — cut your own or buy ours
+- **Full fastener specifications** — source yourself or buy our kit
+- **TPU flexible parts** for vibration dampening
 - **Comprehensive build guides** with videos and detailed instructions
 
-**Advanced Repair Capabilities:**
-- Fabricate replacement parts on professional 3D printers
-- Modify the frame for custom payloads or configurations
+**What's Not Open Source:**
+- **Battery Pack** — Proprietary design using spot-welded Eve 50 PL cells. We don't release these files for safety reasons — improper cell handling is a fire/injury risk.
+- **Power Management Board** — Closed source hardware and firmware. This is our secret sauce for the intelligent arm/disarm behavior and includes safety-critical voltage monitoring.
+
+This isn't about gatekeeping — it's about keeping you safe and keeping the lights on.
+
+**Repair & Modify Freely:**
+- Fabricate replacement parts on your 3D printer
+- Modify the frame for custom payloads or configurations  
 - Build entirely new drone variants from the ground up
-- Access to all design files for continuous improvement
 - Community-driven development and enhancements
 
 ---

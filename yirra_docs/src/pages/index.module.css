@@ -497,9 +497,7 @@
 /* Visibility animation */
 .modelSection,
 .explodedSection,
-.armSection,
-.gallerySection,
-.quickLinksSection {
+.armSection {
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -507,9 +505,7 @@
 
 .modelSection.visible,
 .explodedSection.visible,
-.armSection.visible,
-.gallerySection.visible,
-.quickLinksSection.visible {
+.armSection.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -675,6 +671,87 @@
   border-radius: 16px;
   position: relative;
   z-index: 1;
+}
+
+/* Feature list for battery/printability sections */
+.featureList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.featureList span {
+  padding: 0.5rem 1rem;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  border-radius: 100px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #a3a3a3;
+}
+
+/* Reversed layout for alternating sections */
+.armSection.reversed .armGrid {
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.armSection.reversed .armContent {
+  order: 2;
+}
+
+.armSection.reversed .armImage {
+  order: 1;
+}
+
+/* =============================================================================
+   CLOSING SECTION
+   ============================================================================= */
+.closingSection {
+  padding: 8rem 2rem;
+  background: linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
+  text-align: center;
+  position: relative;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.closingSection.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.closingSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.closingContent {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.closingContent h2 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+}
+
+.closingContent p {
+  font-size: 1.125rem;
+  color: #737373;
+  margin: 0 0 2rem;
+  line-height: 1.7;
 }
 
 /* =============================================================================
@@ -882,6 +959,10 @@
     gap: 3rem;
   }
   
+  .armSection.reversed .armGrid {
+    grid-template-columns: 1fr;
+  }
+  
   .armContent {
     order: 1;
   }
@@ -890,12 +971,12 @@
     order: 2;
   }
   
-  .galleryGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .armSection.reversed .armContent {
+    order: 1;
   }
   
-  .quickLinks {
-    grid-template-columns: repeat(2, 1fr);
+  .armSection.reversed .armImage {
+    order: 2;
   }
   
   .heroStats {
@@ -970,50 +1051,29 @@
   
   .explodedSection,
   .armSection,
-  .quickLinksSection {
+  .closingSection {
     padding: 4rem 1.5rem;
-  }
-  
-  .gallerySection {
-    padding: 4rem 1rem;
   }
   
   .sectionHeader h2 {
     font-size: 1.75rem;
   }
   
-  .galleryGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+  .featureList {
+    gap: 0.5rem;
   }
   
-  .galleryItem {
-    border-radius: 10px;
+  .featureList span {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
   }
   
-  .galleryLabel {
-    opacity: 1;
-    transform: translateY(0);
+  .closingContent h2 {
+    font-size: 1.5rem;
   }
   
-  .quickLinks {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .linkCard {
-    padding: 1.5rem;
-  }
-  
-  .cardIcon {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 1rem;
-  }
-  
-  .cardIcon svg {
-    width: 20px;
-    height: 20px;
+  .closingContent p {
+    font-size: 1rem;
   }
   
   .explodedGrid {
@@ -1076,8 +1136,7 @@
   .modelSection,
   .explodedSection,
   .armSection,
-  .gallerySection,
-  .quickLinksSection {
+  .closingSection {
     opacity: 1;
     transform: none;
     transition: none;

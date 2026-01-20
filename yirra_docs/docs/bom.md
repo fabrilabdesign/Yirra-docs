@@ -11,20 +11,34 @@ import ProductCard from '@site/src/components/ProductCard';
 
 Components you need to buy for the **Replicant GEN 1** build.
 
+:::info Open Source vs. Purchased Components
+**The Replicant airframe is fully open source** — all 3D printed parts, CAD files, and design documentation are freely available for you to modify, print, and build.
+
+**Some components must be purchased:**
+- **Battery System** — Proprietary cell pack design. Requires controlled cell sourcing and spot welding.
+- **Power Management Board** — Closed source hardware/firmware. Contains safety-critical logic for intelligent arm/disarm behavior.
+
+**Files provided, buy or DIY:**
+- **Carbon fiber plates** — DXF files included if you want to source elsewhere
+- **Fastener kit** — Full specs provided, buy ours or source your own
+
+This isn't gatekeeping — battery packs are a liability if done wrong, and the PMB firmware is our secret sauce.
+:::
+
 ---
 
 ## Electronics Stack
 
-| Component | Qty | Notes |
-|-----------|-----|-------|
-| **Iflight Borg stack or e55/s** | 1 | Flight controller + ESC combo. |
-| **BLITZ E55S-4IN1-R4 ESC** | 1 | Electronic speed controller reference. |
-| **Mico air GPS (M10G-5883)** | 1 | GPS module with UART connection. |
-| **DJI O4 Pro Air Unit** | 1 | HD video transmission system. |
-| **DJI O4 Pro Camera** | 1 | Camera module for the O4 system. |
-| **Matek true diversity ELRS Receiver** | 1 | ELRS receiver with true diversity. |
-| **Power Management Board** | 1 | Power distribution and management. <PurchaseButton href="https://yirrasystems.com/product/prod_T4TaxIrK5JjUMI" variant="inline">Buy</PurchaseButton> |
-| **Arm/Disarm Button** | 1 | 12mm momentary push button with green LED. <PurchaseButton href="https://www.aliexpress.com/item/1005007422880341.html" variant="inline">Buy</PurchaseButton> |
+| Component | Qty | Open Source | Notes |
+|-----------|-----|-------------|-------|
+| **Iflight Borg stack or e55/s** | 1 | N/A (off-shelf) | Flight controller + ESC combo. |
+| **BLITZ E55S-4IN1-R4 ESC** | 1 | N/A (off-shelf) | Electronic speed controller reference. |
+| **Mico air GPS (M10G-5883)** | 1 | N/A (off-shelf) | GPS module with UART connection. |
+| **DJI O4 Pro Air Unit** | 1 | N/A (off-shelf) | HD video transmission system. |
+| **DJI O4 Pro Camera** | 1 | N/A (off-shelf) | Camera module for the O4 system. |
+| **Matek true diversity ELRS Receiver** | 1 | N/A (off-shelf) | ELRS receiver with true diversity. |
+| **Power Management Board** | 1 | **No** — Purchase | Power distribution and management. <PurchaseButton href="https://yirrasystems.com/product/prod_T4TaxIrK5JjUMI" variant="inline">Buy</PurchaseButton> |
+| **Arm/Disarm Button** | 1 | N/A (off-shelf) | 12mm momentary push button with green LED. <PurchaseButton href="https://www.aliexpress.com/item/1005007422880341.html" variant="inline">Buy</PurchaseButton> |
 
 ### Power Management Board
 
@@ -83,20 +97,21 @@ The button uses a microcontroller for intelligent operation: press and hold for 
 
 Cut carbon fiber plates. These are **not 3D printed**.
 
-| Part | Qty | Specification | Purchase |
-|------|-----|---------------|----------|
-| **Top Plate** | 1 | CNC machined 3mm carbon fiber | <PurchaseButton href="https://yirrasystems.com/product/prod_SUaQiz6E625P9V" variant="inline">Buy</PurchaseButton> |
-| **Bottom Plate** | 1 | CNC machined 2mm carbon fiber | <PurchaseButton href="https://yirrasystems.com/product/prod_SUaVaLa36ydpSg" variant="inline">Buy</PurchaseButton> |
-| **Spine** | 1 | CNC machined 4mm carbon fiber | <PurchaseButton href="https://yirrasystems.com/product/prod_SUaZIcnKA0qSXg" variant="inline">Buy</PurchaseButton> |
+| Part | Qty | Open Source | Specification | Purchase |
+|------|-----|-------------|---------------|----------|
+| **Top Plate** | 1 | **Yes** — DXF provided | CNC machined 3mm carbon fiber | <PurchaseButton href="https://yirrasystems.com/product/prod_SUaQiz6E625P9V" variant="inline">Buy</PurchaseButton> |
+| **Bottom Plate** | 1 | **Yes** — DXF provided | CNC machined 2mm carbon fiber | <PurchaseButton href="https://yirrasystems.com/product/prod_SUaVaLa36ydpSg" variant="inline">Buy</PurchaseButton> |
+| **Spine** | 1 | **Yes** — DXF provided | CNC machined 4mm carbon fiber | <PurchaseButton href="https://yirrasystems.com/product/prod_SUaZIcnKA0qSXg" variant="inline">Buy</PurchaseButton> |
 
 ---
 
 ## Carbon Tubes
 
-| Component | Qty | Specification |
-|-----------|-----|---------------|
-| **Carbon Tubes** | 2 | 11mm OD tube for front arms (cut length 133mm) |
-| **Carbon Tubes** | 2 | 11mm OD tube for rear arms (cut length 157mm) |
+| Platform | Component | Qty | Front Arm Length | Rear Arm Length |
+|----------|-----------|-----|------------------|-----------------|
+| 6 inch | Carbon Tubes | 4 | 93mm | 118mm |
+| 7 inch | Carbon Tubes | 4 | 105mm | 134mm |
+| 8 inch | Carbon Tubes | 4 | 133mm | 157mm |
 
 ---
 
@@ -199,8 +214,8 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
 
 | Item No | Qty | Type / Spec                                 | Length | Material    | Finish | Strength class | Purpose                                   |
 | ------: | --: | ------------------------------------------- | ------ | ----------- | ------ | -------------- | ----------------------------------------- |
-|       3 |   2 | **M2×5** socket cap head *(from ISHCS0205)* | 5mm    | Alloy steel | Black  | 12.9           | Mounts the Power Distribution Board       |
-|       4 |   4 | **M2×7** socket cap head *(from ISHCS0207)* | 7mm    | Alloy steel | Black  | 12.9           | Mounts the O4 Pro Air Unit                |
+|       3 |   2 | **M2×10** socket cap head *(from ISHCS0210)* | 10mm   | Alloy steel | Black  | 12.9           | Mounts the Power Distribution Board       |
+|       4 |   4 | **M2×12** socket cap head *(from ISHCS0212)* | 12mm   | Alloy steel | Black  | 12.9           | Mounts the O4 Pro Air Unit                |
 |       6 |   4 | ISO 14579 **M2×8**, Torx socket cap head    | 8mm    | Alloy steel | Black  | 12.9           | Mounts the O4 Pro camera to the nose cone |
 
 ---
@@ -234,9 +249,13 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
 
 ## Battery
 
-| Component | Qty | Specification |
-|-----------|-----|---------------|
-| **6S LiPo Battery** | 1 | 5000mAh, Molicel P50B cells |
+| Component | Qty | Open Source | Specification |
+|-----------|-----|-------------|---------------|
+| **6S Modular Battery Pack** | 1 | **No** — Purchase | 5000mAh, Eve 50 PL cells in custom rail-mount enclosure |
+
+:::warning Battery System is Not Open Source
+The battery pack is a proprietary design requiring spot-welded Eve 50 PL cells and custom 3D printed enclosure. For safety reasons, we do not provide files to build your own — improper cell handling or welding can result in fire or injury.
+:::
 
 ![Battery connector](/img/drone/battery_connector_iso.png)
 
@@ -244,15 +263,21 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
 
 ## Purchaseable Parts
 
-:::info Custom vs. Off-the-Shelf Parts
-**Battery and Power Management Board** are essential custom items that must be purchased from Yirra Systems. **BOM and files are available for the carbon parts and fasteners** so these components could be made or purchased elsewhere if preferred.
+:::tip What You Must Buy vs. What You Can DIY
+| Category | Status |
+|----------|--------|
+| **Battery Pack** | Must purchase from Yirra — not open source |
+| **Power Management Board** | Must purchase from Yirra — not open source |
+| **Carbon Plates & Spine** | DXF files provided — buy from us or cut your own |
+| **Fastener Kit** | Full specs provided — buy from us or source yourself |
+| **3D Printed Parts** | Fully open source — STEP/3MF files available |
 :::
 
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', margin: '24px 0' }}>
   {/* Fastener Kit */}
   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
     <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Fastener Kit Image</span>
+      <img src="/img/Products/Fasteners.webp" alt="Fastener Kit" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
     </div>
     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
       <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
@@ -265,14 +290,14 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
         </div>
         <a href="https://yirrasystems.com/product/prod_TlNyUSO8eHGzCV" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
       </div>
-      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+      <a href="https://yirrasystems.com/product/prod_TlNyUSO8eHGzCV" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy now</a>
     </div>
   </div>
 
   {/* Power Management Board */}
   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
     <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Power Board Image</span>
+      <img src="/img/drone/Power_managementPCB.png" alt="Power Management Board" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
     </div>
     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
       <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
@@ -285,14 +310,14 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
         </div>
         <a href="https://yirrasystems.com/product/prod_T4TaxIrK5JjUMI" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
       </div>
-      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+      <a href="https://yirrasystems.com/product/prod_T4TaxIrK5JjUMI" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy now</a>
     </div>
   </div>
 
   {/* Replicant Exospine */}
   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
     <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Exospine Image</span>
+      <img src="/img/Products/Exo_spine.JPG" alt="Exospine" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
     </div>
     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
       <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
@@ -305,14 +330,14 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
         </div>
         <a href="https://yirrasystems.com/product/prod_SUaZIcnKA0qSXg" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
       </div>
-      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+      <a href="https://yirrasystems.com/product/prod_SUaZIcnKA0qSXg" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy now</a>
     </div>
   </div>
 
   {/* Replicant Carbon Bottom plate */}
   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
     <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Bottom Plate Image</span>
+      <img src="/img/Products/Bottom_plate.JPG" alt="Bottom Plate" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
     </div>
     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
       <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
@@ -325,14 +350,14 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
         </div>
         <a href="https://yirrasystems.com/product/prod_SUaVaLa36ydpSg" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
       </div>
-      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+      <a href="https://yirrasystems.com/product/prod_SUaVaLa36ydpSg" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy now</a>
     </div>
   </div>
 
   {/* Replicant Carbon Top plate */}
   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
     <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Top Plate Image</span>
+      <img src="/img/Products/top_plate.JPG" alt="Top Plate" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
     </div>
     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
       <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
@@ -345,14 +370,14 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
         </div>
         <a href="https://yirrasystems.com/product/prod_SUaQiz6E625P9V" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
       </div>
-      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+      <a href="https://yirrasystems.com/product/prod_SUaQiz6E625P9V" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy now</a>
     </div>
   </div>
 
   {/* 6S Modular Battery Pack */}
   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
     <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Battery Image</span>
+      <img src="/img/Products/battery_connector_iso.png" alt="Battery Connector" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
     </div>
     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
       <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
@@ -365,7 +390,7 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
         </div>
         <a href="https://yirrasystems.com/product/prod_SR6kjyZnXCaSC0" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
       </div>
-      <button style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>🛒 Add to Cart</button>
+      <a href="https://yirrasystems.com/product/prod_SR6kjyZnXCaSC0" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy now</a>
     </div>
   </div>
 </div>

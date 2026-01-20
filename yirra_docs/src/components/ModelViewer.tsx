@@ -45,6 +45,9 @@ interface ModelViewerProps {
   showFullscreenToggle?: boolean;
   autoRotate?: boolean;
   environmentImage?: string;
+  exposure?: string;
+  shadowIntensity?: string;
+  shadowSoftness?: string;
 }
 
 export const ModelViewer: React.FC<ModelViewerProps> = ({
@@ -58,7 +61,10 @@ export const ModelViewer: React.FC<ModelViewerProps> = ({
   showWireframeToggle = true,
   showFullscreenToggle = true,
   autoRotate = true,
-  environmentImage = "https://modelviewer.dev/shared-assets/environments/spruit_sunrise_1k_HDR.hdr"
+  environmentImage = "https://modelviewer.dev/shared-assets/environments/aircraft_workshop_01_1k.hdr",
+  exposure = "0.4",
+  shadowIntensity = "0",
+  shadowSoftness = "0"
 }) => {
   const viewerRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -201,9 +207,9 @@ export const ModelViewer: React.FC<ModelViewerProps> = ({
           touch-action="pan-y"
           auto-rotate={autoRotate}
           rotation-per-second="12deg"
-          shadow-intensity="1.2"
-          shadow-softness="0.8"
-          exposure="1.1"
+          shadow-intensity={shadowIntensity}
+          shadow-softness={shadowSoftness}
+          exposure={exposure}
           environment-image={environmentImage}
           camera-orbit="30deg 70deg auto"
           min-camera-orbit="auto auto 50%"
@@ -215,7 +221,7 @@ export const ModelViewer: React.FC<ModelViewerProps> = ({
           style={{
             width: '100%',
             height: 'var(--viewer-height)',
-            backgroundColor: 'transparent'
+            background: 'radial-gradient(ellipse at center, #0a1520 0%, #060809 40%, #050505 100%)'
           }}
         >
           {/* Loading overlay */}
