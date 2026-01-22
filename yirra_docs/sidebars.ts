@@ -9,6 +9,7 @@ const sidebars: SidebarsConfig = {
     'arm-bonding',
     'assembly',
     'inav',
+    'license',
   ],
 };
 

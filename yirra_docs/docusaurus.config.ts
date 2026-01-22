@@ -168,10 +168,14 @@ const config: Config = {
               label: 'Store',
               href: 'https://yirrasystems.com',
             },
+            {
+              label: 'License',
+              to: '/docs/license',
+            },
           ],
         },
       ],
-      copyright: `© ${new Date().getFullYear()} Yirra Systems`,
+      copyright: `© ${new Date().getFullYear()} Yirra Systems<br/><small style="opacity: 0.7">Replicant GEN 1 is open hardware under CERN-OHL-W-2.0 (commercial use allowed). Battery pack internals are proprietary. Use at your own risk.</small>`,
     },
     prism: {
       theme: prismThemes.github,

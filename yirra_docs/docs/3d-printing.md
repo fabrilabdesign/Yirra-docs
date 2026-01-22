@@ -141,12 +141,10 @@ The structural heart of the Replicant - this monolithic chassis core houses all 
 
 ![Chassis Core 3MF Preview](/img/3MF%20screen%20shots/Chassis_core.png)
 
-**Download STEP:** [Chassis Core CAD](/files/STEP_Files/Chassis_core.stp)
-
 :::warning USB Orientation Options
 Choose the appropriate chassis version based on your flight controller USB port orientation:
-- **[Left USB Version](/files/3d-printing/3mf/Chassis_core_left_USB.gcode.3mf)** - USB port faces left when viewed from above
-- **[Right USB Version](/files/3d-printing/3mf/Chassis_core_right_USB.gcode.3mf)** - USB port faces right when viewed from above
+- **[Left USB Version](/files/3d-printing/3mf/Chassis_core_left_usb_modi.gcode.3mf)** - USB port faces left when viewed from above
+- **[Right USB Version](/files/3d-printing/3mf/Chassis_core_right_USB_modi.gcode.3mf)** - USB port faces right when viewed from above
 
 **Both versions are compatible with 20x20mm and 30x30mm flight controller stack sizes.**
 :::
@@ -188,7 +186,7 @@ TPE printing differs significantly from nylon. These settings were developed thr
 
 ![Nose Cone 04 Mount 3MF Preview](/img/3MF%20screen%20shots/Nose_cone_04_mount.png)
 
-**Download:** [Nose Cone 04 Mount 3MF](/files/3d-printing/3mf/Nose%20cone%2004%20mount.gcode.3mf)
+**Download:** [Nose Cone 04 Mount 3MF](/files/3d-printing/3mf/Nose_cone_04_mount.gcode.3mf)
 
 *Flexible mounting bracket designed for vibration dampening and precise GPS antenna positioning.*
 
@@ -204,6 +202,8 @@ These 3MF files include:
 Additional STEP files for CAD design, modification, and analysis:
 
 - **[Complete Replicant Gen1 Assembly](/files/STEP_Files/Replicant_gen1.stp)** - Full assembly model
+- **[Chassis Core Left USB](/files/STEP_Files/chassis_core_left_usb.stp)** - Left USB orientation chassis
+- **[Chassis Core Right USB](/files/STEP_Files/chassis_core_right_usb.stp)** - Right USB orientation chassis
 - **[Bottom Plate](/files/STEP_Files/bottom_plate.stp)** - Base mounting plate
 - **[Top Plate](/files/STEP_Files/top_plate.stp)** - Upper mounting plate
 - **[Upper Shell](/files/STEP_Files/upper_shell.stp)** - Protective housing

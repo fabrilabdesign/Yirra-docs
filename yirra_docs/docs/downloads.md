@@ -41,14 +41,15 @@ Full parametric models for CAD modification and custom adaptations.
 
 | Component | Description | Download |
 |-----------|-------------|----------|
-| **Chassis Core** | Main structural chassis component | [Download STEP](/files/STEP_Files/Chassis_core.stp) |
+| **Chassis Core Left USB** | Main structural chassis component - USB on left | [Download STEP](/files/STEP_Files/chassis_core_left_usb.stp) |
+| **Chassis Core Right USB** | Main structural chassis component - USB on right | [Download STEP](/files/STEP_Files/chassis_core_right_usb.stp) |
 | **Motor Mount** | High-strength motor mounting bracket | [Download STEP](/files/STEP_Files/Motor_mount.stp) |
-| **Front Left Arm Boss** | Precision mounting interface for front left arm | [Download STEP](/files/STEP_Files/Front_left_arm_boss.stp) |
-| **Front Right Arm Boss** | Precision mounting interface for front right arm | [Download STEP](/files/STEP_Files/front_right_arm_boss.stp) |
-| **Rear Left Arm Boss** | Precision mounting interface for rear left arm | [Download STEP](/files/STEP_Files/Rear_left_arm_boss.stp) |
-| **Rear Right Arm Boss** | Precision mounting interface for rear right arm | [Download STEP](/files/STEP_Files/Rear_right_arm_boss.stp) |
+| **Front Left Arm Boss** | Precision mounting interface for front left arm | [Download STEP](/files/STEP_Files/Left_front_arm_boss.stp) |
+| **Front Right Arm Boss** | Precision mounting interface for front right arm | [Download STEP](/files/STEP_Files/right_front_arm_boss.stp) |
+| **Rear Left Arm Boss** | Precision mounting interface for rear left arm | [Download STEP](/files/STEP_Files/left_rear_arm_boss.stp) |
+| **Rear Right Arm Boss** | Precision mounting interface for rear right arm | [Download STEP](/files/STEP_Files/Righ_rear_arm_boss.stp) |
 | **Upper Shell** | Top cover and enclosure component | [Download STEP](/files/STEP_Files/upper_shell.stp) |
-| **04cm Component** | 4cm diameter mounting component | [Download STEP](/files/STEP_Files/04cm.stp) |
+| **04cm Component** | 04 Pro camera mounting component | [Download STEP](/files/STEP_Files/04cm.stp) |
 | **Exo Spine** | External structural spine/frame component | [Download STEP](/files/STEP_Files/Exo_spine.stp) |
 | **Top Plate** | Upper mounting plate component | [Download STEP](/files/STEP_Files/top_plate.stp) |
 | **Bottom Plate** | Lower mounting plate component | [Download STEP](/files/STEP_Files/bottom_plate.stp) |
@@ -73,11 +74,11 @@ Pre-configured Bambu Studio files with optimal print settings, supports, and ori
 
 | Component | Description | Download |
 |-----------|-------------|----------|
-| **Chassis Core (Left USB)** | Main structural component - USB port on left | [Download 3MF](/files/3d-printing/3mf/Chassis_core_left_USB.gcode.3mf) |
-| **Chassis Core (Right USB)** | Main structural component - USB port on right | [Download 3MF](/files/3d-printing/3mf/Chassis_core_right_USB.gcode.3mf) |
+| **Chassis Core (Left USB)** | Main structural component - USB port on left | [Download 3MF](/files/3d-printing/3mf/Chassis_core_left_usb_modi.gcode.3mf) |
+| **Chassis Core (Right USB)** | Main structural component - USB port on right | [Download 3MF](/files/3d-printing/3mf/Chassis_core_right_USB_modi.gcode.3mf) |
 | **Arm Bosses** | All four arm mounting interfaces | [Download 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf) |
 | **Motor Mounts** | High-strength motor mounting brackets | [Download 3MF](/files/3d-printing/3mf/Motor_mounts.gcode.3mf) |
-| **Nose Cone 04 Mount** | Camera and antenna mounting component | [Download 3MF](/files/3d-printing/3mf/Nose cone 04 mount.gcode.3mf) |
+| **Nose Cone 04 Mount** | Camera and antenna mounting component | [Download 3MF](/files/3d-printing/3mf/Nose_cone_04_mount.gcode.3mf) |
 | **Battery Rail Male** | Battery mounting rail component | [Download 3MF](/files/3d-printing/3mf/Battery_rail_male.gcode.3mf) |
 
 ---

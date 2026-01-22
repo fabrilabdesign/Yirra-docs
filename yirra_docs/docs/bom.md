@@ -119,9 +119,26 @@ Cut carbon fiber plates. These are **not 3D printed**.
 
 Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric with standard pitches.
 
-<PurchaseButton href="https://yirrasystems.com/product/prod_TlNyUSO8eHGzCV" variant="primary">
-  Buy Complete Fastener Kit
-</PurchaseButton>
+<div style={{ maxWidth: '320px', margin: '24px 0' }}>
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <img src="/img/Products/Fasteners.webp" alt="Fastener Kit" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>DRONE-PART</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Replicant Fastener Kit</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>Complete fastener kit for the Replicant drone</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$25</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_TlNyUSO8eHGzCV" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <a href="https://yirrasystems.com/product/prod_TlNyUSO8eHGzCV" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#1f2937', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy now</a>
+    </div>
+  </div>
+</div>
 
 <div style={{ margin: '2rem 0' }}>
   <video 

@@ -3,6 +3,9 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Install build tools needed for native dependencies (gifsicle, mozjpeg, etc.)
+RUN apk add --no-cache build-base autoconf automake libtool pkgconfig nasm
+
 # Copy package files
 COPY package*.json ./
 

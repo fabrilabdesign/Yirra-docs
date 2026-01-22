@@ -1,0 +1,13 @@
+Request ID: b8a96e88-6520-463c-a0a5-e57f831e90ec
+{"error":"ERROR_BAD_USER_API_KEY","details":{"title":"Bad User API key","detail":"Unauthorized User API key","isRetryable":false,"additionalInfo":{},"buttons":[],"planChoices":[]},"isExpected":true}
+ConnectError: [unauthenticated] Error
+    at Fqc.$endAiConnectTransportReportError (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:4984:399337)
+    at uwo._doInvokeHandler (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:490:36007)
+    at uwo._invokeHandler (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:490:35749)
+    at uwo._receiveRequest (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:490:34514)
+    at uwo._receiveOneMessage (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:490:33336)
+    at qDt.value (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:490:31429)
+    at _e._deliver (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:49:2962)
+    at _e.fire (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:49:3283)
+    at hgt.fire (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:4969:12156)
+    at MessagePort.<anonymous> (vscode-file://vscode-app/c:/Users/james/AppData/Local/Programs/Cursor/resources/app/out/vs/workbench/workbench.desktop.main.js:7492:18403)
