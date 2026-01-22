@@ -92,7 +92,7 @@ Nylon requires extra adhesion help:
 
 1. **Glue stick** - Thin, even layer (Elmer's purple works)
 2. **Clean bed** - IPA wipe before glue
-3. **Textured PEI** - Better than smooth for nylon
+3. **Textured PEI** - Better than smooth for nylon (engineering plate recommended)
 4. **Brim** - 5mm brim for large parts
 
 ---
@@ -121,7 +121,7 @@ The foundation of each arm assembly - these precision-machined nylon bosses prov
 
 ![Arm Bosses 3MF Preview](/img/3MF%20screen%20shots/Arms_bosses.png)
 
-**Download:** [Arm Bosses 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf) | [Arm Bosses STEP Files](/files/STEP_Files/)
+**Download:** [Arm Bosses 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf) | [All STEP Files (ZIP)](/files/STEP_Files/Replicant_gen1_STEP.zip)
 
 *Print these first - small, fast prints that establish your material and settings before committing to larger parts.*
 
@@ -143,7 +143,7 @@ The structural heart of the Replicant - this monolithic chassis core houses all 
 
 :::warning USB Orientation Options
 Choose the appropriate chassis version based on your flight controller USB port orientation:
-- **[Left USB Version](/files/3d-printing/3mf/Chassis_core_left_usb_modi.gcode.3mf)** - USB port faces left when viewed from above
+- **[Left USB Version](/files/3d-printing/3mf/Chassis_core_left_USB_modi.gcode.3mf)** - USB port faces left when viewed from above
 - **[Right USB Version](/files/3d-printing/3mf/Chassis_core_right_USB_modi.gcode.3mf)** - USB port faces right when viewed from above
 
 **Both versions are compatible with 20x20mm and 30x30mm flight controller stack sizes.**
@@ -186,7 +186,7 @@ TPE printing differs significantly from nylon. These settings were developed thr
 
 ![Nose Cone 04 Mount 3MF Preview](/img/3MF%20screen%20shots/Nose_cone_04_mount.png)
 
-**Download:** [Nose Cone 04 Mount 3MF](/files/3d-printing/3mf/Nose_cone_04_mount.gcode.3mf)
+**Download:** [Nose Cone 04 Mount 3MF](/files/3d-printing/3mf/Nose_cone_04_mount.gcode.3mf) | [04cm Mount STEP](/files/STEP_Files/04cm.stp)
 
 *Flexible mounting bracket designed for vibration dampening and precise GPS antenna positioning.*
 
@@ -201,14 +201,14 @@ These 3MF files include:
 
 Additional STEP files for CAD design, modification, and analysis:
 
-- **[Complete Replicant Gen1 Assembly](/files/STEP_Files/Replicant_gen1.stp)** - Full assembly model
+- **[Complete STEP Package (ZIP)](/files/STEP_Files/Replicant_gen1_STEP.zip)** - All STEP files in one download
 - **[Chassis Core Left USB](/files/STEP_Files/chassis_core_left_usb.stp)** - Left USB orientation chassis
 - **[Chassis Core Right USB](/files/STEP_Files/chassis_core_right_usb.stp)** - Right USB orientation chassis
 - **[Bottom Plate](/files/STEP_Files/bottom_plate.stp)** - Base mounting plate
-- **[Top Plate](/files/STEP_Files/top_plate.stp)** - Upper mounting plate
+- **[Top Plate Brace](/files/STEP_Files/top_plate_brace.stp)** - Upper mounting plate brace
 - **[Upper Shell](/files/STEP_Files/upper_shell.stp)** - Protective housing
-- **[Exo Spine](/files/STEP_Files/Exo_spine.stp)** - Structural backbone
-- **[04cm Mount](/files/STEP_Files/04cm.stp)** - Small mounting bracket
+- **[Spine](/files/STEP_Files/spine.stp)** - Structural backbone
+- **[04cm Mount](/files/STEP_Files/04cm.stp)** - O4 Pro camera mount
 
 ---
 

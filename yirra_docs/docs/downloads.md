@@ -21,60 +21,34 @@ Download all files needed to build your Replicant GEN 1 drone platform.
 
 ---
 
-## 3D Model Files
+## Quick Downloads
 
-Complete model files for printing and CAD modification.
+Get everything you need in one click.
 
-### Pre-configured 3MF Files
-For optimized Bambu Studio printing with correct orientation, supports, and settings, see the [3D Printing section](/docs/3d-printing#3mf-files--print-previews).
-
-### STEP Files (Editable CAD)
-Full parametric models for CAD modification and custom adaptations.
-
-#### Complete Assembly
-
-| Component | Description | Download |
-|-----------|-------------|----------|
-| **Complete Assembly** | Full drone assembly with all components | [Download STEP](/files/STEP_Files/Replicant_gen1.stp) |
-
-#### Sub-Components
-
-| Component | Description | Download |
-|-----------|-------------|----------|
-| **Chassis Core Left USB** | Main structural chassis component - USB on left | [Download STEP](/files/STEP_Files/chassis_core_left_usb.stp) |
-| **Chassis Core Right USB** | Main structural chassis component - USB on right | [Download STEP](/files/STEP_Files/chassis_core_right_usb.stp) |
-| **Motor Mount** | High-strength motor mounting bracket | [Download STEP](/files/STEP_Files/Motor_mount.stp) |
-| **Front Left Arm Boss** | Precision mounting interface for front left arm | [Download STEP](/files/STEP_Files/Left_front_arm_boss.stp) |
-| **Front Right Arm Boss** | Precision mounting interface for front right arm | [Download STEP](/files/STEP_Files/right_front_arm_boss.stp) |
-| **Rear Left Arm Boss** | Precision mounting interface for rear left arm | [Download STEP](/files/STEP_Files/left_rear_arm_boss.stp) |
-| **Rear Right Arm Boss** | Precision mounting interface for rear right arm | [Download STEP](/files/STEP_Files/Righ_rear_arm_boss.stp) |
-| **Upper Shell** | Top cover and enclosure component | [Download STEP](/files/STEP_Files/upper_shell.stp) |
-| **04cm Component** | 04 Pro camera mounting component | [Download STEP](/files/STEP_Files/04cm.stp) |
-| **Exo Spine** | External structural spine/frame component | [Download STEP](/files/STEP_Files/Exo_spine.stp) |
-| **Top Plate** | Upper mounting plate component | [Download STEP](/files/STEP_Files/top_plate.stp) |
-| **Bottom Plate** | Lower mounting plate component | [Download STEP](/files/STEP_Files/bottom_plate.stp) |
-| **Battery Rail Male** | Battery mounting rail component | [Download STEP](/files/STEP_Files/battery_rail_male.stp) |
-
----
-
-## STL Files
-
-Mesh files for 3D printing with any slicer software.
-
-| Component | Description | Download |
-|-----------|-------------|----------|
-| **Complete Assembly** | Full drone assembly mesh | [Download STL](/files/STL_Files/replicant_gen1.stl) |
-| **Complete Assembly (ZIP)** | All STL files in a compressed archive | [Download ZIP](/files/3d-printing/stl/replicant_gen1_complete.zip) |
+<div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', margin: '24px 0' }}>
+  <a href="/files/3d-printing/stl/Replicant_gen1_STL.zip" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1f2937', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+    📦 Download All STL Files (ZIP)
+  </a>
+  <a href="/files/STEP_Files/Replicant_gen1_STEP.zip" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+    📐 Download All STEP Files (ZIP)
+  </a>
+  <a href="/files/3d-printing/stl/replicant_gen_1.stl" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+    🖨️ Complete Assembly STL
+  </a>
+  <a href="/files/STEP_Files/Replicant_gen1.stp" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+    📐 Complete Assembly STEP
+  </a>
+</div>
 
 ---
 
 ## 3MF Files (Bambu Studio Optimized)
 
-Pre-configured Bambu Studio files with optimal print settings, supports, and orientations.
+Pre-configured Bambu Studio files with optimal print settings, supports, and orientations. For printing guidance, see the [3D Printing section](/docs/3d-printing#3mf-files--print-previews).
 
 | Component | Description | Download |
 |-----------|-------------|----------|
-| **Chassis Core (Left USB)** | Main structural component - USB port on left | [Download 3MF](/files/3d-printing/3mf/Chassis_core_left_usb_modi.gcode.3mf) |
+| **Chassis Core (Left USB)** | Main structural component - USB port on left | [Download 3MF](/files/3d-printing/3mf/Chassis_core_left_USB_modi.gcode.3mf) |
 | **Chassis Core (Right USB)** | Main structural component - USB port on right | [Download 3MF](/files/3d-printing/3mf/Chassis_core_right_USB_modi.gcode.3mf) |
 | **Arm Bosses** | All four arm mounting interfaces | [Download 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf) |
 | **Motor Mounts** | High-strength motor mounting brackets | [Download 3MF](/files/3d-printing/3mf/Motor_mounts.gcode.3mf) |
@@ -83,29 +57,82 @@ Pre-configured Bambu Studio files with optimal print settings, supports, and ori
 
 ---
 
-## Documentation
+## Individual Component Files
 
-Technical specifications and material data sheets.
+Need specific parts? Expand the sections below to download individual components.
 
-| Document | Description | Download |
-|----------|-------------|----------|
-| **CF-Nylon Technical Data Sheet** | Material specifications for carbon fiber reinforced nylon | [Download PDF](/files/PDF's/TDS_FIBERON-PA6-CF20_V1.1_EN.pdf) |
+<details>
+<summary><strong>STEP Files (Editable CAD)</strong></summary>
+
+Full parametric models for CAD modification and custom adaptations.
+
+| Component | Download |
+|-----------|----------|
+| Chassis Core Left USB | [Download STEP](/files/STEP_Files/chassis_core_left_usb.stp) |
+| Chassis Core Right USB | [Download STEP](/files/STEP_Files/chassis_core_right_usb.stp) |
+| Motor Mount | [Download STEP](/files/STEP_Files/Motor_mount.stp) |
+| Battery Rail Male | [Download STEP](/files/STEP_Files/battery_rail_male.stp) |
+| Front Left Arm Boss | [Download STEP](/files/STEP_Files/Left_front_arm_boss.stp) |
+| Front Right Arm Boss | [Download STEP](/files/STEP_Files/Right_front_arm_boss.stp) |
+| Rear Left Arm Boss | [Download STEP](/files/STEP_Files/Left_rear_arm_boss.stp) |
+| Rear Right Arm Boss | [Download STEP](/files/STEP_Files/Right_rear_arm_boss.stp) |
+| Upper Shell | [Download STEP](/files/STEP_Files/upper_shell.stp) |
+| 04cm Component | [Download STEP](/files/STEP_Files/04cm.stp) |
+| Spine | [Download STEP](/files/STEP_Files/spine.stp) |
+| Top Plate Brace | [Download STEP](/files/STEP_Files/top_plate_brace.stp) |
+| Bottom Plate | [Download STEP](/files/STEP_Files/bottom_plate.stp) |
+
+</details>
+
+<details>
+<summary><strong>STL Files (Mesh for Slicers)</strong></summary>
+
+Mesh files for 3D printing with any slicer software.
+
+| Component | Download |
+|-----------|----------|
+| Chassis Core Left USB | [Download STL](/files/3d-printing/stl/chassis_core_left_usb.stl) |
+| Chassis Core Right USB | [Download STL](/files/3d-printing/stl/chassis_core_right_usb.stl) |
+| Motor Mounts | [Download STL](/files/3d-printing/stl/motor_mounts.stl) |
+| Left Front Arm Boss | [Download STL](/files/3d-printing/stl/left_front_armboss.stl) |
+| Right Front Arm Boss | [Download STL](/files/3d-printing/stl/right_front_arm_boss.stl) |
+| Left Rear Arm Boss | [Download STL](/files/3d-printing/stl/left_rear_arm_boss.stl) |
+| Right Rear Arm Boss | [Download STL](/files/3d-printing/stl/right_rear_arm_boss.stl) |
+| Battery Rail Male | [Download STL](/files/3d-printing/stl/battery_rail_male.stl) |
+| Upper Shell | [Download STL](/files/3d-printing/stl/upper_shell.stl) |
+| Spine | [Download STL](/files/3d-printing/stl/spine.stl) |
+| Top Plate Brace | [Download STL](/files/3d-printing/stl/top_plate_brace.stl) |
+| Bottom Plate | [Download STL](/files/3d-printing/stl/bottom_plate.stl) |
+| 04cm Mount | [Download STL](/files/3d-printing/stl/04cm.stl) |
+
+</details>
 
 ---
 
-## Print Requirements
+## Revision History
 
-All structural parts require **CF-Nylon** (carbon fiber reinforced nylon).
+<div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', fontSize: '13px' }}>
 
-**Print Order:**
-1. **Arm Bosses** - Start with these
-2. **Motor Mounts** - Print next
-3. **Assemble and bond the arms** while Chassis Core is printing
-4. **Battery Rails** - Print last (CF-Nylon)
-5. **Nose Cone** - TPE (flexible) - Change to 0.6mm nozzle
+<div style={{ border: '1px solid #4b5563' }}>
+  <div style={{ backgroundColor: '#1f2937', color: '#f9fafb', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <span style={{ fontWeight: '600', letterSpacing: '0.5px' }}>REV 1.0.0</span>
+    <span style={{ color: '#d1d5db' }}>2026-01-22</span>
+  </div>
+  <div style={{ padding: '14px', backgroundColor: '#111827' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '6px 12px', lineHeight: '1.7' }}>
+      <span style={{ color: '#34d399', fontWeight: '600' }}>[INIT]</span><span style={{ color: '#e5e7eb' }}>Initial release — Replicant GEN 1 CAD package</span>
+      <span style={{ color: '#9ca3af', fontWeight: '500' }}>[INC]</span><span style={{ color: '#d1d5db' }}>3MF files configured for Bambu Studio with optimized supports</span>
+      <span style={{ color: '#9ca3af', fontWeight: '500' }}>[INC]</span><span style={{ color: '#d1d5db' }}>STEP files for CAD modification and custom adaptations</span>
+      <span style={{ color: '#9ca3af', fontWeight: '500' }}>[INC]</span><span style={{ color: '#d1d5db' }}>STL mesh files for all printable components</span>
+      <span style={{ color: '#9ca3af', fontWeight: '500' }}>[INC]</span><span style={{ color: '#d1d5db' }}>Left/Right USB chassis variants</span>
+    </div>
+  </div>
+</div>
 
-:::warning Nylon Must Be Dry
-Wet nylon = weak parts. See [3D Printing Guide](/docs/3d-printing) before printing.
+</div>
+
+:::info Revision Control
+Files follow semantic versioning. Check back for updates after major revisions.
 :::
 
 ---

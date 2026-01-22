@@ -7,9 +7,111 @@ import ImageToggle from '@site/src/components/ImageToggle';
 
 # Replicant GEN 1 Platform
 
+Replicant GEN 1 is a long-range FPV platform built around true 3D structural design: carbon-fiber tubes for arm stiffness, volumetric 3D-printed nodes for real load paths, and an enclosed aerodynamic chassis that treats packaging as part of performance. The result is a lighter, stiffer airframe with cleaner airflow, protected electronics, rapid battery swaps, and footage-first vibration control — designed for builders.
+
+---
+
+## Highlights
+
+- **True 3D tubular arms** → truss-level rigidity with cleaner aerodynamics
+- **Rail-mounted battery** → fast, repeatable swaps + mass damping for stable footage
+- **Intelligent power button + full enclosure** → safer, cleaner operation with protected internals
+
 ![Replicant GEN 1 Platform Hero](/img/drone/Hero_image_comp.jpg)
 
-The Replicant represents a fundamental rethinking of FPV drone design, embracing traditional construction methods, while leaning heavily on 3D printed components for both loaded and case components. Resulting in an extremely light, strong and aerodynamic structure.
+---
+
+## Competitive Positioning
+
+This isn't a bando basher or a 3" proximity rig designed for constant concrete abuse. Replicant is designed to compete against long-range truss-style platforms and larger cine-class flat-plate frames — while reducing drag, improving protection, and cleaning up the overall build and operator workflow.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', margin: '24px 0' }}>
+  <div>
+    <img src="/img/Competitor_drones/Untitled design (4).png" alt="Traditional truss frame design" />
+    <p style={{ textAlign: 'center', margin: '8px 0', fontSize: '0.9em', color: '#666' }}>Truss Frame: 2.5D flat plate with cutouts</p>
+  </div>
+  <div>
+    <img src="/img/Drone_updates/Hero_iso2.png" alt="Replicant tubular arm design" />
+    <p style={{ textAlign: 'center', margin: '8px 0', fontSize: '0.9em', color: '#666' }}>Replicant: True 3D volumetric structure</p>
+  </div>
+</div>
+
+| Attribute | Replicant GEN 1 | Truss Frames | Bando Basher |
+|-----------|----------------|--------------|--------------|
+| Aerodynamics | Excellent (tubular arms, clean surfaces) | Often compromised (flat plate arms) | Not the focus |
+| Arm Stiffness | Excellent (CF tubes + structural nodes) | Excellent (long plates) | Moderate |
+| Crash Robustness | Good | Good | Excellent |
+| Weight Efficiency | Excellent | Moderate | Moderate |
+
+**Takeaway:** Replicant aims for truss-level arm stiffness with significantly cleaner aerodynamics — no flat plates creating turbulence and drag.
+
+---
+
+## Who This Drone Is For
+
+Anyone who wants a high-performance long-range platform — and is willing to build it properly.
+
+Replicant is open-source for builders: download it, print it, build it, repair it, and modify it. (Details on what's open vs not are covered later.)
+
+### Prop Size Flexibility
+
+The tubular arm design accommodates multiple prop sizes, each delivering distinct flight characteristics:
+
+| Prop Size | Character | Best For |
+|-----------|-----------|----------|
+| **6"** | Highly maneuverable, fast acceleration, low rotational inertia | Aggressive flying, tighter spaces |
+| **7"** | Balanced performance (design target) | General long-range, cinematic work |
+| **8"** | Efficient, low disk loading, extended range | Maximum endurance, smooth cruising |
+
+You could run 5" if you really wanted — but Replicant is optimized around 7–8" long-range use.
+
+**Replicant competes against:**
+- Traditional 7" long-range frames
+- Larger cine-class truss / flat-plate designs
+
+![Replicant in 7" configuration](/img/Drone_updates/Hero_iso2.png)
+
+---
+
+## Builder Requirements & Expectations
+
+This isn't bind-and-fly. You're building it yourself — which means you get performance, repairability, and control… and you also take responsibility for fitment and assembly.
+
+### Equipment Needed
+- FDM 3D printer capable of CF-Nylon (or equivalent engineering filament)
+- SLA printer for the top cover (or alternate fabrication route if you offer one)
+- Standard drone building tools (hex drivers, soldering gear, threadlock; calipers helpful)
+
+### Stack Constraints
+
+The chassis supports common stack footprints, but it's designed around compact packaging and proven ESC options.
+
+| Component | Recommendation |
+|-----------|----------------|
+| Flight Controller | Open choice — compatible with common 20x20 or 30x30 footprints |
+| ESC | iFlight Borg Mini (stack) or iFlight BLITZ E55S / E55 (55A class) |
+| GPS | MATEK M10-5883 (or similar class) |
+
+If you have the skills, tools, and patience to build your own drone, Replicant delivers performance that competes with — and in some respects exceeds — many commercial alternatives.
+
+![Electronics bay installation view](/img/Drone_updates/Xray.png)
+
+---
+
+## Flight Dynamics Preview: Mass Distribution
+
+Replicant's geometry produces distinct flight characteristics through deliberate mass placement.
+
+**Roll axis — compact inertia:** the 6S cell arrangement concentrates mass near the roll axis. Combined with lightweight carbon arms and printed motor mounts, this delivers snappy roll response with low rotational inertia.
+
+**Pitch axis — extended inertia:** the elongated battery runs fore-aft, increasing pitch inertia. That isn't a drawback — it adds stability in forward flight and smooth pitch transitions for cinematic work.
+
+### Why this matters
+- **Roll:** quick direction changes, responsive to stick input
+- **Pitch:** damped oscillation, stable in cruise, predictable accel/decel
+- **Yaw:** balanced by symmetric arm geometry
+
+This mass distribution is optimized for long-range cruising and cinematic flight, not freestyle acrobatics.
 
 ---
 
@@ -179,7 +281,7 @@ This isn't about gatekeeping — it's about keeping you safe and keeping the lig
 
 **Repair & Modify Freely:**
 - Fabricate replacement parts on your 3D printer
-- Modify the frame for custom payloads or configurations  
+- Modify the frame for custom payloads or configurations
 - Build entirely new drone variants from the ground up
 - Community-driven development and enhancements
 
