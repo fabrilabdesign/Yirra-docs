@@ -26,16 +26,16 @@ Download all files needed to build your Replicant GEN 1 drone platform.
 Get everything you need in one click.
 
 <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', margin: '24px 0' }}>
-  <a href="/files/3d-printing/stl/Replicant_gen1_STL.zip" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1f2937', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+  <a href="https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/Replicant_gen1_STL.zip&category=stl_zip" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1f2937', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
     📦 Download All STL Files (ZIP)
   </a>
-  <a href="/files/STEP_Files/Replicant_gen1_STEP.zip" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+  <a href="https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/Replicant_gen1_STEP.zip&category=step_zip" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
     📐 Download All STEP Files (ZIP)
   </a>
-  <a href="/files/3d-printing/stl/replicant_gen_1.stl" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+  <a href="https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/replicant_gen_1.stl&category=stl" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
     🖨️ Complete Assembly STL
   </a>
-  <a href="/files/STEP_Files/Replicant_gen1.stp" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
+  <a href="https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/Replicant_gen1.stp&category=step" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#374151', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
     📐 Complete Assembly STEP
   </a>
 </div>
@@ -48,12 +48,12 @@ Pre-configured Bambu Studio files with optimal print settings, supports, and ori
 
 | Component | Description | Download |
 |-----------|-------------|----------|
-| **Chassis Core (Left USB)** | Main structural component - USB port on left | [Download 3MF](/files/3d-printing/3mf/Chassis_core_left_USB_modi.gcode.3mf) |
-| **Chassis Core (Right USB)** | Main structural component - USB port on right | [Download 3MF](/files/3d-printing/3mf/Chassis_core_right_USB_modi.gcode.3mf) |
-| **Arm Bosses** | All four arm mounting interfaces | [Download 3MF](/files/3d-printing/3mf/Arm_bosses.gcode.3mf) |
-| **Motor Mounts** | High-strength motor mounting brackets | [Download 3MF](/files/3d-printing/3mf/Motor_mounts.gcode.3mf) |
-| **Nose Cone 04 Mount** | Camera and antenna mounting component | [Download 3MF](/files/3d-printing/3mf/Nose_cone_04_mount.gcode.3mf) |
-| **Battery Rail Male** | Battery mounting rail component | [Download 3MF](/files/3d-printing/3mf/Battery_rail_male.gcode.3mf) |
+| **Chassis Core (Left USB)** | Main structural component - USB port on left | [Download 3MF](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/3mf/Chassis_core_left_USB_modi.gcode.3mf&category=3mf) |
+| **Chassis Core (Right USB)** | Main structural component - USB port on right | [Download 3MF](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/3mf/Chassis_core_right_USB_modi.gcode.3mf&category=3mf) |
+| **Arm Bosses** | All four arm mounting interfaces | [Download 3MF](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/3mf/Arm_bosses.gcode.3mf&category=3mf) |
+| **Motor Mounts** | High-strength motor mounting brackets | [Download 3MF](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/3mf/Motor_mounts.gcode.3mf&category=3mf) |
+| **Nose Cone 04 Mount** | Camera and antenna mounting component | [Download 3MF](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/3mf/Nose_cone_04_mount.gcode.3mf&category=3mf) |
+| **Battery Rail Male** | Battery mounting rail component | [Download 3MF](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/3mf/Battery_rail_male.gcode.3mf&category=3mf) |
 
 ---
 
@@ -68,19 +68,19 @@ Full parametric models for CAD modification and custom adaptations.
 
 | Component | Download |
 |-----------|----------|
-| Chassis Core Left USB | [Download STEP](/files/STEP_Files/chassis_core_left_usb.stp) |
-| Chassis Core Right USB | [Download STEP](/files/STEP_Files/chassis_core_right_usb.stp) |
-| Motor Mount | [Download STEP](/files/STEP_Files/Motor_mount.stp) |
-| Battery Rail Male | [Download STEP](/files/STEP_Files/battery_rail_male.stp) |
-| Front Left Arm Boss | [Download STEP](/files/STEP_Files/Left_front_arm_boss.stp) |
-| Front Right Arm Boss | [Download STEP](/files/STEP_Files/Right_front_arm_boss.stp) |
-| Rear Left Arm Boss | [Download STEP](/files/STEP_Files/Left_rear_arm_boss.stp) |
-| Rear Right Arm Boss | [Download STEP](/files/STEP_Files/Right_rear_arm_boss.stp) |
-| Upper Shell | [Download STEP](/files/STEP_Files/upper_shell.stp) |
-| 04cm Component | [Download STEP](/files/STEP_Files/04cm.stp) |
-| Spine | [Download STEP](/files/STEP_Files/spine.stp) |
-| Top Plate Brace | [Download STEP](/files/STEP_Files/top_plate_brace.stp) |
-| Bottom Plate | [Download STEP](/files/STEP_Files/bottom_plate.stp) |
+| Chassis Core Left USB | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/chassis_core_left_usb.stp&category=step) |
+| Chassis Core Right USB | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/chassis_core_right_usb.stp&category=step) |
+| Motor Mount | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/Motor_mount.stp&category=step) |
+| Battery Rail Male | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/battery_rail_male.stp&category=step) |
+| Front Left Arm Boss | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/Left_front_arm_boss.stp&category=step) |
+| Front Right Arm Boss | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/Right_front_arm_boss.stp&category=step) |
+| Rear Left Arm Boss | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/Left_rear_arm_boss.stp&category=step) |
+| Rear Right Arm Boss | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/Right_rear_arm_boss.stp&category=step) |
+| Upper Shell | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/upper_shell.stp&category=step) |
+| 04cm Component | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/04cm.stp&category=step) |
+| Spine | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/spine.stp&category=step) |
+| Top Plate Brace | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/top_plate_brace.stp&category=step) |
+| Bottom Plate | [Download STEP](https://api.yirrasystems.com/api/docs/download?file=/files/STEP_Files/bottom_plate.stp&category=step) |
 
 </details>
 
@@ -91,19 +91,19 @@ Mesh files for 3D printing with any slicer software.
 
 | Component | Download |
 |-----------|----------|
-| Chassis Core Left USB | [Download STL](/files/3d-printing/stl/chassis_core_left_usb.stl) |
-| Chassis Core Right USB | [Download STL](/files/3d-printing/stl/chassis_core_right_usb.stl) |
-| Motor Mounts | [Download STL](/files/3d-printing/stl/motor_mounts.stl) |
-| Left Front Arm Boss | [Download STL](/files/3d-printing/stl/left_front_armboss.stl) |
-| Right Front Arm Boss | [Download STL](/files/3d-printing/stl/right_front_arm_boss.stl) |
-| Left Rear Arm Boss | [Download STL](/files/3d-printing/stl/left_rear_arm_boss.stl) |
-| Right Rear Arm Boss | [Download STL](/files/3d-printing/stl/right_rear_arm_boss.stl) |
-| Battery Rail Male | [Download STL](/files/3d-printing/stl/battery_rail_male.stl) |
-| Upper Shell | [Download STL](/files/3d-printing/stl/upper_shell.stl) |
-| Spine | [Download STL](/files/3d-printing/stl/spine.stl) |
-| Top Plate Brace | [Download STL](/files/3d-printing/stl/top_plate_brace.stl) |
-| Bottom Plate | [Download STL](/files/3d-printing/stl/bottom_plate.stl) |
-| 04cm Mount | [Download STL](/files/3d-printing/stl/04cm.stl) |
+| Chassis Core Left USB | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/chassis_core_left_usb.stl&category=stl) |
+| Chassis Core Right USB | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/chassis_core_right_usb.stl&category=stl) |
+| Motor Mounts | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/motor_mounts.stl&category=stl) |
+| Left Front Arm Boss | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/left_front_armboss.stl&category=stl) |
+| Right Front Arm Boss | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/right_front_arm_boss.stl&category=stl) |
+| Left Rear Arm Boss | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/left_rear_arm_boss.stl&category=stl) |
+| Right Rear Arm Boss | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/right_rear_arm_boss.stl&category=stl) |
+| Battery Rail Male | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/battery_rail_male.stl&category=stl) |
+| Upper Shell | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/upper_shell.stl&category=stl) |
+| Spine | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/spine.stl&category=stl) |
+| Top Plate Brace | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/top_plate_brace.stl&category=stl) |
+| Bottom Plate | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/bottom_plate.stl&category=stl) |
+| 04cm Mount | [Download STL](https://api.yirrasystems.com/api/docs/download?file=/files/3d-printing/stl/04cm.stl&category=stl) |
 
 </details>
 
