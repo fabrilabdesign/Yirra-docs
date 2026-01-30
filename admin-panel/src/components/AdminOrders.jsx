@@ -100,9 +100,14 @@ const AdminOrders = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'completed': return '#38a169';
+      case 'paid': return '#38a169';
       case 'pending': return '#ed8936';
+      case 'payment_pending': return '#ed8936';
       case 'failed': return '#e53e3e';
+      case 'payment_failed': return '#e53e3e';
       case 'refunded': return '#718096';
+      case 'shipped': return '#3182ce';
+      case 'delivered': return '#2f855a';
       default: return '#4a5568';
     }
   };
@@ -172,6 +177,9 @@ const AdminOrders = () => {
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
             <option value="completed">Completed</option>
             <option value="failed">Failed</option>
             <option value="refunded">Refunded</option>
@@ -223,26 +231,68 @@ const AdminOrders = () => {
               </div>
 
               {/* Customer & Product Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div className="space-y-1">
                   <div className="text-[12px] font-medium text-text-tertiary">Customer</div>
-                  <div className="text-[13px] text-text-primary">{order.user_email}</div>
+                  <div className="text-[13px] text-text-primary">{order.customer_email || order.user_email}</div>
                   <div className="text-[13px] text-text-tertiary">
-                    {order.user_first_name} {order.user_last_name}
+                    {order.customer_name || `${order.user_first_name || ''} ${order.user_last_name || ''}`.trim() || 'Guest'}
                   </div>
+                  {order.customer_phone && (
+                    <div className="text-[13px] text-text-tertiary">{order.customer_phone}</div>
+                  )}
                 </div>
                 
                 <div className="space-y-1">
-                  <div className="text-[12px] font-medium text-text-tertiary">Product</div>
-                  <div className="text-[13px] text-text-primary">{order.product_name}</div>
-                  <div className="flex items-center gap-2 text-[13px] text-text-tertiary">
-                    <span>Qty: {order.quantity}</span>
-                    {order.unlocks_stls && (
-                      <span className="bg-[rgba(99,102,241,.12)] text-brand px-2 py-1 rounded text-[12px]">
-                        🗂️ Includes STLs
-                      </span>
-                    )}
-                  </div>
+                  <div className="text-[12px] font-medium text-text-tertiary">Items</div>
+                  {order.items && order.items.length > 0 ? (
+                    order.items.map((item, idx) => (
+                      <div key={idx} className="text-[13px] text-text-primary">
+                        {item.product_name} x{item.quantity}
+                        {item.unlocks_stls && (
+                          <span className="ml-2 bg-[rgba(99,102,241,.12)] text-brand px-2 py-0.5 rounded text-[11px]">STL</span>
+                        )}
+                      </div>
+                    ))
+                  ) : order.line_items ? (
+                    JSON.parse(typeof order.line_items === 'string' ? order.line_items : JSON.stringify(order.line_items)).map((item, idx) => (
+                      <div key={idx} className="text-[13px] text-text-primary">
+                        Product: {item.productId} x{item.quantity}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-[13px] text-text-tertiary">No items</div>
+                  )}
+                </div>
+
+                {/* Shipping Address */}
+                <div className="space-y-1">
+                  <div className="text-[12px] font-medium text-text-tertiary">Shipping Address</div>
+                  {order.shipping_address ? (
+                    (() => {
+                      const addr = typeof order.shipping_address === 'string' 
+                        ? JSON.parse(order.shipping_address) 
+                        : order.shipping_address;
+                      return (
+                        <div className="text-[13px] text-text-primary">
+                          {addr.name && <div className="font-medium">{addr.name}</div>}
+                          {addr.address?.line1 && <div>{addr.address.line1}</div>}
+                          {addr.address?.line2 && <div>{addr.address.line2}</div>}
+                          <div>
+                            {addr.address?.city}{addr.address?.state ? `, ${addr.address.state}` : ''} {addr.address?.postal_code}
+                          </div>
+                          <div className="font-medium">{addr.address?.country}</div>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <div className="text-[13px] text-text-tertiary">No shipping info</div>
+                  )}
+                  {order.shipping_cost > 0 && (
+                    <div className="text-[12px] text-text-tertiary mt-1">
+                      Shipping: {formatCurrency(order.shipping_cost / 100)}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -256,28 +306,36 @@ const AdminOrders = () => {
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
-                  {order.status === 'pending' && (
-                    <>
-                      <button 
-                        onClick={() => updateOrderStatus(order.id, 'completed')}
-                        className="px-3 py-2 rounded-10 bg-[rgba(34,197,94,.12)] text-success hover:opacity-90 font-medium text-[12px]"
-                      >
-                        ✅ Complete
-                      </button>
-                      <button 
-                        onClick={() => updateOrderStatus(order.id, 'failed')}
-                        className="px-3 py-2 rounded-10 bg-[rgba(239,68,68,.12)] text-danger hover:opacity-90 font-medium text-[12px]"
-                      >
-                        ❌ Fail
-                      </button>
-                    </>
+                  {(order.status === 'paid' || order.status === 'pending') && (
+                    <button 
+                      onClick={() => updateOrderStatus(order.id, 'shipped')}
+                      className="px-3 py-2 rounded-10 bg-[rgba(59,130,246,.12)] text-blue-500 hover:opacity-90 font-medium text-[12px]"
+                    >
+                      📦 Mark Shipped
+                    </button>
                   )}
-                  {order.status === 'completed' && (
+                  {order.status === 'shipped' && (
+                    <button 
+                      onClick={() => updateOrderStatus(order.id, 'delivered')}
+                      className="px-3 py-2 rounded-10 bg-[rgba(34,197,94,.12)] text-success hover:opacity-90 font-medium text-[12px]"
+                    >
+                      ✅ Mark Delivered
+                    </button>
+                  )}
+                  {(order.status === 'paid' || order.status === 'completed' || order.status === 'delivered') && (
                     <button 
                       onClick={() => updateOrderStatus(order.id, 'refunded')}
                       className="px-3 py-2 rounded-10 bg-[rgba(245,158,11,.12)] text-warning hover:opacity-90 font-medium text-[12px]"
                     >
                       💰 Refund
+                    </button>
+                  )}
+                  {order.status === 'pending' && (
+                    <button 
+                      onClick={() => updateOrderStatus(order.id, 'failed')}
+                      className="px-3 py-2 rounded-10 bg-[rgba(239,68,68,.12)] text-danger hover:opacity-90 font-medium text-[12px]"
+                    >
+                      ❌ Cancel
                     </button>
                   )}
                   <button className="px-3 py-2 rounded-10 bg-[rgba(99,102,241,.12)] text-brand hover:opacity-90 font-medium text-[12px]">
