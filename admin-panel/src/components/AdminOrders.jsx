@@ -32,6 +32,15 @@ const AdminOrdersNew = () => {
   const [trackingNumber, setTrackingNumber] = useState('');
   const [carrier, setCarrier] = useState('auspost');
   const [carrierService, setCarrierService] = useState('standard');
+  
+  const [bulkTrackingModal, setBulkTrackingModal] = useState(false);
+  const [bulkTrackingNumber, setBulkTrackingNumber] = useState('');
+  const [bulkCarrier, setBulkCarrier] = useState('auspost');
+  const [bulkCarrierService, setBulkCarrierService] = useState('standard');
+  const [bulkShipLoading, setBulkShipLoading] = useState(false);
+  
+  const [archiveModal, setArchiveModal] = useState({ open: false, orderIds: [] });
+  const [archiveLoading, setArchiveLoading] = useState(false);
 
   // Fetch orders
   useEffect(() => {
@@ -301,6 +310,119 @@ const AdminOrdersNew = () => {
       }
     } catch (err) {
       console.error('Tracking error:', err);
+    }
+  };
+
+  const openBulkTrackingModal = () => {
+    setBulkTrackingModal(true);
+    setBulkTrackingNumber('');
+    setBulkCarrier('auspost');
+    setBulkCarrierService('standard');
+  };
+
+  const bulkMarkAsShipped = async () => {
+    if (selectedOrders.size === 0) return;
+    
+    // If no tracking number, just update status
+    if (!bulkTrackingNumber) {
+      if (!confirm(`Mark ${selectedOrders.size} orders as shipped without tracking?`)) return;
+    }
+
+    try {
+      setBulkShipLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const orderIds = Array.from(selectedOrders);
+      const promises = orderIds.map(orderId =>
+        fetch(`/api/admin/orders/${orderId}/ship`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            trackingNumber: bulkTrackingNumber || null,
+            carrier: bulkCarrier,
+            service: bulkCarrierService
+          })
+        })
+      );
+
+      await Promise.all(promises);
+      
+      setBulkTrackingModal(false);
+      setSelectedOrders(new Set());
+      fetchOrders();
+    } catch (err) {
+      console.error('Bulk ship error:', err);
+      alert('Failed to mark some orders as shipped');
+    } finally {
+      setBulkShipLoading(false);
+    }
+  };
+
+  const openArchiveModal = (orderIds) => {
+    setArchiveModal({ open: true, orderIds });
+  };
+
+  const archiveOrders = async () => {
+    if (archiveModal.orderIds.length === 0) return;
+
+    try {
+      setArchiveLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const promises = archiveModal.orderIds.map(orderId =>
+        fetch(`/api/admin/orders/${orderId}/archive`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+      );
+
+      await Promise.all(promises);
+      
+      setArchiveModal({ open: false, orderIds: [] });
+      setSelectedOrders(new Set());
+      fetchOrders();
+    } catch (err) {
+      console.error('Archive error:', err);
+      alert('Failed to archive some orders');
+    } finally {
+      setArchiveLoading(false);
+    }
+  };
+
+  const deleteOrder = async (orderId) => {
+    if (!confirm('Are you sure you want to DELETE this order? This action cannot be undone. Consider archiving instead.')) return;
+
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        fetchOrders();
+        if (selectedOrder?.id === orderId) {
+          closeSlideout();
+        }
+      } else {
+        alert('Failed to delete order');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Failed to delete order');
     }
   };
 
@@ -783,8 +905,17 @@ const AdminOrdersNew = () => {
             {selectedOrders.size} selected
           </span>
           <div className="flex gap-2">
-            <button className="px-4 py-2 rounded-10 bg-brand text-white hover:opacity-90 text-[13px] font-medium">
+            <button 
+              onClick={openBulkTrackingModal}
+              className="px-4 py-2 rounded-10 bg-brand text-white hover:opacity-90 text-[13px] font-medium"
+            >
               Mark Shipped
+            </button>
+            <button 
+              onClick={() => openArchiveModal(Array.from(selectedOrders))}
+              className="px-4 py-2 rounded-10 bg-elev2 text-text-primary hover:bg-elev3 text-[13px] font-medium"
+            >
+              Archive
             </button>
             <button 
               onClick={exportToCSV}
@@ -960,7 +1091,7 @@ const AdminOrdersNew = () => {
                   )}
 
                   {/* Quick Actions */}
-                  <div className="flex gap-2 pt-4 border-t border-line-soft">
+                  <div className="flex flex-wrap gap-2 pt-4 border-t border-line-soft">
                     {['paid', 'completed', 'delivered'].includes(selectedOrder.status) && (
                       <button
                         onClick={() => openRefundModal(selectedOrder)}
@@ -969,8 +1100,20 @@ const AdminOrdersNew = () => {
                         Refund
                       </button>
                     )}
+                    <button 
+                      onClick={() => openArchiveModal([selectedOrder.id])}
+                      className="flex-1 px-4 py-2 rounded-10 bg-elev2 text-text-primary hover:bg-elev3 font-medium text-[13px]"
+                    >
+                      Archive
+                    </button>
                     <button className="flex-1 px-4 py-2 rounded-10 bg-elev2 text-text-primary hover:bg-elev3 font-medium text-[13px]">
                       Print
+                    </button>
+                    <button 
+                      onClick={() => deleteOrder(selectedOrder.id)}
+                      className="px-4 py-2 rounded-10 bg-danger/10 text-danger hover:bg-danger/20 font-medium text-[13px]"
+                    >
+                      Delete
                     </button>
                   </div>
                 </>
@@ -1132,6 +1275,111 @@ const AdminOrdersNew = () => {
                 className="flex-1 h-9 rounded-10 bg-brand text-white hover:opacity-90 font-medium text-[13px] disabled:opacity-50"
               >
                 Add Tracking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Tracking Modal */}
+      {bulkTrackingModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-elev1 rounded-12 p-6 w-full max-w-md mx-4 shadow-elev2 border border-line-soft">
+            <h3 className="text-[18px] font-semibold text-text-primary mb-4">
+              Mark {selectedOrders.size} Orders as Shipped
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1">Carrier</label>
+                <select
+                  value={bulkCarrier}
+                  onChange={(e) => setBulkCarrier(e.target.value)}
+                  className="w-full h-9 px-3 rounded-10 bg-elev0 border border-line-soft text-text-primary focus:ring-2 focus:ring-brand/50"
+                >
+                  <option value="auspost">Australia Post</option>
+                  <option value="startrack">StarTrack</option>
+                  <option value="dhl">DHL</option>
+                  <option value="fedex">FedEx</option>
+                  <option value="ups">UPS</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1">Service Type</label>
+                <select
+                  value={bulkCarrierService}
+                  onChange={(e) => setBulkCarrierService(e.target.value)}
+                  className="w-full h-9 px-3 rounded-10 bg-elev0 border border-line-soft text-text-primary focus:ring-2 focus:ring-brand/50"
+                >
+                  <option value="standard">Standard</option>
+                  <option value="express">Express</option>
+                  <option value="priority">Priority</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1">
+                  Tracking Number (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={bulkTrackingNumber}
+                  onChange={(e) => setBulkTrackingNumber(e.target.value)}
+                  placeholder="Leave empty to mark shipped without tracking"
+                  className="w-full h-9 px-3 rounded-10 bg-elev0 border border-line-soft text-text-primary focus:ring-2 focus:ring-brand/50 focus:border-brand"
+                />
+                <p className="text-[11px] text-text-tertiary mt-1">
+                  All selected orders will use the same tracking info
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setBulkTrackingModal(false)}
+                disabled={bulkShipLoading}
+                className="flex-1 h-9 rounded-10 bg-elev2 text-text-secondary hover:opacity-90 font-medium text-[13px]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={bulkMarkAsShipped}
+                disabled={bulkShipLoading}
+                className="flex-1 h-9 rounded-10 bg-brand text-white hover:opacity-90 font-medium text-[13px] disabled:opacity-50"
+              >
+                {bulkShipLoading ? 'Processing...' : 'Mark as Shipped'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Confirmation Modal */}
+      {archiveModal.open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-elev1 rounded-12 p-6 w-full max-w-md mx-4 shadow-elev2 border border-line-soft">
+            <h3 className="text-[18px] font-semibold text-text-primary mb-4">Archive Orders</h3>
+            
+            <p className="text-[14px] text-text-secondary mb-6">
+              Are you sure you want to archive {archiveModal.orderIds.length} order(s)? 
+              Archived orders will be hidden from the main view but can be restored later.
+            </p>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setArchiveModal({ open: false, orderIds: [] })}
+                disabled={archiveLoading}
+                className="flex-1 h-9 rounded-10 bg-elev2 text-text-secondary hover:opacity-90 font-medium text-[13px]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={archiveOrders}
+                disabled={archiveLoading}
+                className="flex-1 h-9 rounded-10 bg-brand text-white hover:opacity-90 font-medium text-[13px] disabled:opacity-50"
+              >
+                {archiveLoading ? 'Archiving...' : 'Archive Orders'}
               </button>
             </div>
           </div>
