@@ -16,6 +16,7 @@ const AdminOrdersNew = () => {
   const [dateRange, setDateRange] = useState('30d');
   const [selectedOrders, setSelectedOrders] = useState(new Set());
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+  const [showArchived, setShowArchived] = useState(false);
   
   // Slideout panel state
   const [slideoutOpen, setSlideoutOpen] = useState(false);
@@ -45,7 +46,7 @@ const AdminOrdersNew = () => {
   // Fetch orders
   useEffect(() => {
     fetchOrders();
-  }, [statusFilter, dateRange]);
+  }, [statusFilter, dateRange, showArchived]);
 
   const fetchOrders = async () => {
     try {
@@ -58,6 +59,7 @@ const AdminOrdersNew = () => {
         statusFilter.forEach(status => params.append('status[]', status));
       }
       if (dateRange !== 'all') params.append('dateRange', dateRange);
+      if (showArchived) params.append('showArchived', 'true');
 
       const response = await fetch(`/api/admin/orders?${params}`, {
         headers: {
@@ -426,6 +428,33 @@ const AdminOrdersNew = () => {
     }
   };
 
+  const restoreOrder = async (orderId) => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch(`/api/admin/orders/${orderId}/restore`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        fetchOrders();
+        if (selectedOrder?.id === orderId) {
+          setSelectedOrder(prev => ({ ...prev, archived: false, archived_at: null }));
+        }
+      } else {
+        alert('Failed to restore order');
+      }
+    } catch (err) {
+      console.error('Restore error:', err);
+      alert('Failed to restore order');
+    }
+  };
+
   const exportToCSV = () => {
     const ordersToExport = selectedOrders.size > 0 
       ? filteredOrders.filter(o => selectedOrders.has(o.id))
@@ -651,6 +680,17 @@ const AdminOrdersNew = () => {
             <option value="90d">Last 90 days</option>
             <option value="all">All time</option>
           </select>
+
+          {/* Show Archived Toggle */}
+          <label className="flex items-center gap-2 px-3 h-9 rounded-10 bg-elev1 border border-line-soft cursor-pointer hover:bg-elev2 transition-colors">
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(e) => setShowArchived(e.target.checked)}
+              className="rounded border-line-soft"
+            />
+            <span className="text-[13px] text-text-primary whitespace-nowrap">Show Archived</span>
+          </label>
         </div>
 
         <div className="flex gap-2">
@@ -768,15 +808,22 @@ const AdminOrdersNew = () => {
                     <div className="text-[13px] font-medium text-text-primary">{formatCurrency(order.total_amount)}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span 
-                      className="px-2 py-1 text-[11px] font-medium rounded-full"
-                      style={{ 
-                        backgroundColor: getStatusColor(order.status) + '20', 
-                        color: getStatusColor(order.status) 
-                      }}
-                    >
-                      {order.status}
-                    </span>
+                    <div className="flex gap-2 items-center">
+                      <span 
+                        className="px-2 py-1 text-[11px] font-medium rounded-full"
+                        style={{ 
+                          backgroundColor: getStatusColor(order.status) + '20', 
+                          color: getStatusColor(order.status) 
+                        }}
+                      >
+                        {order.status}
+                      </span>
+                      {order.archived && (
+                        <span className="px-2 py-1 text-[11px] font-medium rounded-full bg-gray-500/20 text-gray-400">
+                          Archived
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
@@ -826,6 +873,11 @@ const AdminOrdersNew = () => {
                     >
                       {order.status}
                     </span>
+                    {order.archived && (
+                      <span className="px-2 py-1 text-[11px] font-medium rounded-full bg-gray-500/20 text-gray-400">
+                        Archived
+                      </span>
+                    )}
                   </div>
                   <p className="text-[12px] text-text-tertiary">{order.order_id}</p>
                 </div>
@@ -943,6 +995,11 @@ const AdminOrdersNew = () => {
                 <div>
                   <h3 className="text-[18px] font-semibold text-text-primary">Order #{selectedOrder.id}</h3>
                   <p className="text-[13px] text-text-tertiary mt-1">{selectedOrder.order_id}</p>
+                  {selectedOrder.archived && (
+                    <span className="inline-block mt-2 px-2 py-1 text-[11px] font-medium rounded-full bg-gray-500/20 text-gray-400">
+                      📦 Archived {selectedOrder.archived_at && `on ${new Date(selectedOrder.archived_at).toLocaleDateString()}`}
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={closeSlideout}
@@ -1092,29 +1149,42 @@ const AdminOrdersNew = () => {
 
                   {/* Quick Actions */}
                   <div className="flex flex-wrap gap-2 pt-4 border-t border-line-soft">
-                    {['paid', 'completed', 'delivered'].includes(selectedOrder.status) && (
-                      <button
-                        onClick={() => openRefundModal(selectedOrder)}
-                        className="flex-1 px-4 py-2 rounded-10 bg-warning/10 text-warning hover:bg-warning/20 font-medium text-[13px]"
+                    {selectedOrder.archived ? (
+                      <button 
+                        onClick={() => restoreOrder(selectedOrder.id)}
+                        className="flex-1 px-4 py-2 rounded-10 bg-success/10 text-success hover:bg-success/20 font-medium text-[13px]"
                       >
-                        Refund
+                        ↩️ Restore Order
                       </button>
+                    ) : (
+                      <>
+                        {['paid', 'completed', 'delivered'].includes(selectedOrder.status) && (
+                          <button
+                            onClick={() => openRefundModal(selectedOrder)}
+                            className="flex-1 px-4 py-2 rounded-10 bg-warning/10 text-warning hover:bg-warning/20 font-medium text-[13px]"
+                          >
+                            Refund
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => openArchiveModal([selectedOrder.id])}
+                          className="flex-1 px-4 py-2 rounded-10 bg-elev2 text-text-primary hover:bg-elev3 font-medium text-[13px]"
+                        >
+                          Archive
+                        </button>
+                      </>
                     )}
-                    <button 
-                      onClick={() => openArchiveModal([selectedOrder.id])}
-                      className="flex-1 px-4 py-2 rounded-10 bg-elev2 text-text-primary hover:bg-elev3 font-medium text-[13px]"
-                    >
-                      Archive
-                    </button>
                     <button className="flex-1 px-4 py-2 rounded-10 bg-elev2 text-text-primary hover:bg-elev3 font-medium text-[13px]">
                       Print
                     </button>
-                    <button 
-                      onClick={() => deleteOrder(selectedOrder.id)}
-                      className="px-4 py-2 rounded-10 bg-danger/10 text-danger hover:bg-danger/20 font-medium text-[13px]"
-                    >
-                      Delete
-                    </button>
+                    {!selectedOrder.archived && (
+                      <button 
+                        onClick={() => deleteOrder(selectedOrder.id)}
+                        className="px-4 py-2 rounded-10 bg-danger/10 text-danger hover:bg-danger/20 font-medium text-[13px]"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </>
               )}
