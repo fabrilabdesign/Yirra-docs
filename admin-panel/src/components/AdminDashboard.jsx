@@ -20,10 +20,15 @@ import AdminBOM from './AdminBOM';
 
 const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
+  const [docsAnalytics, setDocsAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [docsLoading, setDocsLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('30d');
+  const [docsTimeframe, setDocsTimeframe] = useState('30d');
   const [groupBy, setGroupBy] = useState('day');
+  const [docsGroupBy, setDocsGroupBy] = useState('day');
   const [error, setError] = useState(null);
+  const [docsError, setDocsError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState([]);
   const { getToken } = useAuth();
@@ -46,8 +51,11 @@ const AdminDashboard = () => {
     if (activeTab === 'analytics') {
       fetchAnalytics();
     }
+    if (activeTab === 'docs-analytics') {
+      fetchDocsAnalytics();
+    }
     fetchNotifications();
-  }, [timeframe, groupBy, activeTab]);
+  }, [timeframe, docsTimeframe, groupBy, docsGroupBy, activeTab]);
 
   const fetchNotifications = async () => {
     try {
@@ -89,7 +97,7 @@ const AdminDashboard = () => {
         return;
       }
 
-      const response = await fetch(`/api/analytics/downloads?timeframe=${timeframe}&groupBy=${groupBy}`, {
+      const response = await fetch(`/api/admin/reports/downloads?timeframe=${timeframe}&groupBy=${groupBy}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -110,6 +118,40 @@ const AdminDashboard = () => {
       setError('Failed to load analytics data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDocsAnalytics = async () => {
+    try {
+      setDocsLoading(true);
+      const token = await getToken();
+
+      if (!token) {
+        setDocsError('Please log in to view admin dashboard');
+        return;
+      }
+
+      const response = await fetch(`/api/analytics/docs-downloads?timeframe=${docsTimeframe}&groupBy=${docsGroupBy}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDocsAnalytics(data);
+        setDocsError(null);
+      } else if (response.status === 403) {
+        setDocsError('Access denied. Admin privileges required.');
+      } else {
+        throw new Error('Failed to fetch docs analytics');
+      }
+    } catch (err) {
+      console.error('Docs analytics fetch error:', err);
+      setDocsError('Failed to load docs analytics data');
+    } finally {
+      setDocsLoading(false);
     }
   };
 
@@ -144,6 +186,8 @@ const AdminDashboard = () => {
         return <AdminSTLFiles />;
       case 'analytics':
         return renderAnalyticsContent();
+      case 'docs-analytics':
+        return renderDocsAnalyticsContent();
       case 'newsletter':
         return <AdminNewsletter />;
       case 'marketing':
@@ -375,6 +419,218 @@ const AdminDashboard = () => {
     );
   };
 
+  const renderDocsAnalyticsContent = () => {
+    if (docsLoading) {
+      return <div className="loading">Loading docs analytics...</div>;
+    }
+
+    if (docsError) {
+      return <div className="error">{docsError}</div>;
+    }
+
+    if (!docsAnalytics) {
+      return <div className="no-data">No docs analytics data available</div>;
+    }
+
+    return (
+      <>
+        <div className="analytics-controls">
+          <div className="control-group">
+            <label>Time Period:</label>
+            <select value={docsTimeframe} onChange={(e) => setDocsTimeframe(e.target.value)}>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+            </select>
+          </div>
+          <div className="control-group">
+            <label>Group By:</label>
+            <select value={docsGroupBy} onChange={(e) => setDocsGroupBy(e.target.value)}>
+              <option value="hour">Hour</option>
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="metrics-overview">
+          <div className="metric-card">
+            <h3>Total Downloads</h3>
+            <div className="metric-value">
+              {formatNumber(docsAnalytics.downloadTrends.reduce((sum, trend) => sum + parseInt(trend.total_downloads), 0))}
+            </div>
+          </div>
+          <div className="metric-card">
+            <h3>Unique Users</h3>
+            <div className="metric-value">
+              {formatNumber(docsAnalytics.userEngagement.total_active_users)}
+            </div>
+          </div>
+          <div className="metric-card">
+            <h3>Avg Downloads/User</h3>
+            <div className="metric-value">
+              {parseFloat(docsAnalytics.userEngagement.avg_downloads_per_user || 0).toFixed(1)}
+            </div>
+          </div>
+          <div className="metric-card">
+            <h3>Success Rate</h3>
+            <div className="metric-value">
+              {docsAnalytics.downloadTrends.length > 0 ?
+                (docsAnalytics.downloadTrends.reduce((sum, trend) => sum + parseInt(trend.successful_downloads), 0) /
+                 docsAnalytics.downloadTrends.reduce((sum, trend) => sum + parseInt(trend.total_downloads), 0) * 100).toFixed(1)
+                : 0}%
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard-grid">
+          {/* Download Trends Chart */}
+          <div className="analytics-section">
+            <h2>Download Trends</h2>
+            <div className="trends-chart">
+              {docsAnalytics.downloadTrends.length > 0 ? (
+                <div className="trend-timeline">
+                  {docsAnalytics.downloadTrends.map((trend, index) => (
+                    <div key={index} className="trend-item">
+                      <div className="trend-date">
+                        {new Date(trend.period).toLocaleDateString()}
+                      </div>
+                      <div className="trend-metrics">
+                        <div className="trend-metric">
+                          <span className="metric-label">Downloads:</span>
+                          <span className="metric-value">{formatNumber(trend.total_downloads)}</span>
+                        </div>
+                        <div className="trend-metric">
+                          <span className="metric-label">Users:</span>
+                          <span className="metric-value">{formatNumber(trend.unique_users)}</span>
+                        </div>
+                        <div className="trend-metric">
+                          <span className="metric-label">Avg Duration:</span>
+                          <span className="metric-value">{formatDuration(trend.avg_duration_ms)}</span>
+                        </div>
+                        <div className="trend-metric">
+                          <span className="metric-label">Success:</span>
+                          <span className="metric-value success">{formatNumber(trend.successful_downloads)}</span>
+                        </div>
+                        <div className="trend-metric">
+                          <span className="metric-label">Failed:</span>
+                          <span className="metric-value failed">{formatNumber(trend.failed_downloads)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-data">No trend data available</div>
+              )}
+            </div>
+          </div>
+
+          {/* Popular Files */}
+          <div className="analytics-section">
+            <h2>Most Popular Files</h2>
+            <div className="popular-files">
+              {docsAnalytics.popularFiles.length > 0 ? (
+                docsAnalytics.popularFiles.map((file, index) => (
+                  <div key={index} className="file-item">
+                    <div className="file-rank">#{index + 1}</div>
+                    <div className="file-details">
+                      <div className="file-name">{file.file_name}</div>
+                      <div className="file-category">{file.file_category}</div>
+                    </div>
+                    <div className="file-stats">
+                      <div className="stat">
+                        <span className="stat-value">{formatNumber(file.download_count)}</span>
+                        <span className="stat-label">Downloads</span>
+                      </div>
+                      <div className="stat">
+                        <span className="stat-value">{formatNumber(file.unique_downloaders)}</span>
+                        <span className="stat-label">Users</span>
+                      </div>
+                      <div className="stat">
+                        <span className="stat-value">{formatDuration(file.avg_download_time)}</span>
+                        <span className="stat-label">Avg Time</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-data">No file data available</div>
+              )}
+            </div>
+          </div>
+
+          {/* Device Analytics */}
+          <div className="analytics-section">
+            <h2>Device Analytics</h2>
+            <div className="device-stats">
+              {docsAnalytics.deviceStats.length > 0 ? (
+                docsAnalytics.deviceStats.map((device, index) => (
+                  <div key={index} className="device-item">
+                    <div className="device-type">{device.device_type}</div>
+                    <div className="device-metrics">
+                      <div className="device-metric">
+                        <span className="metric-label">Downloads:</span>
+                        <span className="metric-value">{formatNumber(device.downloads)}</span>
+                      </div>
+                      <div className="device-metric">
+                        <span className="metric-label">Users:</span>
+                        <span className="metric-value">{formatNumber(device.unique_users)}</span>
+                      </div>
+                      <div className="device-metric">
+                        <span className="metric-label">Avg Duration:</span>
+                        <span className="metric-value">{formatDuration(device.avg_duration)}</span>
+                      </div>
+                    </div>
+                    <div className="device-bar">
+                      <div
+                        className="device-fill"
+                        style={{
+                          width: `${(device.downloads / Math.max(...docsAnalytics.deviceStats.map(d => d.downloads))) * 100}%`
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-data">No device data available</div>
+              )}
+            </div>
+          </div>
+
+          {/* Browser Analytics */}
+          <div className="analytics-section">
+            <h2>Browser Analytics</h2>
+            <div className="browser-stats">
+              {docsAnalytics.browserStats.length > 0 ? (
+                docsAnalytics.browserStats.map((browser, index) => (
+                  <div key={index} className="browser-item">
+                    <div className="browser-name">{browser.browser_name}</div>
+                    <div className="browser-metrics">
+                      <span className="downloads">{formatNumber(browser.downloads)} downloads</span>
+                      <span className="users">{formatNumber(browser.unique_users)} users</span>
+                    </div>
+                    <div className="browser-bar">
+                      <div
+                        className="browser-fill"
+                        style={{
+                          width: `${(browser.downloads / Math.max(...docsAnalytics.browserStats.map(b => b.downloads))) * 100}%`
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-data">No browser data available</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="admin-dashboard">
       {/* Sidebar Navigation */}
@@ -571,14 +827,24 @@ const AdminDashboard = () => {
               <span>Admin Users</span>
             </button>
             
-            <button 
+            <button
               className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`}
               onClick={() => setActiveTab('analytics')}
             >
               <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              <span>Analytics</span>
+              <span>STL Analytics</span>
+            </button>
+
+            <button
+              className={`nav-item ${activeTab === 'docs-analytics' ? 'active' : ''}`}
+              onClick={() => setActiveTab('docs-analytics')}
+            >
+              <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              <span>Docs Analytics</span>
             </button>
             
             <button 

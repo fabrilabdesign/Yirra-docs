@@ -10,6 +10,15 @@ const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateRange, setDateRange] = useState('30d');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Refund modal state
+  const [refundModal, setRefundModal] = useState({ open: false, order: null });
+  const [refundAmount, setRefundAmount] = useState('');
+  const [refundReason, setRefundReason] = useState('requested_by_customer');
+  const [refundLoading, setRefundLoading] = useState(false);
+  
+  // Details modal state
+  const [detailsModal, setDetailsModal] = useState({ open: false, order: null });
 
   useEffect(() => {
     fetchOrders();
@@ -69,6 +78,81 @@ const AdminOrders = () => {
     } catch (err) {
       console.error('Update error:', err);
       alert('Failed to update order status');
+    }
+  };
+
+  const openRefundModal = (order) => {
+    // Default to full refund amount (convert from cents to dollars for display)
+    const amountInDollars = (order.amount_total || order.total_amount * 100) / 100;
+    setRefundAmount(amountInDollars.toFixed(2));
+    setRefundReason('requested_by_customer');
+    setRefundModal({ open: true, order });
+  };
+
+  const closeRefundModal = () => {
+    setRefundModal({ open: false, order: null });
+    setRefundAmount('');
+    setRefundReason('requested_by_customer');
+  };
+  
+  const openDetailsModal = (order) => {
+    setDetailsModal({ open: true, order });
+  };
+  
+  const closeDetailsModal = () => {
+    setDetailsModal({ open: false, order: null });
+  };
+
+  const processRefund = async () => {
+    if (!refundModal.order) return;
+    
+    const amountInCents = Math.round(parseFloat(refundAmount) * 100);
+    if (isNaN(amountInCents) || amountInCents <= 0) {
+      alert('Please enter a valid refund amount');
+      return;
+    }
+
+    const orderTotal = refundModal.order.amount_total || (refundModal.order.total_amount * 100);
+    if (amountInCents > orderTotal) {
+      alert('Refund amount cannot exceed order total');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to refund $${refundAmount} for order #${refundModal.order.id}?`)) {
+      return;
+    }
+
+    try {
+      setRefundLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch(`/api/admin/orders/${refundModal.order.id}/refund`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          amount: amountInCents,
+          reason: refundReason
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Refund successful! ${data.message}`);
+        closeRefundModal();
+        fetchOrders();
+      } else {
+        throw new Error(data.error || 'Failed to process refund');
+      }
+    } catch (err) {
+      console.error('Refund error:', err);
+      alert(`Refund failed: ${err.message}`);
+    } finally {
+      setRefundLoading(false);
     }
   };
 
@@ -322,9 +406,9 @@ const AdminOrders = () => {
                       ✅ Mark Delivered
                     </button>
                   )}
-                  {(order.status === 'paid' || order.status === 'completed' || order.status === 'delivered') && (
+                  {(order.status === 'paid' || order.status === 'completed' || order.status === 'delivered' || order.status === 'partially_refunded') && order.status !== 'refunded' && (
                     <button 
-                      onClick={() => updateOrderStatus(order.id, 'refunded')}
+                      onClick={() => openRefundModal(order)}
                       className="px-3 py-2 rounded-10 bg-[rgba(245,158,11,.12)] text-warning hover:opacity-90 font-medium text-[12px]"
                     >
                       💰 Refund
@@ -338,7 +422,10 @@ const AdminOrders = () => {
                       ❌ Cancel
                     </button>
                   )}
-                  <button className="px-3 py-2 rounded-10 bg-[rgba(99,102,241,.12)] text-brand hover:opacity-90 font-medium text-[12px]">
+                  <button 
+                    onClick={() => openDetailsModal(order)}
+                    className="px-3 py-2 rounded-10 bg-[rgba(99,102,241,.12)] text-brand hover:opacity-90 font-medium text-[12px]"
+                  >
                     👁️ View Details
                   </button>
                 </div>
@@ -354,6 +441,303 @@ const AdminOrders = () => {
           </div>
         )}
       </div>
+
+      {/* Refund Modal */}
+      {refundModal.open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-elev1 rounded-12 p-6 w-full max-w-md mx-4 shadow-elev2 border border-line-soft">
+            <h3 className="text-[18px] font-semibold text-text-primary mb-4">
+              Process Refund
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <p className="text-[13px] text-text-tertiary mb-2">
+                  Order #{refundModal.order?.id} - {refundModal.order?.customer_email || refundModal.order?.user_email}
+                </p>
+                <p className="text-[13px] text-text-tertiary">
+                  Order Total: {formatCurrency((refundModal.order?.amount_total || refundModal.order?.total_amount * 100) / 100)}
+                </p>
+                {refundModal.order?.refund_amount > 0 && (
+                  <p className="text-[13px] text-warning">
+                    Already Refunded: {formatCurrency(refundModal.order.refund_amount / 100)}
+                  </p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1">
+                  Refund Amount ($)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={refundAmount}
+                  onChange={(e) => setRefundAmount(e.target.value)}
+                  className="w-full h-9 px-3 rounded-10 bg-elev0 border border-line-soft text-text-primary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand"
+                  placeholder="Enter refund amount"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1">
+                  Reason
+                </label>
+                <select
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value)}
+                  className="w-full h-9 px-3 rounded-10 bg-elev0 border border-line-soft text-text-primary focus:ring-2 focus:ring-[rgba(99,102,241,.45)] focus:border-brand"
+                >
+                  <option value="requested_by_customer">Customer Request</option>
+                  <option value="duplicate">Duplicate Charge</option>
+                  <option value="fraudulent">Fraudulent</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={closeRefundModal}
+                disabled={refundLoading}
+                className="flex-1 h-9 rounded-10 bg-elev2 text-text-secondary hover:opacity-90 font-medium text-[13px]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={processRefund}
+                disabled={refundLoading}
+                className="flex-1 h-9 rounded-10 bg-warning text-white hover:opacity-90 font-medium text-[13px] disabled:opacity-50"
+              >
+                {refundLoading ? 'Processing...' : 'Process Refund'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {detailsModal.open && detailsModal.order && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-elev1 rounded-12 p-6 w-full max-w-2xl mx-4 shadow-elev2 border border-line-soft max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-[18px] font-semibold text-text-primary">Order Details</h3>
+                <p className="text-[13px] text-text-tertiary mt-1">Order #{detailsModal.order.id}</p>
+              </div>
+              <button
+                onClick={closeDetailsModal}
+                className="text-text-tertiary hover:text-text-primary transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Status and Payment */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[12px] font-medium text-text-tertiary mb-2">Status</p>
+                  <span 
+                    className="inline-block px-3 py-1 text-xs font-medium rounded-full"
+                    style={{ 
+                      backgroundColor: getStatusColor(detailsModal.order.status) + '20', 
+                      color: getStatusColor(detailsModal.order.status) 
+                    }}
+                  >
+                    {detailsModal.order.status}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[12px] font-medium text-text-tertiary mb-2">Payment Status</p>
+                  <p className="text-[14px] text-text-primary">{detailsModal.order.payment_status || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Customer Information */}
+              <div>
+                <p className="text-[12px] font-medium text-text-tertiary mb-2">Customer Information</p>
+                <div className="bg-elev0 rounded-10 p-4 space-y-2">
+                  <p className="text-[14px] text-text-primary">
+                    <span className="font-medium">Name:</span> {detailsModal.order.customer_name || `${detailsModal.order.user_first_name || ''} ${detailsModal.order.user_last_name || ''}`.trim() || 'N/A'}
+                  </p>
+                  <p className="text-[14px] text-text-primary">
+                    <span className="font-medium">Email:</span> {detailsModal.order.customer_email || detailsModal.order.user_email || 'N/A'}
+                  </p>
+                  {detailsModal.order.customer_phone && (
+                    <p className="text-[14px] text-text-primary">
+                      <span className="font-medium">Phone:</span> {detailsModal.order.customer_phone}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div>
+                <p className="text-[12px] font-medium text-text-tertiary mb-2">Order Items</p>
+                <div className="bg-elev0 rounded-10 p-4 space-y-3">
+                  {detailsModal.order.items && detailsModal.order.items.length > 0 ? (
+                    detailsModal.order.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-start pb-3 border-b border-line-soft last:border-0 last:pb-0">
+                        <div>
+                          <p className="text-[14px] font-medium text-text-primary">{item.product_name}</p>
+                          <p className="text-[13px] text-text-tertiary">Quantity: {item.quantity}</p>
+                          {item.unlocks_stls && (
+                            <span className="inline-block mt-1 bg-[rgba(99,102,241,.12)] text-brand px-2 py-0.5 rounded text-[11px]">
+                              Includes STL Files
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[14px] font-medium text-text-primary">{formatCurrency(item.price)}</p>
+                      </div>
+                    ))
+                  ) : detailsModal.order.line_items ? (
+                    JSON.parse(typeof detailsModal.order.line_items === 'string' ? detailsModal.order.line_items : JSON.stringify(detailsModal.order.line_items)).map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-start">
+                        <p className="text-[14px] text-text-primary">Product ID: {item.productId} (x{item.quantity})</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[13px] text-text-tertiary">No items found</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              {detailsModal.order.shipping_address && (
+                <div>
+                  <p className="text-[12px] font-medium text-text-tertiary mb-2">Shipping Address</p>
+                  <div className="bg-elev0 rounded-10 p-4">
+                    {(() => {
+                      const addr = typeof detailsModal.order.shipping_address === 'string' 
+                        ? JSON.parse(detailsModal.order.shipping_address) 
+                        : detailsModal.order.shipping_address;
+                      return (
+                        <div className="text-[14px] text-text-primary space-y-1">
+                          {addr.name && <p className="font-medium">{addr.name}</p>}
+                          {addr.address?.line1 && <p>{addr.address.line1}</p>}
+                          {addr.address?.line2 && <p>{addr.address.line2}</p>}
+                          <p>
+                            {addr.address?.city}{addr.address?.state ? `, ${addr.address.state}` : ''} {addr.address?.postal_code}
+                          </p>
+                          <p className="font-medium">{addr.address?.country}</p>
+                          {addr.phone && <p className="text-text-tertiary text-[13px] mt-2">Phone: {addr.phone}</p>}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Billing Address */}
+              {detailsModal.order.billing_address && (
+                <div>
+                  <p className="text-[12px] font-medium text-text-tertiary mb-2">Billing Address</p>
+                  <div className="bg-elev0 rounded-10 p-4">
+                    {(() => {
+                      const addr = typeof detailsModal.order.billing_address === 'string' 
+                        ? JSON.parse(detailsModal.order.billing_address) 
+                        : detailsModal.order.billing_address;
+                      return (
+                        <div className="text-[14px] text-text-primary space-y-1">
+                          {addr.line1 && <p>{addr.line1}</p>}
+                          {addr.line2 && <p>{addr.line2}</p>}
+                          <p>
+                            {addr.city}{addr.state ? `, ${addr.state}` : ''} {addr.postal_code}
+                          </p>
+                          <p className="font-medium">{addr.country}</p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Summary */}
+              <div>
+                <p className="text-[12px] font-medium text-text-tertiary mb-2">Payment Summary</p>
+                <div className="bg-elev0 rounded-10 p-4 space-y-2">
+                  {detailsModal.order.amount_subtotal && (
+                    <div className="flex justify-between">
+                      <span className="text-[14px] text-text-secondary">Subtotal</span>
+                      <span className="text-[14px] text-text-primary">{formatCurrency(detailsModal.order.amount_subtotal / 100)}</span>
+                    </div>
+                  )}
+                  {detailsModal.order.shipping_cost > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-[14px] text-text-secondary">Shipping</span>
+                      <span className="text-[14px] text-text-primary">{formatCurrency(detailsModal.order.shipping_cost / 100)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between pt-2 border-t border-line-soft">
+                    <span className="text-[16px] font-semibold text-text-primary">Total</span>
+                    <span className="text-[16px] font-semibold text-text-primary">{formatCurrency(detailsModal.order.total_amount)}</span>
+                  </div>
+                  {detailsModal.order.refund_amount > 0 && (
+                    <div className="flex justify-between text-warning">
+                      <span className="text-[14px]">Refunded</span>
+                      <span className="text-[14px]">-{formatCurrency(detailsModal.order.refund_amount / 100)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Stripe Information */}
+              {detailsModal.order.stripe_session_id && (
+                <div>
+                  <p className="text-[12px] font-medium text-text-tertiary mb-2">Stripe Information</p>
+                  <div className="bg-elev0 rounded-10 p-4 space-y-2">
+                    <p className="text-[13px] text-text-primary">
+                      <span className="font-medium">Session ID:</span> {detailsModal.order.stripe_session_id}
+                    </p>
+                    {detailsModal.order.payment_intent_id && (
+                      <p className="text-[13px] text-text-primary">
+                        <span className="font-medium">Payment Intent:</span> {detailsModal.order.payment_intent_id}
+                      </p>
+                    )}
+                    {detailsModal.order.invoice_id && (
+                      <p className="text-[13px] text-text-primary">
+                        <span className="font-medium">Invoice ID:</span> {detailsModal.order.invoice_id}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Timestamps */}
+              <div>
+                <p className="text-[12px] font-medium text-text-tertiary mb-2">Timeline</p>
+                <div className="bg-elev0 rounded-10 p-4 space-y-2">
+                  <p className="text-[14px] text-text-primary">
+                    <span className="font-medium">Created:</span> {formatDate(detailsModal.order.created_at)}
+                  </p>
+                  {detailsModal.order.paid_at && (
+                    <p className="text-[14px] text-text-primary">
+                      <span className="font-medium">Paid:</span> {formatDate(detailsModal.order.paid_at)}
+                    </p>
+                  )}
+                  {detailsModal.order.updated_at && detailsModal.order.updated_at !== detailsModal.order.created_at && (
+                    <p className="text-[14px] text-text-primary">
+                      <span className="font-medium">Updated:</span> {formatDate(detailsModal.order.updated_at)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-line-soft">
+              <button
+                onClick={closeDetailsModal}
+                className="w-full h-9 rounded-10 bg-brand text-white hover:opacity-90 font-medium text-[13px]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .admin-orders {

@@ -4,7 +4,8 @@ import { ClerkProvider } from '@clerk/clerk-react';
 import App from './App.jsx';
 import './index.css';
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+// Hardcode the Clerk key for production
+const PUBLISHABLE_KEY = 'pk_live_Y2xlcmsueWlycmFzeXN0ZW1zLmNvbSQ';
 
 if (!PUBLISHABLE_KEY) {
   throw new Error('Missing Clerk Publishable Key');

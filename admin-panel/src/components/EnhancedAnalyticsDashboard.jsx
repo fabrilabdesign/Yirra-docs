@@ -52,8 +52,10 @@ const EnhancedAnalyticsDashboard = () => {
         clearTimeout(timeoutId);
 
         if (response.ok) {
-          const data = await response.json();
-          setAnalytics(data);
+          const responseData = await response.json();
+          // The API returns { success: true, data: {...}, ... }
+          // We need to extract the actual analytics data
+          setAnalytics(responseData.data || {});
           setError(null);
         } else if (response.status === 401) {
           setError('Authentication failed. Please refresh the page and try again.');

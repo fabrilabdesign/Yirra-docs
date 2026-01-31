@@ -15,7 +15,7 @@ echo -e "${BLUE}=== Admin Panel Rebuild & Deploy ===${NC}\n"
 CLERK_KEY='pk_live_Y2xlcmsueWlycmFzeXN0ZW1zLmNvbSQ'
 
 # Increment version
-CURRENT_VERSION=$(docker images localhost:5000/admin-panel --format "{{.Tag}}" | grep -E '^v[0-9]+$' | sed 's/v//' | sort -n | tail -1)
+CURRENT_VERSION=$(docker images 10.43.248.246:5000/admin-panel --format "{{.Tag}}" | grep -E '^v[0-9]+$' | sed 's/v//' | sort -n | tail -1)
 if [ -z "$CURRENT_VERSION" ]; then
     CURRENT_VERSION=0
 fi
@@ -26,22 +26,22 @@ echo -e "${YELLOW}Building version: v${NEW_VERSION}${NC}"
 # Build
 cd /home/james/yirra_systems_app/admin-panel
 docker build --build-arg VITE_CLERK_PUBLISHABLE_KEY="${CLERK_KEY}" \
-  -t localhost:5000/admin-panel:v${NEW_VERSION} \
-  -t localhost:5000/admin-panel:latest .
+  -t 10.43.248.246:5000/admin-panel:v${NEW_VERSION} \
+  -t 10.43.248.246:5000/admin-panel:latest .
 
 echo -e "\n${GREEN}✓ Build complete${NC}"
 
 # Push
 echo -e "\n${YELLOW}Pushing to registry...${NC}"
-docker push localhost:5000/admin-panel:v${NEW_VERSION}
-docker push localhost:5000/admin-panel:latest
+docker push 10.43.248.246:5000/admin-panel:v${NEW_VERSION}
+docker push 10.43.248.246:5000/admin-panel:latest
 
 echo -e "${GREEN}✓ Push complete${NC}"
 
 # Deploy
 echo -e "\n${YELLOW}Deploying to Kubernetes...${NC}"
 k3s kubectl set image deployment/admin-frontend \
-  admin-frontend=localhost:5000/admin-panel:v${NEW_VERSION} \
+  admin-frontend=10.43.248.246:5000/admin-panel:v${NEW_VERSION} \
   -n drone-store
 
 echo -e "${GREEN}✓ Deployment updated${NC}"
