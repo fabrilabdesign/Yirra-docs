@@ -309,6 +309,20 @@ This isn't about gatekeeping — it's about keeping you safe and keeping the lig
 
 ---
 
+## Blackbox Log: Real-World Noise Performance
+
+This is an example of the kind of noise performance you can expect from a well-built drone—but it's not a "Goldilocks" perfect-case build. This blackbox log came from a quad with one slightly gravelly motor and relatively new, but loosely fitting, 7-inch props. With fresh motors and tighter-fitting props, the noise performance would likely improve further.
+
+**Download the blackbox log to analyze in Betaflight Blackbox Explorer or PIDtoolbox:**
+
+<a href="/files/Black_box_log/Replicant_Gen_1.BBL" download>
+  <button style={{ padding: '12px 24px', backgroundColor: '#2e8555', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold' }}>
+    📥 Download Blackbox Log (.BBL)
+  </button>
+</a>
+
+---
+
 ## Next Steps
 
 1. [Download CAD Files](/docs/downloads) - Get started with the Replicant platform
