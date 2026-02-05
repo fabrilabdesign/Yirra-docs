@@ -34,6 +34,8 @@ This precision jig ensures accurate carbon tube lengths for perfect arm assembly
 
 ![Carbon tube cutting jig](/img/tools/Cutting_jig.PNG)
 
+[📁 Download Cutting Jig STEP File](/img/tools/cj2.stp)
+
 ### Carbon Tube Lengths
 
 Different drone platforms require different arm lengths. Use the appropriate lengths for your platform:

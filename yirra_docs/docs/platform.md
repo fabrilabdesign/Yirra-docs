@@ -115,6 +115,37 @@ This mass distribution is optimized for long-range cruising and cinematic flight
 
 ---
 
+## Blackbox Logs: Real-World Performance Data
+
+Download these blackbox logs to analyze flight performance, tuning, and noise characteristics in Betaflight Blackbox Explorer or PIDtoolbox:
+
+### 100% Throttle Ramps
+- [📊 Flight Log A](/files/Black_box_log/Replicant_Gen_1.BBL)
+- [📊 Flight Log B](/files/Black_box_log/Replicant_Gen_1_b.BBL)
+- [📊 Flight Log C](/files/Black_box_log/Replicant_Gen_1_c.BBL)
+- [📊 Flight Log D](/files/Black_box_log/Replicant_Gen_1_d.BBL)
+- [📊 Flight Log E](/files/Black_box_log/Replicant_Gen_1_e.BBL)
+- [📊 Flight Log F](/files/Black_box_log/Replicant_Gen_1_f.BBL)
+- [📊 Flight Log G](/files/Black_box_log/Replicant_Gen_1_g.BBL)
+
+### Hover Logs
+- [🎯 Hover Log A](/files/Black_box_log/Replicant_Gen_1_hover.BBL)
+- [🎯 Hover Log B](/files/Black_box_log/Replicant_Gen_1_hover_b.BBL)
+- [🎯 Hover Log C](/files/Black_box_log/Replicant_Gen_1_hover_c.BBL)
+
+### 6 Inch Prop Performance Logs
+- [🔹 6" Prop Log A](/files/Black_box_log/6_inch.BBL)
+- [🔹 6" Prop Log B](/files/Black_box_log/6_inch_b.BBL)
+- [🔹 6" Prop Log C](/files/Black_box_log/6_inch_c.BBL)
+- [🔹 6" Prop Log D](/files/Black_box_log/6_inch_d.BBL)
+- [🔹 6" Prop Log E](/files/Black_box_log/6_inch_e.BBL)
+- [🔹 6" Prop Log F](/files/Black_box_log/6_inch_f.BBL)
+- [🔹 6" Prop Log G](/files/Black_box_log/6_inch_g.BBL)
+
+This is an example of the kind of noise performance you can expect from a well-built drone—but it's not a "Goldilocks" perfect-case build. This blackbox log came from a quad with one slightly gravelly motor and relatively new, but loosely fitting, 7-inch props. With fresh motors and tighter-fitting props, the noise performance would likely improve further.
+
+---
+
 ## Why Redesign the Drone?
 
 FPV drone design has remained largely unchanged since the early 2000s, relying on basic materials and assembly methods. While consumer drones have advanced significantly with sophisticated features and user-friendly designs, the FPV community has been underserved by comparison.
@@ -252,11 +283,12 @@ This drone doesn't wear bunny ears—we're changing how drones are packaged and 
 
 ## Superior GPS Performance
 
-No other drone physically isolates the GPS better than ours. With our underslung battery and uncluttered top surface, we provide unimpeded sky access and below-average EMI exposure. The result? Fast satellite acquisition and reliable GPS performance.
+Few other drones physically isolate the GPS better than ours. With our underslung battery and uncluttered top surface, we provide unimpeded sky access and below-average EMI exposure. The result? Fast satellite acquisition and reliable GPS performance.
 
 **GPS Performance:**
 - 25-30 satellites typically visible
-- Lock acquisition in 20 seconds
+- Reduced Satellite acquisition time
+- Ceramic GPS antenna is shielded from damage inside the nose cone
 - Minimal EMI interference
 - Optimal sky visibility
 
@@ -306,20 +338,6 @@ This isn't about gatekeeping — it's about keeping you safe and keeping the lig
 - Advanced manufacturing techniques accessible to builders
 - Foundation for future drone platform development
 - Educational resource for FPV technology
-
----
-
-## Blackbox Log: Real-World Noise Performance
-
-This is an example of the kind of noise performance you can expect from a well-built drone—but it's not a "Goldilocks" perfect-case build. This blackbox log came from a quad with one slightly gravelly motor and relatively new, but loosely fitting, 7-inch props. With fresh motors and tighter-fitting props, the noise performance would likely improve further.
-
-**Download the blackbox log to analyze in Betaflight Blackbox Explorer or PIDtoolbox:**
-
-<a href="/files/Black_box_log/Replicant_Gen_1.BBL" download>
-  <button style={{ padding: '12px 24px', backgroundColor: '#2e8555', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold' }}>
-    📥 Download Blackbox Log (.BBL)
-  </button>
-</a>
 
 ---
 
