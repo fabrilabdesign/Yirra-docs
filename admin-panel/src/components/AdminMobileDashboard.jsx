@@ -11,13 +11,16 @@ const AdminInventory = lazy(() => import('./AdminInventory'));
 const AdminBOM = lazy(() => import('./AdminBOM'));
 const AdminCustomers = lazy(() => import('./AdminCustomers'));
 const AdminSTLFiles = lazy(() => import('./AdminSTLFiles'));
+const AdminPrimaryDownloadGrants = lazy(() => import('./AdminPrimaryDownloadGrants'));
 const AdminNewsletter = lazy(() => import('./AdminNewsletter'));
 const AdminMarketing = lazy(() => import('./AdminMarketing'));
+const AdminEmailTemplates = lazy(() => import('./AdminEmailTemplates'));
+const AdminEmailSend = lazy(() => import('./AdminEmailSend'));
 const AdminBlog = lazy(() => import('./AdminBlog'));
 const AdminUserManagement = lazy(() => import('./AdminUserManagement'));
 const AdminShipping = lazy(() => import('./AdminShipping'));
 const AdminReturns = lazy(() => import('./AdminReturns'));
-const AdminReports = lazy(() => import('./AdminReports'));
+const AdminReports = lazy(() => import('./AdminAnalytics'));
 const AdminSettings = lazy(() => import('./AdminSettings'));
 const AdminEngineering = lazy(() => import('./AdminEngineering'));
 const AdminChat = lazy(() => import('./AdminChat'));
@@ -36,7 +39,7 @@ const AdminMobileDashboard = () => {
       const tab = params.get('tab');
       if (!tab) return;
       const allowedTabs = new Set([
-        'overview','projects','products','orders','fulfillment','inventory','bom','customers','stl-files','newsletter','marketing','blog','users','shipping','returns','reports','settings','engineering','chat'
+        'overview','projects','products','orders','fulfillment','inventory','bom','customers','stl-files','primary-download-grants','newsletter','marketing','email-templates','send-email','blog','users','shipping','returns','reports','settings','engineering','chat'
       ]);
       if (allowedTabs.has(tab)) {
         setActiveTab(tab);
@@ -118,6 +121,12 @@ const renderActiveComponent = () => {
           <AdminSTLFiles />
         </Suspense>
       );
+    case 'primary-download-grants':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminPrimaryDownloadGrants />
+        </Suspense>
+      );
     case 'newsletter':
       return (
         <Suspense fallback={<ComponentLoadingSpinner />}>
@@ -128,6 +137,18 @@ const renderActiveComponent = () => {
       return (
         <Suspense fallback={<ComponentLoadingSpinner />}>
           <AdminMarketing />
+        </Suspense>
+      );
+    case 'email-templates':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminEmailTemplates />
+        </Suspense>
+      );
+    case 'send-email':
+      return (
+        <Suspense fallback={<ComponentLoadingSpinner />}>
+          <AdminEmailSend />
         </Suspense>
       );
     case 'blog':
@@ -306,6 +327,15 @@ const renderActiveComponent = () => {
             </svg>
             STL Files
           </button>
+          <button 
+            className={`flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition relative ${activeTab === 'primary-download-grants' ? 'text-brand bg-[rgba(99,102,241,.12)] before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-brand before:rounded' : 'text-text-secondary hover:bg-hover hover:text-text-primary'}`}
+            onClick={() => { setActiveTab('primary-download-grants'); setSidebarOpen(false); }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            Download Links
+          </button>
         </div>
 
         <div>
@@ -378,6 +408,24 @@ const renderActiveComponent = () => {
             Marketing
           </button>
           <button 
+            className={`flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition relative ${activeTab === 'email-templates' ? 'text-brand bg-[rgba(99,102,241,.12)] before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-brand before:rounded' : 'text-text-secondary hover:bg-hover hover:text-text-primary'}`}
+            onClick={() => { setActiveTab('email-templates'); setSidebarOpen(false); }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Templates
+          </button>
+          <button 
+            className={`flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition relative ${activeTab === 'send-email' ? 'text-brand bg-[rgba(99,102,241,.12)] before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-brand before:rounded' : 'text-text-secondary hover:bg-hover hover:text-text-primary'}`}
+            onClick={() => { setActiveTab('send-email'); setSidebarOpen(false); }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Send Email
+          </button>
+          <button 
             className={`flex items-center gap-3 w-full h-9 px-3 rounded-10 text-left transition relative ${activeTab === 'blog' ? 'text-brand bg-[rgba(99,102,241,.12)] before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-brand before:rounded' : 'text-text-secondary hover:bg-hover hover:text-text-primary'}`}
             onClick={() => { setActiveTab('blog'); setSidebarOpen(false); }}
           >
@@ -397,7 +445,7 @@ const renderActiveComponent = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            Reports
+            Analytics
           </button>
         </div>
 

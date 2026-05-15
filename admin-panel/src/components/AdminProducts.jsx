@@ -44,7 +44,8 @@ const AdminProducts = () => {
     dimensions: '',
     sku: '',
     stock_quantity: '',
-    tags: []
+    tags: [],
+    show_in_catalog: true
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [showImageGallery, setShowImageGallery] = useState(false);
@@ -225,7 +226,8 @@ const AdminProducts = () => {
       dimensions: '',
       sku: '',
       stock_quantity: '',
-      tags: []
+      tags: [],
+      show_in_catalog: true
     });
     setImagePreview(null);
     setUploadProgress(0);
@@ -248,10 +250,32 @@ const AdminProducts = () => {
       dimensions: product.dimensions || '',
       sku: product.sku || '',
       stock_quantity: product.stock_quantity || '',
-      tags: product.tags || []
+      tags: product.tags || [],
+      show_in_catalog: product.show_in_catalog !== false
     });
     setImagePreview(displayImage);
     setShowAddModal(true);
+  };
+
+  const toggleShowInCatalog = async (product) => {
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('Authentication required');
+      const next = !(product.show_in_catalog !== false);
+      const response = await fetch(`/api/admin/products/${product.id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ show_in_catalog: next })
+      });
+      if (response.ok) fetchProducts();
+      else throw new Error('Failed to update catalog visibility');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update catalog visibility');
+    }
   };
 
   const toggleProductStatus = async (productId, currentStatus) => {
@@ -551,6 +575,11 @@ const AdminProducts = () => {
                   <span className={`status-badge ${product.is_active ? 'active' : 'inactive'}`}>
                     {product.is_active ? 'Active' : 'Inactive'}
                   </span>
+                  {product.show_in_catalog === false && (
+                    <span className="status-badge" style={{ right: 'auto', left: 12, top: 44, background: 'rgba(100,116,139,0.95)' }}>
+                      Link-only
+                    </span>
+                  )}
                   {product.stripe_product_id && (
                     <span className="status-badge stripe">
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{width: '14px', height: '14px'}}>
@@ -609,6 +638,14 @@ const AdminProducts = () => {
                 )}
 
                 <div className="product-actions">
+                  <button
+                    type="button"
+                    onClick={() => toggleShowInCatalog(product)}
+                    className="action-btn"
+                    title={product.show_in_catalog !== false ? 'Hide from /products and homepage' : 'Show on shop listing'}
+                  >
+                    {product.show_in_catalog !== false ? 'Hide listing' : 'Show listing'}
+                  </button>
                   <button 
                     onClick={() => handleEdit(product)}
                     className="action-btn"
@@ -835,6 +872,21 @@ const AdminProducts = () => {
                         placeholder="10 x 10 x 10"
                       />
                     </div>
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h4>Storefront</h4>
+                  <div className="form-group checkbox-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={productForm.show_in_catalog !== false}
+                        onChange={(e) => setProductForm(prev => ({ ...prev, show_in_catalog: e.target.checked }))}
+                        className="form-checkbox"
+                      />
+                      <span>Show on products page &amp; homepage (off = direct link / checkout only)</span>
+                    </label>
                   </div>
                 </div>
 

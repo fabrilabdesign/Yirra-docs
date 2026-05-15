@@ -2,10 +2,21 @@ import getApiUrl from '../utils/api.js';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 
+const CATEGORY_COLORS = {
+  '3mf': { bg: 'rgba(88,166,255,0.1)', color: '#58a6ff' },
+  'step': { bg: 'rgba(63,185,80,0.1)', color: '#3fb950' },
+  'step_zip': { bg: 'rgba(63,185,80,0.1)', color: '#3fb950' },
+  'stl': { bg: 'rgba(218,120,255,0.1)', color: '#da78ff' },
+  'stl_zip': { bg: 'rgba(218,120,255,0.1)', color: '#da78ff' },
+};
+
 const AdminNewsletter = () => {
   const { getToken } = useAuth();
+  const [activeTab, setActiveTab] = useState('subscribers');
   const [subscribers, setSubscribers] = useState([]);
+  const [downloadLeads, setDownloadLeads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [leadsLoading, setLeadsLoading] = useState(false);
   const [error, setError] = useState('');
   const [stats, setStats] = useState({
     total: 0,
@@ -30,10 +41,18 @@ const AdminNewsletter = () => {
     dateRange: 'all'
   });
 
+  const [leadsSearch, setLeadsSearch] = useState('');
+
   useEffect(() => {
     fetchSubscribers();
     fetchStats();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'download_leads' && downloadLeads.length === 0) {
+      fetchDownloadLeads();
+    }
+  }, [activeTab]);
 
   const fetchSubscribers = async () => {
     try {
@@ -76,6 +95,47 @@ const AdminNewsletter = () => {
       setStats(data);
     } catch (err) {
       console.error('Failed to load stats:', err);
+    }
+  };
+
+  const fetchDownloadLeads = async () => {
+    try {
+      setLeadsLoading(true);
+      const token = await getToken();
+      if (!token) return;
+      const response = await fetch(getApiUrl('/api/admin/download-leads'), {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch download leads');
+      const data = await response.json();
+      setDownloadLeads(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLeadsLoading(false);
+    }
+  };
+
+  const exportDownloadLeads = async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const response = await fetch(getApiUrl('/api/admin/download-leads/export'), {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Export failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `download-leads-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError('Failed to export download leads');
+      console.error(err);
     }
   };
 
@@ -210,6 +270,124 @@ const AdminNewsletter = () => {
         style: { color: '#8b949e', fontSize: '14px' }
       }, 'Manage subscribers and send marketing campaigns')
     ),
+
+    // Tab bar
+    React.createElement('div', {
+      className: 'flex gap-1 mb-8',
+      style: { borderBottom: '1px solid #30363d' }
+    },
+      ['subscribers', 'download_leads'].map(tab =>
+        React.createElement('button', {
+          key: tab,
+          onClick: () => setActiveTab(tab),
+          style: {
+            padding: '10px 20px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: activeTab === tab ? '600' : '400',
+            color: activeTab === tab ? '#f0f6fc' : '#8b949e',
+            borderBottom: activeTab === tab ? '2px solid #58a6ff' : '2px solid transparent',
+            marginBottom: '-1px',
+            transition: 'color 0.15s',
+          }
+        }, tab === 'subscribers' ? 'Newsletter Subscribers' : 'Download Leads')
+      )
+    ),
+
+    // Download Leads tab
+    activeTab === 'download_leads' && React.createElement('div', {},
+      React.createElement('div', { className: 'flex flex-wrap gap-4 mb-6' },
+        React.createElement('button', {
+          onClick: exportDownloadLeads,
+          className: 'px-6 py-2 text-white font-medium rounded-lg transition-all duration-200',
+          style: { backgroundColor: '#21262d', border: '1px solid #30363d' },
+          onMouseEnter: e => e.target.style.backgroundColor = '#30363d',
+          onMouseLeave: e => e.target.style.backgroundColor = '#21262d',
+        }, '📊 Export CSV'),
+        React.createElement('button', {
+          onClick: fetchDownloadLeads,
+          className: 'px-6 py-2 text-white font-medium rounded-lg transition-all duration-200',
+          style: { backgroundColor: '#58a6ff' },
+          onMouseEnter: e => e.target.style.backgroundColor = '#4493f8',
+          onMouseLeave: e => e.target.style.backgroundColor = '#58a6ff',
+        }, '🔄 Refresh'),
+        React.createElement('input', {
+          type: 'text',
+          value: leadsSearch,
+          onChange: e => setLeadsSearch(e.target.value),
+          placeholder: 'Search by email or file...',
+          style: {
+            padding: '8px 12px', borderRadius: '6px', fontSize: '14px',
+            backgroundColor: '#0d1117', border: '1px solid #30363d', color: '#f0f6fc',
+            minWidth: '240px',
+          }
+        })
+      ),
+
+      // Lead stats strip
+      React.createElement('div', { className: 'grid grid-cols-3 gap-4 mb-6' },
+        [
+          { label: 'Total Leads', value: downloadLeads.length },
+          { label: 'Unique Emails', value: new Set(downloadLeads.map(l => l.email)).size },
+          { label: 'Bounced / Invalid', value: downloadLeads.filter(l => !l.is_valid).length },
+        ].map(({ label, value }) =>
+          React.createElement('div', {
+            key: label,
+            style: { background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '20px' }
+          },
+            React.createElement('p', { style: { margin: '0 0 4px', fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.06em' } }, label),
+            React.createElement('p', { style: { margin: 0, fontSize: '22px', fontWeight: '600', color: '#f0f6fc' } }, value)
+          )
+        )
+      ),
+
+      React.createElement('div', { style: { background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', overflow: 'hidden' } },
+        leadsLoading
+          ? React.createElement('div', { style: { padding: '40px', textAlign: 'center', color: '#8b949e' } }, 'Loading...')
+          : React.createElement('div', { style: { overflowX: 'auto' } },
+              React.createElement('table', { style: { width: '100%', borderCollapse: 'separate', borderSpacing: 0 } },
+                React.createElement('thead', {},
+                  React.createElement('tr', {},
+                    ['Email', 'File', 'Category', 'Country', 'Valid', 'Consent', 'Date'].map(h =>
+                      React.createElement('th', {
+                        key: h,
+                        style: { padding: '10px 16px', textAlign: 'left', fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.05em', backgroundColor: '#21262d', borderBottom: '1px solid #30363d' }
+                      }, h)
+                    )
+                  )
+                ),
+                React.createElement('tbody', {},
+                  downloadLeads
+                    .filter(l => !leadsSearch || l.email.toLowerCase().includes(leadsSearch.toLowerCase()) || (l.file_name || '').toLowerCase().includes(leadsSearch.toLowerCase()))
+                    .map(lead =>
+                      React.createElement('tr', { key: lead.id, style: { borderBottom: '1px solid #21262d' } },
+                        React.createElement('td', { style: { padding: '10px 16px', fontSize: '13px', color: '#f0f6fc' } }, lead.email),
+                        React.createElement('td', { style: { padding: '10px 16px', fontSize: '12px', color: '#c9d1d9', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, lead.file_name),
+                        React.createElement('td', { style: { padding: '10px 16px' } },
+                          React.createElement('span', {
+                            style: {
+                              fontSize: '11px', fontWeight: '600', padding: '2px 8px', borderRadius: '12px',
+                              ...(CATEGORY_COLORS[lead.category] || { bg: 'rgba(139,148,158,0.1)', color: '#8b949e' }),
+                              backgroundColor: (CATEGORY_COLORS[lead.category] || { bg: 'rgba(139,148,158,0.1)' }).bg,
+                            }
+                          }, lead.category)
+                        ),
+                        React.createElement('td', { style: { padding: '10px 16px', fontSize: '13px', color: '#8b949e' } }, lead.country_code || '—'),
+                        React.createElement('td', { style: { padding: '10px 16px', fontSize: '16px' } }, lead.is_valid ? '✅' : '❌'),
+                        React.createElement('td', { style: { padding: '10px 16px', fontSize: '16px' } }, lead.marketing_consent ? '✅' : '—'),
+                        React.createElement('td', { style: { padding: '10px 16px', fontSize: '12px', color: '#8b949e' } }, new Date(lead.created_at).toLocaleDateString())
+                      )
+                    )
+                )
+              )
+            )
+      )
+    ),
+
+    // Subscribers tab content (conditional)
+    activeTab === 'subscribers' && React.createElement(React.Fragment, {},
 
     // Stats Cards
     React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-4 gap-5 mb-8' },
@@ -476,7 +654,8 @@ const AdminNewsletter = () => {
             React.createElement('option', { value: 'all' }, 'All Sources'),
             React.createElement('option', { value: 'coming_soon_page' }, 'Coming Soon Page'),
             React.createElement('option', { value: 'website' }, 'Website'),
-            React.createElement('option', { value: 'manual' }, 'Manual Entry')
+            React.createElement('option', { value: 'manual' }, 'Manual Entry'),
+            React.createElement('option', { value: 'download_lead' }, 'Download Lead')
           )
         ),
         
@@ -723,6 +902,7 @@ const AdminNewsletter = () => {
         )
       )
     )
+    ) // end React.Fragment for subscribers tab
   );
 };
 

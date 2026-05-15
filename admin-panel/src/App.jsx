@@ -11,22 +11,24 @@ import AdminEngineering from './components/AdminEngineering';
 import AdminBOM from './components/AdminBOM';
 import AdminShipping from './components/AdminShipping';
 import AdminReturns from './components/AdminReturns';
-import AdminReports from './components/AdminReports';
+import AdminAnalytics from './components/AdminAnalytics';
 import AdminMarketing from './components/AdminMarketing';
 import AdminChat from './components/AdminChat';
 import AdminSettings from './components/AdminSettings';
 import AdminBlog from './components/AdminBlog';
 import AdminNewsletter from './components/AdminNewsletter';
+import AdminSegments from './components/AdminSegments';
+import AdminEmailTemplates from './components/AdminEmailTemplates';
+import AdminEmailSend from './components/AdminEmailSend';
 import AdminOrderFulfillment from './components/AdminOrderFulfillment';
 import AdminSTLFiles from './components/AdminSTLFiles';
+import AdminPrimaryDownloadGrants from './components/AdminPrimaryDownloadGrants';
 import AdminUserManagement from './components/AdminUserManagement';
 import AdminOverview from './components/AdminOverview';
 import AdminProjectManagement from './components/AdminProjectManagement';
 import AdminProjectManagementPage from './pages/AdminProjectManagementPage';
-import EnhancedAnalyticsDashboard from './components/EnhancedAnalyticsDashboard';
 import './index.css';
 
-// Protected Route wrapper
 function ProtectedRoute({ children }) {
   const { isSignedIn, isLoaded } = useAuth();
 
@@ -41,7 +43,6 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// Detect if mobile
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -60,23 +61,19 @@ function useIsMobile() {
 
 function App() {
   const isMobile = useIsMobile();
-  // Quarantine other dashboards; use mobile dashboard as canonical
   const DashboardComponent = AdminMobileDashboard;
 
   return (
     <Router>
       <Routes>
-        {/* Login/Auth Gate */}
         <Route path="/login" element={<AdminGate />} />
 
-        {/* Root should render the protected dashboard */}
         <Route path="/" element={
           <ProtectedRoute>
             <DashboardComponent />
           </ProtectedRoute>
         } />
         
-        {/* Protected Admin Routes */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <DashboardComponent />
@@ -139,9 +136,12 @@ function App() {
         
         <Route path="/reports" element={
           <ProtectedRoute>
-            <AdminReports />
+            <AdminAnalytics />
           </ProtectedRoute>
         } />
+
+        {/* /analytics redirects to /reports (unified analytics hub) */}
+        <Route path="/analytics" element={<Navigate to="/reports" replace />} />
         
         <Route path="/marketing" element={
           <ProtectedRoute>
@@ -152,6 +152,24 @@ function App() {
         <Route path="/newsletter" element={
           <ProtectedRoute>
             <AdminNewsletter />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/segments" element={
+          <ProtectedRoute>
+            <AdminSegments />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/email-templates" element={
+          <ProtectedRoute>
+            <AdminEmailTemplates />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/send-email" element={
+          <ProtectedRoute>
+            <AdminEmailSend />
           </ProtectedRoute>
         } />
         
@@ -184,6 +202,12 @@ function App() {
             <AdminSTLFiles />
           </ProtectedRoute>
         } />
+
+        <Route path="/primary-download-grants" element={
+          <ProtectedRoute>
+            <AdminPrimaryDownloadGrants />
+          </ProtectedRoute>
+        } />
         
         <Route path="/fulfillment" element={
           <ProtectedRoute>
@@ -203,20 +227,12 @@ function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/analytics" element={
-          <ProtectedRoute>
-            <EnhancedAnalyticsDashboard />
-          </ProtectedRoute>
-        } />
-        
-        {/* Canonical dashboard route (mobile layout) */}
         <Route path="/mobile" element={
           <ProtectedRoute>
             <AdminMobileDashboard />
           </ProtectedRoute>
         } />
         
-        {/* Fallback - redirect to root dashboard if logged in, login if not */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
@@ -224,5 +240,3 @@ function App() {
 }
 
 export default App;
-
-

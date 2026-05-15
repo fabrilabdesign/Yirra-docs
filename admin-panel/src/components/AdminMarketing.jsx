@@ -1,253 +1,292 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 
 const AdminMarketing = () => {
   const { getToken } = useAuth();
   const [campaigns, setCampaigns] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
+  const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showSendModal, setShowSendModal] = useState(false);
-  const [selectedCampaign, setSelectedCampaign] = useState(null);
-  const [newCampaign, setNewCampaign] = useState({
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState(null);
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
-    template_type: 'welcome',
-    target_audience: 'all',
-    scheduled_date: ''
-  });
-  const [sendVariables, setSendVariables] = useState({
-    kickstarter_url: '',
-    milestone: '',
-    amount_raised: '',
-    backer_count: '',
-    days_remaining: '',
-    update_message: ''
+    template_id: '',
+    template_type: 'custom',
+    scheduled_date: '',
+    target_audience: 'all'
   });
 
-  const templateTypes = [
-    { value: 'welcome', label: 'Welcome Email' },
-    { value: 'kickstarter_launch', label: 'Kickstarter Launch' },
-    { value: 'campaign_update', label: 'Campaign Update' },
-    { value: 'final_hours', label: 'Final Hours' }
-  ];
-
-  const targetAudiences = [
-    { value: 'all', label: 'All Subscribers' },
-    { value: 'new_subscribers', label: 'New Subscribers (Last 7 days)' },
-    { value: 'long_term_subscribers', label: 'Long-term Subscribers (30+ days)' }
-  ];
-
-  useEffect(() => {
-    fetchCampaigns();
-    fetchAnalytics();
-  }, []);
-
-  const fetchCampaigns = async () => {
+  // Fetch campaigns
+  const fetchCampaigns = useCallback(async () => {
     try {
+      setLoading(true);
       const token = await getToken();
-      const response = await fetch('/api/admin/newsletter/subscribers', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      if (!token) return;
+
+      const response = await fetch('/api/marketing/campaigns', {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+
       if (response.ok) {
         const data = await response.json();
-        setCampaigns(data.subscribers || data.campaigns || []);
+        setCampaigns(data.campaigns || []);
       }
-    } catch (error) {
-      console.error('Error fetching campaigns:', error);
+    } catch (err) {
+      setError('Failed to load campaigns');
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [getToken]);
 
-  const fetchAnalytics = async () => {
+  // Fetch templates for dropdown
+  const fetchTemplates = useCallback(async () => {
     try {
       const token = await getToken();
-      const response = await fetch('/api/admin/newsletter/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      if (!token) return;
+
+      const response = await fetch('/api/marketing/templates', {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+
       if (response.ok) {
         const data = await response.json();
-        setAnalytics(data);
+        setTemplates(data.templates || []);
       }
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
+    } catch (err) {
+      console.error('Failed to load templates:', err);
     }
+  }, [getToken]);
+
+  useEffect(() => {
+    fetchCampaigns();
+    fetchTemplates();
+  }, [fetchCampaigns, fetchTemplates]);
+
+  const openCreateModal = () => {
+    setEditingCampaign(null);
+    setFormData({
+      name: '',
+      description: '',
+      template_id: '',
+      template_type: 'custom',
+      scheduled_date: '',
+      target_audience: 'all'
+    });
+    setShowModal(true);
   };
 
-  const createCampaign = async () => {
+  const openEditModal = (campaign) => {
+    setEditingCampaign(campaign);
+    setFormData({
+      name: campaign.name,
+      description: campaign.description || '',
+      template_id: campaign.template_id || '',
+      template_type: campaign.template_type || 'custom',
+      scheduled_date: campaign.scheduled_date ? new Date(campaign.scheduled_date).toISOString().slice(0, 16) : '',
+      target_audience: campaign.target_audience || 'all'
+    });
+    setShowModal(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const token = await getToken();
-      const response = await fetch('/api/marketing/campaigns', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newCampaign)
-      });
+      if (!token) return;
+
+      const url = editingCampaign 
+        ? `/api/marketing/campaigns/${editingCampaign.id}`
+        : '/api/marketing/campaigns';
       
-      if (response.ok) {
-        setShowCreateModal(false);
-        setNewCampaign({
-          name: '',
-          description: '',
-          template_type: 'welcome',
-          target_audience: 'all',
-          scheduled_date: ''
-        });
-        fetchCampaigns();
-      }
-    } catch (error) {
-      console.error('Error creating campaign:', error);
-    }
-  };
+      const method = editingCampaign ? 'PUT' : 'POST';
 
-  const sendCampaign = async () => {
-    try {
-      const token = await getToken();
-      const response = await fetch('/api/admin/newsletter/send', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          template_type: newCampaign.template_type,
-          target_audience: newCampaign.target_audience,
-          variables: sendVariables
+          ...formData,
+          template_id: formData.template_id ? parseInt(formData.template_id) : null
         })
       });
+
       if (response.ok) {
-        setShowSendModal(false);
+        setSuccess(editingCampaign ? 'Campaign updated!' : 'Campaign created!');
+        setShowModal(false);
+        fetchCampaigns();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to save campaign');
       }
-    } catch (error) {
-      console.error('Error sending campaign:', error);
+    } catch (err) {
+      setError('Failed to save campaign');
+      console.error(err);
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const deleteCampaign = async (id) => {
+    if (!window.confirm('Delete this campaign?')) return;
+    
+    try {
+      const token = await getToken();
+      const response = await fetch(`/api/marketing/campaigns/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        setSuccess('Campaign deleted');
+        fetchCampaigns();
+        setTimeout(() => setSuccess(''), 3000);
+      }
+    } catch (err) {
+      setError('Failed to delete campaign');
+    }
   };
 
-  if (loading) {
-    return <div className="loading">Loading marketing data...</div>;
-  }
+  const sendCampaign = async (id) => {
+    if (!window.confirm('Send this campaign to all subscribers?')) return;
+
+    try {
+      const token = await getToken();
+      const response = await fetch(`/api/marketing/campaigns/${id}/send`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ variables: {} })
+      });
+
+      if (response.ok) {
+        setSuccess('Campaign sent successfully!');
+        fetchCampaigns();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to send campaign');
+      }
+    } catch (err) {
+      setError('Failed to send campaign');
+    }
+  };
 
   return (
-    <div className="admin-marketing">
-      <div className="marketing-header">
-        <h2>Marketing Automation</h2>
-        <button 
-          onClick={() => setShowCreateModal(true)}
-          className="create-campaign-btn"
-        >
-          Create Campaign
-        </button>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px', background: '#0d1117', minHeight: '100vh' }}>
+      <div style={{ marginBottom: '32px' }}>
+        <h1 style={{ color: '#f0f6fc', fontSize: '24px', fontWeight: '600', marginBottom: '8px' }}>
+          Email Campaigns
+        </h1>
+        <p style={{ color: '#8b949e', fontSize: '14px' }}>
+          Create and manage email marketing campaigns
+        </p>
       </div>
 
-      {/* Analytics Cards */}
-      {analytics && (
-        <div className="analytics-grid">
-          <div className="analytics-card">
-            <h3>Total Subscribers</h3>
-            <div className="metric">{analytics.subscribers.total_subscribers}</div>
-            <div className="sub-metric">
-              {analytics.subscribers.active_subscribers} active
-            </div>
-          </div>
-          <div className="analytics-card">
-            <h3>Campaigns Sent</h3>
-            <div className="metric">{analytics.campaigns.sent_campaigns}</div>
-            <div className="sub-metric">
-              {analytics.campaigns.draft_campaigns} drafts
-            </div>
-          </div>
-          <div className="analytics-card">
-            <h3>Emails Sent</h3>
-            <div className="metric">{analytics.campaigns.total_emails_sent || 0}</div>
-            <div className="sub-metric">
-              {(analytics.campaigns.avg_open_rate || 0).toFixed(1)}% avg open rate
-            </div>
-          </div>
-          <div className="analytics-card">
-            <h3>New This Week</h3>
-            <div className="metric">{analytics.subscribers.new_this_week}</div>
-            <div className="sub-metric">
-              {analytics.subscribers.new_this_month} this month
-            </div>
-          </div>
+      {error && (
+        <div style={{ background: 'rgba(248, 81, 73, 0.1)', border: '1px solid #f85149', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#f85149' }}>
+          {error}
         </div>
       )}
 
-      {/* Campaigns Table */}
-      <div className="campaigns-section">
-        <h3>Email Campaigns</h3>
-        <div className="campaigns-table">
-          <table>
+      {success && (
+        <div style={{ background: 'rgba(63, 185, 80, 0.1)', border: '1px solid #3fb950', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#3fb950' }}>
+          {success}
+        </div>
+      )}
+
+      <div style={{ marginBottom: '24px' }}>
+        <button
+          onClick={openCreateModal}
+          style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #00f2fe 0%, #00d4aa 100%)', color: '#0d1117', fontWeight: '600', cursor: 'pointer' }}
+        >
+          + Create Campaign
+        </button>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '48px', color: '#8b949e' }}>Loading campaigns...</div>
+      ) : campaigns.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '48px', background: '#161b22', borderRadius: '8px', border: '1px solid #30363d' }}>
+          <p style={{ color: '#8b949e', marginBottom: '16px' }}>No campaigns yet</p>
+          <button onClick={openCreateModal} style={{ padding: '10px 20px', borderRadius: '6px', border: '1px solid #30363d', background: '#21262d', color: '#f0f6fc', cursor: 'pointer' }}>
+            Create your first campaign
+          </button>
+        </div>
+      ) : (
+        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr>
-                <th>Campaign Name</th>
-                <th>Template</th>
-                <th>Target Audience</th>
-                <th>Status</th>
-                <th>Sent Count</th>
-                <th>Created</th>
-                <th>Actions</th>
+              <tr style={{ background: '#21262d', borderBottom: '1px solid #30363d' }}>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#8b949e', fontSize: '12px', fontWeight: '600' }}>CAMPAIGN</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#8b949e', fontSize: '12px', fontWeight: '600' }}>TEMPLATE</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#8b949e', fontSize: '12px', fontWeight: '600' }}>STATUS</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#8b949e', fontSize: '12px', fontWeight: '600' }}>SCHEDULED</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#8b949e', fontSize: '12px', fontWeight: '600' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
-              {campaigns.map((campaign) => (
-                <tr key={campaign.id}>
-                  <td>
-                    <div className="campaign-name">
-                      {campaign.name}
-                      {campaign.description && (
-                        <div className="campaign-description">{campaign.description}</div>
-                      )}
-                    </div>
+              {campaigns.map(campaign => (
+                <tr key={campaign.id} style={{ borderBottom: '1px solid #30363d' }}>
+                  <td style={{ padding: '12px' }}>
+                    <div style={{ color: '#f0f6fc', fontWeight: '600' }}>{campaign.name}</div>
+                    <div style={{ color: '#8b949e', fontSize: '12px' }}>{campaign.description}</div>
                   </td>
-                  <td>
-                    <span className="template-badge">
-                      {templateTypes.find(t => t.value === campaign.template_type)?.label || campaign.template_type}
-                    </span>
+                  <td style={{ padding: '12px', color: '#8b949e' }}>
+                    {campaign.template_id ? (
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(88, 166, 255, 0.1)', color: '#58a6ff', fontSize: '11px' }}>
+                        Template #{campaign.template_id}
+                      </span>
+                    ) : (
+                      <span style={{ color: '#8b949e' }}>{campaign.template_type || 'None'}</span>
+                    )}
                   </td>
-                  <td>{targetAudiences.find(a => a.value === campaign.target_audience)?.label || campaign.target_audience}</td>
-                  <td>
-                    <span className={`status-badge ${campaign.status}`}>
+                  <td style={{ padding: '12px' }}>
+                    <span style={{ 
+                      padding: '4px 8px', 
+                      borderRadius: '4px', 
+                      fontSize: '11px',
+                      background: campaign.status === 'sent' ? 'rgba(63, 185, 80, 0.1)' : 
+                                campaign.status === 'scheduled' ? 'rgba(245, 158, 11, 0.1)' : 
+                                'rgba(139, 148, 158, 0.1)',
+                      color: campaign.status === 'sent' ? '#3fb950' : 
+                            campaign.status === 'scheduled' ? '#f59e0b' : 
+                            '#8b949e'
+                    }}>
                       {campaign.status}
                     </span>
                   </td>
-                  <td>{campaign.sent_count || 0}</td>
-                  <td>{formatDate(campaign.created_at)}</td>
-                  <td>
-                    <div className="action-buttons">
+                  <td style={{ padding: '12px', color: '#8b949e', fontSize: '12px' }}>
+                    {campaign.scheduled_date ? new Date(campaign.scheduled_date).toLocaleString() : 'Not scheduled'}
+                  </td>
+                  <td style={{ padding: '12px' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => openEditModal(campaign)}
+                        style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #30363d', background: '#21262d', color: '#58a6ff', fontSize: '12px', cursor: 'pointer' }}
+                      >
+                        Edit
+                      </button>
                       {campaign.status === 'draft' && (
                         <button
-                          onClick={() => {
-                            setSelectedCampaign(campaign);
-                            setShowSendModal(true);
-                          }}
-                          className="send-btn"
+                          onClick={() => sendCampaign(campaign.id)}
+                          style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #30363d', background: '#21262d', color: '#3fb950', fontSize: '12px', cursor: 'pointer' }}
                         >
                           Send
                         </button>
                       )}
-                      {campaign.status === 'sent' && (
-                        <span className="sent-indicator">✓ Sent</span>
-                      )}
+                      <button
+                        onClick={() => deleteCampaign(campaign.id)}
+                        style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #30363d', background: '#21262d', color: '#f85149', fontSize: '12px', cursor: 'pointer' }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -255,508 +294,113 @@ const AdminMarketing = () => {
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Create Campaign Modal */}
-      {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Create New Campaign</h3>
-              <button onClick={() => setShowCreateModal(false)} className="close-btn">×</button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Campaign Name</label>
-                <input
-                  type="text"
-                  value={newCampaign.name}
-                  onChange={(e) => setNewCampaign({...newCampaign, name: e.target.value})}
-                  placeholder="Enter campaign name"
-                />
-              </div>
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  value={newCampaign.description}
-                  onChange={(e) => setNewCampaign({...newCampaign, description: e.target.value})}
-                  placeholder="Campaign description"
-                  rows="3"
-                />
-              </div>
-              <div className="form-group">
-                <label>Email Template</label>
-                <select
-                  value={newCampaign.template_type}
-                  onChange={(e) => setNewCampaign({...newCampaign, template_type: e.target.value})}
-                >
-                  {templateTypes.map(template => (
-                    <option key={template.value} value={template.value}>
-                      {template.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Target Audience</label>
-                <select
-                  value={newCampaign.target_audience}
-                  onChange={(e) => setNewCampaign({...newCampaign, target_audience: e.target.value})}
-                >
-                  {targetAudiences.map(audience => (
-                    <option key={audience.value} value={audience.value}>
-                      {audience.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Scheduled Date (optional)</label>
-                <input
-                  type="datetime-local"
-                  value={newCampaign.scheduled_date}
-                  onChange={(e) => setNewCampaign({...newCampaign, scheduled_date: e.target.value})}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button onClick={() => setShowCreateModal(false)} className="cancel-btn">
-                Cancel
-              </button>
-              <button onClick={createCampaign} className="create-btn">
-                Create Campaign
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
-      {/* Send Campaign Modal */}
-      {showSendModal && selectedCampaign && (
-        <div className="modal-overlay">
-          <div className="modal large-modal">
-            <div className="modal-header">
-              <h3>Send Campaign: {selectedCampaign.name}</h3>
-              <button onClick={() => setShowSendModal(false)} className="close-btn">×</button>
+      {/* Campaign Modal */}
+      {showModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#161b22', borderRadius: '12px', border: '1px solid #30363d', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h2 style={{ color: '#f0f6fc', margin: 0, fontSize: '18px' }}>
+                {editingCampaign ? 'Edit Campaign' : 'Create Campaign'}
+              </h2>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#8b949e', fontSize: '24px', cursor: 'pointer' }}>
+                ×
+              </button>
             </div>
-            <div className="modal-body">
-              <div className="campaign-info">
-                <p><strong>Template:</strong> {templateTypes.find(t => t.value === selectedCampaign.template_type)?.label}</p>
-                <p><strong>Target:</strong> {targetAudiences.find(a => a.value === selectedCampaign.target_audience)?.label}</p>
-              </div>
-              
-              {selectedCampaign.template_type !== 'welcome' && (
-                <div className="variables-section">
-                  <h4>Campaign Variables</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Kickstarter URL</label>
-                      <input
-                        type="url"
-                        value={sendVariables.kickstarter_url}
-                        onChange={(e) => setSendVariables({...sendVariables, kickstarter_url: e.target.value})}
-                        placeholder="https://kickstarter.com/projects/..."
-                      />
-                    </div>
-                    
-                    {selectedCampaign.template_type === 'campaign_update' && (
-                      <>
-                        <div className="form-group">
-                          <label>Milestone</label>
-                          <input
-                            type="text"
-                            value={sendVariables.milestone}
-                            onChange={(e) => setSendVariables({...sendVariables, milestone: e.target.value})}
-                            placeholder="e.g., 50% Funded, 1000 Backers"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Amount Raised</label>
-                          <input
-                            type="text"
-                            value={sendVariables.amount_raised}
-                            onChange={(e) => setSendVariables({...sendVariables, amount_raised: e.target.value})}
-                            placeholder="e.g., 25,000"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Backer Count</label>
-                          <input
-                            type="text"
-                            value={sendVariables.backer_count}
-                            onChange={(e) => setSendVariables({...sendVariables, backer_count: e.target.value})}
-                            placeholder="e.g., 150"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Days Remaining</label>
-                          <input
-                            type="text"
-                            value={sendVariables.days_remaining}
-                            onChange={(e) => setSendVariables({...sendVariables, days_remaining: e.target.value})}
-                            placeholder="e.g., 15"
-                          />
-                        </div>
-                        <div className="form-group full-width">
-                          <label>Update Message</label>
-                          <textarea
-                            value={sendVariables.update_message}
-                            onChange={(e) => setSendVariables({...sendVariables, update_message: e.target.value})}
-                            placeholder="Additional update message for backers"
-                            rows="3"
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
+
+            <form onSubmit={handleSubmit} style={{ padding: '24px', overflow: 'auto', flex: 1 }}>
+              <div style={{ display: 'grid', gap: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', color: '#f0f6fc', marginBottom: '6px', fontSize: '14px' }}>Campaign Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g., June Product Launch"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc' }}
+                  />
                 </div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button onClick={() => setShowSendModal(false)} className="cancel-btn">
-                Cancel
-              </button>
-              <button onClick={sendCampaign} className="send-btn">
-                Send Campaign
-              </button>
-            </div>
+
+                <div>
+                  <label style={{ display: 'block', color: '#f0f6fc', marginBottom: '6px', fontSize: '14px' }}>Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Campaign description..."
+                    rows={3}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', color: '#f0f6fc', marginBottom: '6px', fontSize: '14px' }}>
+                    Email Template {templates.length > 0 && '*'}
+                  </label>
+                  {templates.length > 0 ? (
+                    <select
+                      value={formData.template_id}
+                      onChange={(e) => setFormData({ ...formData, template_id: e.target.value })}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc' }}
+                    >
+                      <option value="">Select a template...</option>
+                      {templates.map(template => (
+                        <option key={template.id} value={template.id}>
+                          {template.name} {template.category && `(${template.category})`}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div style={{ padding: '12px', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid #f59e0b', borderRadius: '6px', color: '#f59e0b', fontSize: '13px' }}>
+                      No templates available. Create a template first in Email Templates.
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', color: '#f0f6fc', marginBottom: '6px', fontSize: '14px' }}>Target Audience</label>
+                  <select
+                    value={formData.target_audience}
+                    onChange={(e) => setFormData({ ...formData, target_audience: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc' }}
+                  >
+                    <option value="all">All Subscribers</option>
+                    <option value="active">Active Subscribers</option>
+                    <option value="customers">Customers Only</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', color: '#f0f6fc', marginBottom: '6px', fontSize: '14px' }}>Schedule Date (optional)</label>
+                  <input
+                    type="datetime-local"
+                    value={formData.scheduled_date}
+                    onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #30363d' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  style={{ padding: '10px 20px', borderRadius: '6px', border: '1px solid #30363d', background: '#21262d', color: '#f0f6fc', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #00f2fe 0%, #00d4aa 100%)', color: '#0d1117', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  {editingCampaign ? 'Update Campaign' : 'Create Campaign'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .admin-marketing {
-          padding: 20px;
-        }
-
-        .marketing-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
-        }
-
-        .marketing-header h2 {
-          margin: 0;
-          color: #1f2937;
-        }
-
-        .create-campaign-btn {
-          background: #2563eb;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-weight: 500;
-        }
-
-        .create-campaign-btn:hover {
-          background: #1d4ed8;
-        }
-
-        .analytics-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 20px;
-          margin-bottom: 40px;
-        }
-
-        .analytics-card {
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          border: 1px solid #e5e7eb;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .analytics-card h3 {
-          margin: 0 0 10px 0;
-          font-size: 14px;
-          color: #6b7280;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .metric {
-          font-size: 32px;
-          font-weight: bold;
-          color: #1f2937;
-          margin-bottom: 5px;
-        }
-
-        .sub-metric {
-          font-size: 14px;
-          color: #6b7280;
-        }
-
-        .campaigns-section {
-          background: white;
-          border-radius: 8px;
-          border: 1px solid #e5e7eb;
-          overflow: hidden;
-        }
-
-        .campaigns-section h3 {
-          margin: 0;
-          padding: 20px;
-          background: #f9fafb;
-          border-bottom: 1px solid #e5e7eb;
-          color: #1f2937;
-        }
-
-        .campaigns-table {
-          overflow-x: auto;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-
-        th, td {
-          padding: 12px 16px;
-          text-align: left;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        th {
-          background: #f9fafb;
-          font-weight: 600;
-          color: #374151;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .campaign-name {
-          font-weight: 500;
-          color: #1f2937;
-        }
-
-        .campaign-description {
-          font-size: 12px;
-          color: #6b7280;
-          margin-top: 4px;
-        }
-
-        .template-badge {
-          background: #dbeafe;
-          color: #1e40af;
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 500;
-        }
-
-        .status-badge {
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 500;
-          text-transform: capitalize;
-        }
-
-        .status-badge.draft {
-          background: #fef3c7;
-          color: #92400e;
-        }
-
-        .status-badge.sent {
-          background: #d1fae5;
-          color: #065f46;
-        }
-
-        .status-badge.scheduled {
-          background: #bfdbfe;
-          color: #1e3a8a;
-        }
-
-        .action-buttons {
-          display: flex;
-          gap: 8px;
-        }
-
-        .send-btn {
-          background: #10b981;
-          color: white;
-          border: none;
-          padding: 6px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 12px;
-        }
-
-        .send-btn:hover {
-          background: #059669;
-        }
-
-        .sent-indicator {
-          color: #10b981;
-          font-size: 12px;
-          font-weight: 500;
-        }
-
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-        }
-
-        .modal {
-          background: white;
-          border-radius: 8px;
-          width: 90%;
-          max-width: 500px;
-          max-height: 90vh;
-          overflow-y: auto;
-        }
-
-        .large-modal {
-          max-width: 700px;
-        }
-
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 20px;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .modal-header h3 {
-          margin: 0;
-          color: #1f2937;
-        }
-
-        .close-btn {
-          background: none;
-          border: none;
-          font-size: 24px;
-          cursor: pointer;
-          color: #6b7280;
-        }
-
-        .modal-body {
-          padding: 20px;
-        }
-
-        .campaign-info {
-          background: #f9fafb;
-          padding: 15px;
-          border-radius: 6px;
-          margin-bottom: 20px;
-        }
-
-        .campaign-info p {
-          margin: 5px 0;
-          font-size: 14px;
-        }
-
-        .variables-section h4 {
-          margin: 0 0 15px 0;
-          color: #1f2937;
-        }
-
-        .form-group {
-          margin-bottom: 15px;
-        }
-
-        .form-group label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: 500;
-          color: #374151;
-          font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-          width: 100%;
-          padding: 8px 12px;
-          border: 1px solid #d1d5db;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-          outline: none;
-          border-color: #2563eb;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .form-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 15px;
-        }
-
-        .form-group.full-width {
-          grid-column: 1 / -1;
-        }
-
-        .modal-footer {
-          display: flex;
-          justify-content: flex-end;
-          gap: 10px;
-          padding: 20px;
-          border-top: 1px solid #e5e7eb;
-        }
-
-        .cancel-btn {
-          background: #f3f4f6;
-          color: #374151;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .cancel-btn:hover {
-          background: #e5e7eb;
-        }
-
-        .create-btn {
-          background: #2563eb;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .create-btn:hover {
-          background: #1d4ed8;
-        }
-
-        .loading {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 200px;
-          color: #6b7280;
-        }
-
-        @media (max-width: 768px) {
-          .form-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .analytics-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </div>
   );
 };
