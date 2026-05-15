@@ -98,6 +98,52 @@ body {
   color: #0ea5e9;
 }
 
+/* Discord CTA in navbar (all pages) */
+.navbar-discord-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.25rem;
+  padding: 0.4rem 0.95rem !important;
+  border-radius: 999px;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 16px rgba(88, 101, 242, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.navbar-discord-cta:hover {
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 0 22px rgba(88, 101, 242, 0.5);
+}
+
+.navbar-commercial-link {
+  font-weight: 600 !important;
+  color: rgba(251, 191, 36, 0.95) !important;
+}
+
+.navbar-commercial-link:hover {
+  color: #fde68a !important;
+}
+
+/* Announcement bar link contrast on blurple */
+div[class^='announcementBar'] a,
+div[class*='announcementBar'] a {
+  color: #ffffff !important;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+div[class^='announcementBar'] a:hover,
+div[class*='announcementBar'] a:hover {
+  color: #e0e7ff !important;
+}
+
 /* =============================================================================
    SIDEBAR
    ============================================================================= */
@@ -192,13 +238,29 @@ article {
     padding: 0 1rem;
   }
 
-  /* Stack table content better on mobile */
+  /* Contain wide tables so they scroll independently, not the whole page */
+  .theme-doc-markdown table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Let table use its natural width but scroll inside its container */
+    width: max-content !important;
+    max-width: 100%;
+    min-width: 0;
+  }
+
   table {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
   }
 
   th, td {
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.625rem;
+    white-space: nowrap;
+  }
+
+  /* Allow cells with longer content to wrap */
+  .theme-doc-markdown table td:last-child {
+    white-space: normal;
   }
 }
 

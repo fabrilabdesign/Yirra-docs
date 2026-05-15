@@ -74,7 +74,21 @@ For high-stress printed drone parts, carbon-fiber reinforced Nylon 6 (PA6-CF20) 
 
 ### Equipment Considerations
 
+**Recommended printer:** **Prusa CORE One+** — for print quality and manufacturer ethics (open-source toolchain, full local operation without forced cloud), we consider it the current class leader among machines suitable for demanding PA-CF work. You still need a hardened nozzle and the material handling in this guide.
+
+**3MF project files:** Bundled `.3mf` files were authored in **Bambu Studio** (legacy workflow). They open directly there; you can also import them into **PrusaSlicer**, **OrcaSlicer**, or other compatible slicers and map settings to your printer. Any CF-Nylon-capable printer (high-temp hotend, hardened nozzle) can work but may need manual tuning.
+
 **Nozzle:** Use hardened steel or ruby. Brass wears out in ~9 hours due to abrasive carbon fiber.
+
+### Why we no longer recommend Bambu Lab printers
+
+Bambu Lab machines are fast and reliable, but we no longer recommend buying them for this project.
+
+The community has repeatedly raised concerns about forced cloud dependency and attempts to restrict third-party filament and software. Most recently, Bambu Lab issued legal threats against developers maintaining compatibility after further restrictive firmware updates.
+
+Those patterns point to vendor lock-in and reduced user control. Prusa, by contrast, emphasizes full local operation and open-source principles.
+
+For casual hobby use, existing Bambu hardware still prints well. For long-term ownership, repairability, and freedom in how you slice and source filament, we recommend **Prusa** (above) instead.
 
 **Adhesion:** Apply thin layer of glue stick to textured PEI surface. Low bed temperature prevents oozing.
 
@@ -113,7 +127,7 @@ Optimized print sequence for efficient workflow:
 
 ## 3MF Files & Print Previews
 
-The following 3MF files are pre-configured for Bambu Studio with optimized settings, supports, and orientations for reliable CF-Nylon printing.
+The following 3MF files include optimized settings, supports, and orientations for reliable CF-Nylon printing. They were created in Bambu Studio; if you use PrusaSlicer or OrcaSlicer, import the project and verify temperatures, machine limits, and filament profiles for your hardware.
 
 ### Arm Bosses
 
@@ -193,7 +207,7 @@ TPE printing differs significantly from nylon. These settings were developed thr
 These 3MF files include:
 - ✅ Optimized print orientation for strength
 - ✅ Automatic support generation
-- ✅ Bambu Studio-specific settings
+- ✅ Embedded slicer/machine settings (authored in Bambu Studio — migrate as needed for PrusaSlicer, OrcaSlicer, etc.)
 - ✅ CF-Nylon material profiles
 - ✅ Quality assurance checkpoints
 

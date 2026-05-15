@@ -1,0 +1,34 @@
+# Yirra Systems Documentation
+> Build guides, CAD files, firmware, BOM, and compliance documentation for the Replicant GEN 1 open-source drone platform.
+
+## Documentation pages
+
+### Platform
+- [Platform overview](https://docs.yirrasystems.com/docs/platform): Full system specification — airframe, power, payload, RF architecture
+
+### Build guides
+- [3D printing](https://docs.yirrasystems.com/docs/3d-printing): Print settings, material (CF-Nylon), Prusa CORE One+ recommended, 3MF projects (import to PrusaSlicer/Orca)
+- [Arm bonding](https://docs.yirrasystems.com/docs/arm-bonding): DP-409 epoxy joint procedure for carbon fibre arms
+- [Assembly](https://docs.yirrasystems.com/docs/assembly): Full airframe assembly sequence, torque specs, wiring harness
+
+### Components
+- [Battery system](https://docs.yirrasystems.com/docs/battery): Modular rail-mount battery — 6S Molicel P50B, 5000 mAh, hot-swap rail
+- [Bill of materials](https://docs.yirrasystems.com/docs/bom): Complete BOM with part numbers, suppliers, quantities, and purchase links
+- [Firmware (iNav)](https://docs.yirrasystems.com/docs/inav): iNav configuration, target, CLI dump, tune starting points
+
+### Files & downloads
+- [Downloads](https://docs.yirrasystems.com/docs/downloads): CAD files (STEP, STL, 3MF), schematics, firmware — some gated by account
+
+### Licensing & commercial
+- [Compliance & licensing](https://docs.yirrasystems.com/docs/compliance): CERN-OHL-W-2.0 obligations explained; open-source vs commercial partner paths
+- [Commercial partner programme](https://docs.yirrasystems.com/docs/commercial-programs): Volume battery pricing, licence terms, support tiers
+- [Licence](https://docs.yirrasystems.com/docs/license): Full CERN-OHL-W-2.0 licence text
+
+## Key facts
+- Platform: Replicant GEN 1 — 7-inch long-range FPV drone
+- Frame material: CF-Nylon 3D-printed chassis + bonded carbon fibre arms (DP-409 epoxy)
+- Power: 6S Molicel P50B cells, 5000 mAh, rail-mounted hot-swap system
+- Hardware licence: CERN-OHL-W-2.0 — open hardware, commercial use allowed with disclosure obligations
+- Manufacturer: Yirra Systems, Melbourne, Victoria, Australia
+- Store: https://yirrasystems.com
+- Contact: business@yirrasystems.com

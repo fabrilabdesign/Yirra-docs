@@ -1,0 +1,506 @@
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);line-height:1.5}
+.nav{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:10px 20px;display:flex;align-items:center;gap:16px}
+.nav-brand{font-size:15px;font-weight:500;color:#1A2E4A}
+.nav-links{display:flex;gap:12px;margin-left:auto}
+.nav-links a{font-size:12px;color:var(--color-text-secondary);text-decoration:none;padding:4px 8px;border-radius:var(--border-radius-md)}
+.nav-links a:hover,.nav-links a.active{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);padding:0 16px}
+.tab{padding:8px 14px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary);white-space:nowrap}
+.tab.active{border-bottom-color:#2E6DA4;color:#2E6DA4;font-weight:500}
+.screen{display:none;padding:20px;max-width:680px}
+.screen.active{display:block}
+.page-title{font-size:18px;font-weight:500;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:20px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:500;margin-bottom:6px}
+.card-sub{font-size:12px;color:var(--color-text-secondary);margin-bottom:12px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--border-radius-md);font-weight:500}
+.badge-blue{background:#E6F1FB;color:#0C447C}
+.badge-green{background:#EAF3DE;color:#27500A}
+.badge-amber{background:#FAEEDA;color:#633806}
+.badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.badge-partner{background:#FFF9EC;color:#633806;border:0.5px solid #FAC775}
+.dl-btn{display:block;width:100%;padding:9px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;text-align:left;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:8px}
+.dl-btn:hover{background:var(--color-background-secondary)}
+.dl-btn.primary{background:#1A2E4A;color:#fff;border-color:#1A2E4A}
+.dl-btn.primary:hover{background:#2E6DA4;border-color:#2E6DA4}
+.dl-btn.partner{background:#FFF9EC;border-color:#FAC775;color:#412402}
+.dl-btn.partner:hover{background:#FAEEDA}
+.dl-btn .btn-sub{font-size:11px;opacity:0.7;margin-top:1px}
+.check-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.check-row input{margin-top:2px;flex-shrink:0}
+.check-label{font-size:13px;color:var(--color-text-secondary)}
+.form-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;display:block;font-weight:500}
+.form-row{margin-bottom:12px}
+select,input[type=text],input[type=email]{width:100%;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary)}
+.wizard-step{display:none}
+.wizard-step.active{display:block}
+.wizard-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.step-dot.done{background:#EAF3DE;color:#27500A}
+.step-dot.active{background:#1A2E4A;color:#fff}
+.step-dot.pending{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.step-line{flex:1;height:1px;background:var(--color-border-tertiary)}
+.option-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:8px;cursor:pointer;background:var(--color-background-primary)}
+.option-card:hover{background:var(--color-background-secondary)}
+.option-card.selected{border:2px solid #2E6DA4;background:#E6F1FB}
+.option-card.selected-partner{border:2px solid #FAC775;background:#FFF9EC}
+.option-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.option-sub{font-size:12px;color:var(--color-text-secondary)}
+.btn-row{display:flex;gap:8px;margin-top:16px}
+.btn{padding:8px 16px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+.btn:hover{background:var(--color-background-secondary)}
+.btn.primary{background:#1A2E4A;color:#fff;border-color:#1A2E4A}
+.btn.primary:hover{background:#2E6DA4;border-color:#2E6DA4}
+.btn.partner-btn{background:#FAC775;color:#412402;border-color:#FAC775}
+.btn.partner-btn:hover{background:#FAEEDA}
+.result-box{border-radius:var(--border-radius-lg);padding:16px;margin-bottom:12px}
+.result-box.green{background:#EAF3DE;border:0.5px solid #639922}
+.result-box.amber{background:#FAEEDA;border:0.5px solid #BA7517}
+.result-box.partner-gold{background:#FFF9EC;border:0.5px solid #FAC775}
+.result-box .title{font-weight:500;font-size:14px;margin-bottom:6px}
+.result-box .desc{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.tier-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;background:var(--color-background-primary)}
+.tier-card.featured{border:2px solid #2E6DA4}
+.tier-name{font-size:13px;font-weight:500;margin-bottom:4px}
+.tier-price{font-size:18px;font-weight:500;color:#1A2E4A;margin-bottom:2px}
+.tier-royalty{font-size:11px;color:var(--color-text-secondary);margin-bottom:10px}
+.tier-cap{font-size:11px;background:var(--color-background-secondary);padding:3px 8px;border-radius:var(--border-radius-md);display:inline-block;margin-bottom:10px}
+.tier-feat{font-size:11px;color:var(--color-text-secondary);line-height:1.7}
+.tier-feat .yes{color:#27500A}
+.tier-feat .no{color:var(--color-text-secondary);opacity:0.5}
+.partner-banner{background:linear-gradient(135deg,#1A2E4A 0%,#2E6DA4 100%);border-radius:var(--border-radius-lg);padding:16px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}
+.partner-banner h3{font-size:15px;font-weight:500;margin-bottom:4px}
+.partner-banner p{font-size:12px;opacity:0.85;margin-bottom:12px}
+.partner-badge-pill{background:#FAC775;color:#412402;font-size:11px;font-weight:500;padding:2px 10px;border-radius:100px;display:inline-block;margin-bottom:8px}
+.admin-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.admin-row:last-child{border-bottom:none}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#639922}
+.dot-amber{background:#BA7517}
+.dot-red{background:#E24B4A}
+.dot-blue{background:#2E6DA4}
+.action-row{display:flex;gap:6px}
+.action-btn{font-size:11px;padding:3px 8px;border-radius:var(--border-radius-md);cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.action-btn.offer{background:#FFF9EC;border-color:#FAC775;color:#633806}
+.action-btn.approve{background:#EAF3DE;border-color:#639922;color:#27500A}
+.dir-card{display:flex;align-items:flex-start;gap:12px;padding:12px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:8px;background:var(--color-background-primary)}
+.dir-avatar{width:36px;height:36px;border-radius:var(--border-radius-md);background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#0C447C;flex-shrink:0}
+.dir-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.dir-sub{font-size:12px;color:var(--color-text-secondary)}
+.featured-chip{font-size:10px;background:#FAEEDA;color:#633806;border:0.5px solid #FAC775;padding:1px 6px;border-radius:var(--border-radius-md);margin-left:6px}
+.info-banner{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;font-size:12px;color:var(--color-text-secondary);margin-bottom:16px}
+.fallback-box{background:var(--color-background-secondary);border-left:3px solid #E24B4A;padding:10px 14px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;font-size:12px;color:var(--color-text-secondary);margin-top:8px}
+</style>
+
+<h2 class="sr-only">Yirra Systems docs site mockup showing download page, compliance wizard with partner funnel, partner program landing, partner directory, and admin dashboard</h2>
+
+<div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);overflow:hidden;border:0.5px solid var(--color-border-tertiary)">
+
+<div class="nav">
+  <span class="nav-brand">Yirra Systems</span>
+  <span style="font-size:12px;color:var(--color-text-secondary)">docs.yirrasystems.com</span>
+  <div class="nav-links">
+    <a href="#">Docs</a>
+    <a href="#" class="active">Download</a>
+    <a href="#">Partners</a>
+    <a href="#">Support</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('download')">Download page</div>
+  <div class="tab" onclick="showTab('wizard')">Compliance wizard</div>
+  <div class="tab" onclick="showTab('partner')">Partner program</div>
+  <div class="tab" onclick="showTab('directory')">Partner directory</div>
+  <div class="tab" onclick="showTab('admin')">Admin dashboard</div>
+</div>
+
+<div id="download" class="screen active">
+  <p class="page-title">Replicant GEN 1 — open drone platform</p>
+  <p class="page-sub">Free for personal and educational use under CERN-OHL-W-2.0. Commercial use requires a licence.</p>
+
+  <div class="card" style="border-left:3px solid #1A2E4A">
+    <div class="card-title">Before you download</div>
+    <div class="check-row"><input type="checkbox" id="ck1"><label class="check-label" for="ck1">I have read and understood the <strong>CERN-OHL-W-2.0</strong> licence and the Yirra Systems Compliance Guide.</label></div>
+    <div class="check-row"><input type="checkbox" id="ck2"><label class="check-label" for="ck2">I understand that commercial use (selling or distributing products) requires a separate commercial licence.</label></div>
+    <button class="dl-btn primary" style="margin-top:8px">Download design files (v1.0, 847 MB)</button>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">SHA-256: a3f8...c291 &nbsp;|&nbsp; Updated 12 April 2025</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Commercial licensing options</div>
+    <button class="dl-btn partner" onclick="showTab('partner')">
+      Commercial Partner Program — self-service, start from AUD $1,100 / yr
+      <div class="btn-sub">Maker · Commercial · Scale tiers &nbsp;|&nbsp; Good Standing Certificate · Powered by Yirra mark</div>
+    </button>
+    <button class="dl-btn" onclick="showTab('wizard')">
+      Not sure which licence applies to you?
+      <div class="btn-sub">Answer 3 quick questions — takes under 60 seconds</div>
+    </button>
+    <div class="fallback-box">
+      <strong style="color:#A32D2D">Fallback enforcement fee</strong> — if you distribute products without a valid licence, a one-time assessment fee applies: AUD $6,500 (≤ 10 units), $18,000 (11–100), $47,000 (101–500), $95,000+ (500+). The Partner Program costs significantly less. <span style="color:#2E6DA4;cursor:pointer" onclick="showTab('partner')">Join the Partner Program instead →</span>
+    </div>
+  </div>
+</div>
+
+<div id="wizard" class="screen">
+  <p class="page-title">Compliance wizard</p>
+  <p class="page-sub">Three questions to find the right path for your use.</p>
+
+  <div class="wizard-header">
+    <div class="step-dot active" id="dot1">1</div>
+    <div class="step-line"></div>
+    <div class="step-dot pending" id="dot2">2</div>
+    <div class="step-line"></div>
+    <div class="step-dot pending" id="dot3">3</div>
+    <div class="step-line"></div>
+    <div class="step-dot pending" id="dotR">✓</div>
+  </div>
+
+  <div class="wizard-step active" id="wstep1">
+    <div class="card-title" style="margin-bottom:12px">What best describes your intended use?</div>
+    <div class="option-card" onclick="selectQ1('personal')">
+      <div class="option-title">Personal, educational, or research use</div>
+      <div class="option-sub">Building for myself, a class project, or non-commercial research</div>
+    </div>
+    <div class="option-card" onclick="selectQ1('commercial')">
+      <div class="option-title">Commercial — selling or distributing products I build</div>
+      <div class="option-sub">Selling to customers, fulfilling commercial orders, or manufacturing for sale</div>
+    </div>
+    <div class="option-card" onclick="selectQ1('partner')" style="border-color:#FAC775">
+      <div class="option-title" style="color:#633806">I want to set up a commercial arrangement with Yirra Systems</div>
+      <div class="option-sub">I'd like a Good Standing Certificate, the Powered by Yirra mark, and a transparent fee structure</div>
+    </div>
+    <div class="option-card" onclick="selectQ1('unsure')">
+      <div class="option-title">I'm not sure yet</div>
+      <div class="option-sub">Walk me through the options</div>
+    </div>
+  </div>
+
+  <div class="wizard-step" id="wstep2">
+    <div class="card-title" style="margin-bottom:12px">Have you modified the original design files?</div>
+    <div class="option-card" onclick="selectQ2('no')">
+      <div class="option-title">No — using the original design files as released</div>
+      <div class="option-sub">No changes to PCB, schematics, firmware, or BOM</div>
+    </div>
+    <div class="option-card" onclick="selectQ2('yes')">
+      <div class="option-title">Yes — I have made modifications</div>
+      <div class="option-sub">Changed the design in any way, even minor adjustments</div>
+    </div>
+  </div>
+
+  <div class="wizard-step" id="wstep3">
+    <div class="card-title" style="margin-bottom:12px">How many units do you expect to produce per year?</div>
+    <div class="option-card" onclick="selectQ3('small')">
+      <div class="option-title">25 or fewer units</div>
+    </div>
+    <div class="option-card" onclick="selectQ3('medium')">
+      <div class="option-title">26 to 500 units</div>
+    </div>
+    <div class="option-card" onclick="selectQ3('large')">
+      <div class="option-title">More than 500 units</div>
+    </div>
+  </div>
+
+  <div class="wizard-step" id="wresult">
+    <div id="result-content"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="resetWizard()">Start over</button>
+      <button class="btn primary" id="result-cta" onclick="">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<div id="partner" class="screen">
+  <div class="partner-banner">
+    <div class="partner-badge-pill">Commercial Partner Program</div>
+    <h3>A commercial licence that works for you</h3>
+    <p>Self-service enrolment. No negotiation. Transparent pricing. Good Standing Certificate included with every tier.</p>
+    <button class="btn" style="background:#FAC775;color:#412402;border-color:#FAC775;font-size:12px" onclick="sendPrompt('How do I enrol in the Yirra Systems Commercial Partner Program?')">Enrol now ↗</button>
+  </div>
+
+  <div class="tier-grid">
+    <div class="tier-card">
+      <div class="tier-name">Maker</div>
+      <div class="tier-price">$1,100</div>
+      <div class="tier-royalty">AUD / year &nbsp;+&nbsp; $60 / unit</div>
+      <div class="tier-cap">≤ 25 units / yr</div>
+      <div class="tier-feat">
+        <div><span class="yes">✓</span> Good Standing Cert</div>
+        <div><span class="yes">✓</span> Powered by Yirra mark</div>
+        <div><span class="yes">✓</span> Basic directory listing</div>
+        <div><span class="yes">✓</span> 5-day review SLA</div>
+        <div><span class="no">—</span> Current design files</div>
+        <div><span class="no">—</span> Early access</div>
+      </div>
+    </div>
+    <div class="tier-card featured">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <div class="tier-name">Commercial</div>
+        <span class="badge badge-blue" style="font-size:10px">Popular</span>
+      </div>
+      <div class="tier-price">$4,500</div>
+      <div class="tier-royalty">AUD / year &nbsp;+&nbsp; $44 / unit</div>
+      <div class="tier-cap">≤ 500 units / yr</div>
+      <div class="tier-feat">
+        <div><span class="yes">✓</span> Good Standing Cert</div>
+        <div><span class="yes">✓</span> Powered by Yirra mark</div>
+        <div><span class="yes">✓</span> Full directory listing</div>
+        <div><span class="yes">✓</span> 3-day review SLA</div>
+        <div><span class="yes">✓</span> Current design files</div>
+        <div><span class="no">—</span> Early access</div>
+      </div>
+    </div>
+    <div class="tier-card">
+      <div class="tier-name">Scale</div>
+      <div class="tier-price">$13,500</div>
+      <div class="tier-royalty">AUD / year &nbsp;+&nbsp; $28 / unit</div>
+      <div class="tier-cap">Unlimited</div>
+      <div class="tier-feat">
+        <div><span class="yes">✓</span> Good Standing Cert</div>
+        <div><span class="yes">✓</span> Powered by Yirra mark</div>
+        <div><span class="yes">✓</span> Featured directory listing</div>
+        <div><span class="yes">✓</span> 1-day review SLA</div>
+        <div><span class="yes">✓</span> Current design files</div>
+        <div><span class="yes">✓</span> Early access + dedicated contact</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-banner">All amounts AUD, excl. GST. Annual platform fee is non-refundable. Per-unit royalty reported and paid quarterly. Governed by Victorian law.</div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Enrolment form</div>
+    <div class="form-row">
+      <label class="form-label">Legal entity / full name</label>
+      <input type="text" placeholder="ACME Drones Pty Ltd">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Email</label>
+      <input type="email" placeholder="contact@example.com">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Select tier</label>
+      <select>
+        <option>Maker — AUD $1,100 / yr + $60 / unit (≤ 25 units)</option>
+        <option selected>Commercial — AUD $4,500 / yr + $44 / unit (≤ 500 units)</option>
+        <option>Scale — AUD $13,500 / yr + $28 / unit (unlimited)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Expected annual units</label>
+      <input type="text" placeholder="e.g. 40">
+    </div>
+    <div class="check-row" style="margin-bottom:12px"><input type="checkbox"><label class="check-label">I agree to the Commercial Partner Agreement v1.0 and all Schedules.</label></div>
+    <button class="btn primary" style="width:100%">Submit enrolment</button>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px;text-align:center">Invoice sent by email · Portal activated within 1 business day</div>
+  </div>
+</div>
+
+<div id="directory" class="screen">
+  <p class="page-title">Partner directory</p>
+  <p class="page-sub">Verified commercial partners building on the Replicant GEN 1 platform.</p>
+  <div class="dir-card" style="border-color:#FAC775">
+    <div class="dir-avatar" style="background:#FFF9EC;color:#633806">AC</div>
+    <div style="flex:1">
+      <div class="dir-name">AeroCore Systems <span class="featured-chip">Featured</span></div>
+      <div class="dir-sub" style="margin-bottom:4px">Scale partner · Victoria, AU</div>
+      <div class="dir-sub">Agricultural inspection drones for the Australian farming market. 500+ units deployed. Full CASA certification.</div>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <span class="badge badge-partner">Scale tier</span>
+        <span class="badge badge-green">Good standing</span>
+      </div>
+    </div>
+  </div>
+  <div class="dir-card">
+    <div class="dir-avatar">MD</div>
+    <div style="flex:1">
+      <div class="dir-name">Meridian Drones</div>
+      <div class="dir-sub" style="margin-bottom:4px">Commercial partner · Queensland, AU</div>
+      <div class="dir-sub">Survey and mapping platforms for mining and civil engineering clients.</div>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <span class="badge badge-blue">Commercial tier</span>
+        <span class="badge badge-green">Good standing</span>
+      </div>
+    </div>
+  </div>
+  <div class="dir-card">
+    <div class="dir-avatar" style="background:#EAF3DE;color:#27500A">RK</div>
+    <div style="flex:1">
+      <div class="dir-name">Robotics Kit NZ</div>
+      <div class="dir-sub" style="margin-bottom:4px">Maker partner · Auckland, NZ</div>
+      <div class="dir-sub">Educational drone kits for secondary and tertiary institutions.</div>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <span class="badge badge-gray">Maker tier</span>
+        <span class="badge badge-green">Good standing</span>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--color-text-secondary);text-align:center;padding:12px">
+    Listed partners have a current Good Standing Certificate and are enrolled under the Yirra Systems Commercial Partner Agreement.
+    <span style="color:#2E6DA4;cursor:pointer" onclick="showTab('partner')"> Join the program →</span>
+  </div>
+</div>
+
+<div id="admin" class="screen">
+  <p class="page-title">Admin dashboard</p>
+  <p class="page-sub">Compliance submissions · Partner accounts · Payments</p>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Compliance queue</div>
+    <div class="admin-row">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <div class="status-dot dot-amber"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500">TerraFlight AU — modified frame, 12 units</div>
+          <div style="font-size:11px;color:var(--color-text-secondary)">Submitted 2h ago · No commercial licence on file</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <div class="action-btn offer" onclick="sendPrompt('Draft an email offering TerraFlight AU the Commercial Partner Program instead of the fallback fee')">Offer partner program ↗</div>
+        <div class="action-btn">Review docs</div>
+        <div class="action-btn" style="color:#A32D2D;border-color:#F7C1C1">Enforce CHL</div>
+      </div>
+    </div>
+    <div class="admin-row">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <div class="status-dot dot-green"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500">Meridian Drones — unmodified, 34 units</div>
+          <div style="font-size:11px;color:var(--color-text-secondary)">Commercial partner · Q2 report received · Royalty paid</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <div class="action-btn approve">Approve</div>
+        <div class="action-btn">View account</div>
+      </div>
+    </div>
+    <div class="admin-row">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <div class="status-dot dot-blue"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500">New enrolment — SkyBridge Tech</div>
+          <div style="font-size:11px;color:var(--color-text-secondary)">Maker tier · Invoice pending · Portal not yet active</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <div class="action-btn">Send invoice</div>
+        <div class="action-btn approve">Activate portal</div>
+      </div>
+    </div>
+    <div class="admin-row">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <div class="status-dot dot-red"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500">Anonymous download — no licence detected</div>
+          <div style="font-size:11px;color:var(--color-text-secondary)">Selling via Shopify, 8 units · Flagged by compliance scan</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <div class="action-btn offer" onclick="sendPrompt('Draft a partner program offer letter for an unlicensed seller detected via compliance scan')">Offer partner program ↗</div>
+        <div class="action-btn" style="color:#A32D2D;border-color:#F7C1C1">Initiate CHL</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Partner accounts</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:500">3</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Active partners</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:500">1</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Pending payment</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:500;color:#27500A">$7.1k</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Q2 revenue</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:500;color:#BA7517">2</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Reports overdue</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const ids=['download','wizard','partner','directory','admin'];
+    t.classList.toggle('active',ids[i]===id);
+  });
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+let q1='',q2='',q3='';
+
+function setDots(s1,s2,s3,sR){
+  ['dot1','dot2','dot3','dotR'].forEach((id,i)=>{
+    const d=document.getElementById(id);
+    d.className='step-dot '+[s1,s2,s3,sR][i];
+  });
+}
+
+function selectQ1(v){
+  q1=v;
+  document.querySelectorAll('#wstep1 .option-card').forEach(c=>c.classList.remove('selected','selected-partner'));
+  event.currentTarget.classList.add(v==='partner'?'selected-partner':'selected');
+  if(v==='personal'){showResult('green','Free to use under CERN-OHL-W-2.0','Your use is covered by the open hardware licence at no cost. You must share any design modifications you distribute under the same licence.','Download files','download');}
+  else if(v==='partner'){showResult('partner-gold','Commercial Partner Program','The Partner Program gives you a legal commercial licence, Good Standing Certificate, and the Powered by Yirra mark — from AUD $1,100 / yr.','View partner tiers','partner');}
+  else if(v==='unsure'){nextStep(1,2); setDots('done','active','pending','pending');}
+  else{nextStep(1,2); setDots('done','active','pending','pending');}
+}
+
+function selectQ2(v){
+  q2=v;
+  document.querySelectorAll('#wstep2 .option-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  nextStep(2,3); setDots('done','done','active','pending');
+}
+
+function selectQ3(v){
+  q3=v;
+  document.querySelectorAll('#wstep3 .option-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  setDots('done','done','done','active');
+  const tier = v==='small'?'Maker':v==='medium'?'Commercial':'Scale';
+  const fee = v==='small'?'$1,100 / yr + $60 / unit':v==='medium'?'$4,500 / yr + $44 / unit':'$13,500 / yr + $28 / unit';
+  const mod = q2==='yes'?' Your modifications must be documented and submitted for compliance review.':'';
+  showResult('partner-gold',`Recommended: ${tier} partner tier (AUD ${fee})`,`The Commercial Partner Program covers your use.${mod} You'll receive a Good Standing Certificate and the right to use the Powered by Yirra mark.`,'View partner program','partner');
+}
+
+function nextStep(from,to){
+  document.getElementById('wstep'+from).classList.remove('active');
+  (document.getElementById('wstep'+to)||document.getElementById('wresult')).classList.add('active');
+}
+
+function showResult(type,title,desc,ctaLabel,ctaTarget){
+  const rc=document.getElementById('result-content');
+  rc.innerHTML=`<div class="result-box ${type}"><div class="title">${title}</div><div class="desc">${desc}</div></div>`;
+  const cta=document.getElementById('result-cta');
+  cta.textContent=ctaLabel+' →';
+  cta.onclick=()=>showTab(ctaTarget);
+  document.querySelectorAll('.wizard-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('wresult').classList.add('active');
+  setDots('done','done','done','done');
+}
+
+function resetWizard(){
+  q1='';q2='';q3='';
+  document.querySelectorAll('.wizard-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('wstep1').classList.add('active');
+  document.querySelectorAll('.option-card').forEach(c=>c.classList.remove('selected','selected-partner'));
+  setDots('active','pending','pending','pending');
+}
+</script>

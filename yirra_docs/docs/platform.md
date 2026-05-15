@@ -4,6 +4,8 @@ title: Platform Overview
 ---
 
 import ImageToggle from '@site/src/components/ImageToggle';
+import SupplementalLipoBracketCta from '@site/src/components/SupplementalLipoBracketCta';
+import CommercialProgramsPipeline from '@site/src/components/CommercialProgramsPipeline';
 
 # Replicant GEN 1 Platform
 
@@ -17,7 +19,31 @@ Replicant GEN 1 is a long-range FPV platform built around true 3D structural des
 - **Rail-mounted battery** → fast, repeatable swaps + mass damping for stable footage
 - **Intelligent power button + full enclosure** → safer, cleaner operation with protected internals
 
-![Replicant GEN 1 Platform Hero](/img/drone/Hero_image_comp.jpg)
+<picture>
+  <source
+    type="image/webp"
+    srcSet="/img/hero/new_hero_800.webp 800w, /img/hero/new_hero_1200.webp 1200w, /img/hero/new_hero_2400.webp 2400w"
+    sizes="(max-width: 800px) 100vw, (max-width: 1400px) 90vw, 1400px"
+  />
+  <img
+    src="/img/hero/new_hero_1200.jpg"
+    srcSet="/img/hero/new_hero_1200.jpg 1200w"
+    sizes="(max-width: 800px) 100vw, 1200px"
+    alt="Replicant GEN 1 Platform"
+    width="1200"
+    height="800"
+    loading="eager"
+    decoding="async"
+    fetchpriority="high"
+    style={{
+      width: '100%',
+      borderRadius: '8px',
+      display: 'block',
+      backgroundImage: 'url("data:image/jpeg;base64,/9j//gAPTGF2YzYxLjMuMTAwAP/bAEMACB4eIx4jKSkpKSkpMC0wMjIyMDAwMDIyMjY2Nj8/PzY2NjIyNjY8PD8/RUdFQUE/QUdHS0tLWlpWVmlpbIGBm//EAGEAAAMBAQAAAAAAAAAAAAAAAAUEBgIHAQEBAQAAAAAAAAAAAAAAAAAAAQIQAAEDAgUFAQAAAAAAAAAAAAECABEhA1FhQTESYiKxcRMEEQEBAAAAAAAAAAAAAAAAAAAAAf/AABEIABUAIAMBIgACEgADEgD/2gAMAwEAAhEDEQA/AOW3bxuACIjOrHfJZTziU4jT3gxNWcs3rn5yVIVXYjdJHUHUZjQPD1wJkjTfJvqVNQAJ0DKqR3GMvDIolA2A12yHoA3EupQHNpdRbcAf/9k=")',
+      backgroundSize: 'cover',
+    }}
+  />
+</picture>
 
 ---
 
@@ -182,6 +208,10 @@ Eliminate velcro strap fiddliness with our rail-mounted modular battery system, 
     <p style={{ textAlign: 'center', margin: '8px 0', fontSize: '0.9em', color: '#666' }}>Connector detail</p>
   </div>
 </div>
+
+<SupplementalLipoBracketCta />
+
+<CommercialProgramsPipeline />
 
 ### Rapid Battery Swaps: Professional Performance
 

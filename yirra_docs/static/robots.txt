@@ -1,0 +1,49 @@
+# docs.yirrasystems.com robots.txt
+
+# ── AI retrieval bots (real-time search / RAG) ────────────────────────────────
+# These bots fetch pages on behalf of users to answer questions in real time.
+# We WANT them to index everything — they send referral traffic.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Googlebot-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ── Human search engines ───────────────────────────────────────────────────────
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# ── General crawlers ──────────────────────────────────────────────────────────
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Crawl-delay: 1
+
+Sitemap: https://docs.yirrasystems.com/sitemap.xml

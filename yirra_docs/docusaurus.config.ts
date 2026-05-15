@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import {DISCORD_INVITE_URL} from './src/discordInvite';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -30,6 +31,10 @@ const config: Config = {
     locales: ['en'],
   },
 
+
+  customFields: {
+    apiBaseUrl: process.env.YIRRA_API_BASE_URL || 'https://api.yirrasystems.com',
+  },
 
   presets: [
     [
@@ -65,6 +70,13 @@ const config: Config = {
   ],
 
   themeConfig: {
+    announcementBar: {
+      id: 'discord-community',
+      content: `<strong>Builders on Discord</strong> — flight tuning, prints, mods, and support. <a href="${DISCORD_INVITE_URL}" target="_blank" rel="noopener noreferrer">Join the server</a>`,
+      backgroundColor: '#5865F2',
+      textColor: '#f5f5ff',
+      isCloseable: true,
+    },
     // Replace with your project's social card
     image: 'img/yirra-social-card.jpg',
     colorMode: {
@@ -84,6 +96,10 @@ const config: Config = {
           label: 'Files & Parts',
           position: 'left',
           items: [
+            {
+              label: 'Three doors (licensing)',
+              to: '/docs/compliance',
+            },
             {
               label: 'CAD Downloads',
               to: '/docs/downloads',
@@ -118,6 +134,18 @@ const config: Config = {
           ],
         },
         {
+          to: '/docs/commercial-programs',
+          label: 'Partner Programme',
+          position: 'right',
+          className: 'navbar-commercial-link',
+        },
+        {
+          href: DISCORD_INVITE_URL,
+          label: 'Join Discord',
+          position: 'right',
+          className: 'navbar-discord-cta',
+        },
+        {
           href: 'https://yirrasystems.com',
           label: 'Store',
           position: 'right',
@@ -130,6 +158,10 @@ const config: Config = {
         {
           title: 'Files & Parts',
           items: [
+            {
+              label: 'Three doors (licensing)',
+              to: '/docs/compliance',
+            },
             {
               label: 'CAD Downloads',
               to: '/docs/downloads',
@@ -165,12 +197,20 @@ const config: Config = {
           title: 'Yirra Systems',
           items: [
             {
+              label: 'Discord community',
+              href: DISCORD_INVITE_URL,
+            },
+            {
               label: 'Store',
               href: 'https://yirrasystems.com',
             },
             {
               label: 'License',
               to: '/docs/license',
+            },
+            {
+              label: 'Commercial programs',
+              to: '/docs/commercial-programs',
             },
           ],
         },

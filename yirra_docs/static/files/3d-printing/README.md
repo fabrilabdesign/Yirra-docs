@@ -6,7 +6,7 @@ This directory contains all the 3D printing files for the Replicant GEN 1 (IC-01
 
 ```
 3d-printing/
-├── 3mf/                    # Bambu Studio project files (.3mf)
+├── 3mf/                    # 3MF slicer project files (.3mf; authored in Bambu Studio, import elsewhere as needed)
 │   ├── chassis_core.3mf    # Core structural components
 │   ├── battery_rail.3mf    # Battery rail system
 │   ├── motor_mounts_arm_bosses.3mf  # Motor mounts and arm bosses
@@ -20,9 +20,8 @@ This directory contains all the 3D printing files for the Replicant GEN 1 (IC-01
 ## File Formats
 
 ### 3MF Files (.3mf)
-- Optimized for Bambu Studio
-- Include pre-configured print settings, supports, and orientations
-- Recommended for best results with Bambu printers
+- Include pre-configured print settings, supports, and orientations (created in Bambu Studio)
+- Open in Bambu Studio, or import into PrusaSlicer, OrcaSlicer, or compatible slicers and map to your printer
 
 ### STL Files (.stl)
 - Universal format compatible with all slicers
@@ -60,7 +59,7 @@ This directory contains all the 3D printing files for the Replicant GEN 1 (IC-01
 ## Usage
 
 1. Download the appropriate files for your setup
-2. Use .3mf files with Bambu Studio for optimal results
+2. Use .3mf files in your slicer (see main docs: Prusa CORE One+ recommended for new purchases; 3MF import notes)
 3. Import STL files into your preferred slicer
 4. Follow the printing guide specifications
 5. Post-process parts according to the documentation

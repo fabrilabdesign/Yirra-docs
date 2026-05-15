@@ -14,6 +14,7 @@ yarn-error.log*
 *.log
 .cache
 build/
+.docusaurus/
 .nyc_output
 coverage/
 .vscode/

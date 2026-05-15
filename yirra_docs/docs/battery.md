@@ -4,12 +4,18 @@ title: Battery System
 ---
 
 import BatteryGallery from '@site/src/components/BatteryGallery';
+import SupplementalLipoBracketCta from '@site/src/components/SupplementalLipoBracketCta';
+import CommercialProgramsPipeline from '@site/src/components/CommercialProgramsPipeline';
 
 # Battery System
 
 A modular, rail-mounted battery system built for rapid swaps and professional performance. The battery's mass and rigidity enhance flight stability and damp vibrations for cleaner footage.
 
 <BatteryGallery />
+
+<SupplementalLipoBracketCta />
+
+<CommercialProgramsPipeline />
 
 ---
 

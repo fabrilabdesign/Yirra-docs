@@ -6,16 +6,48 @@ title: Parts List
 import ImageToggle from '@site/src/components/ImageToggle';
 import PurchaseButton from '@site/src/components/PurchaseButton';
 import ProductCard from '@site/src/components/ProductCard';
+import BomChecklist from '@site/src/components/BomChecklist';
+import SupplementalLipoBracketCta, {
+  SUPPLEMENTAL_LIPO_BRACKET_PRODUCT_URL,
+} from '@site/src/components/SupplementalLipoBracketCta';
+import CommercialProgramsPipeline from '@site/src/components/CommercialProgramsPipeline';
 
 # Bill of Materials
 
 Components you need to buy for the **Replicant GEN 1** build.
 
+:::tip 🎯 Yirra Custom Parts Bundle Available
+**New to building drones?** Get all Yirra custom components in one package with our **Replicant Release Bundle** — includes carbon plates (top, bottom, spine), battery pack, power management board, and complete fastener kit.
+
+Perfect for first-time builders. You'll still need to source off-the-shelf electronics separately (FC/ESC, motors, props, etc).
+
+<div style={{ maxWidth: '320px', margin: '16px 0' }}>
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', border: '2px solid #3b82f6', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <img src="/img/Products/Bundle.png" alt="Replicant Release Bundle" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>CUSTOM PARTS BUNDLE</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Replicant Release Bundle</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>All Yirra custom parts: carbon plates, battery, PMB, and fasteners</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$369</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_TqcqCXEB6vE8m6" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <a href="https://yirrasystems.com/product/prod_TqcqCXEB6vE8m6" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#3b82f6', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy Bundle</a>
+    </div>
+  </div>
+</div>
+:::
+
 :::info Open Source vs. Purchased Components
 **The Replicant airframe is fully open source** — all 3D printed parts, CAD files, and design documentation are freely available for you to modify, print, and build.
 
 **Some components must be purchased:**
-- **Battery System** — Proprietary cell pack design. Requires controlled cell sourcing and spot welding.
+- **Battery System** — Proprietary cell pack design. Requires controlled cell sourcing and spot welding. *Want a standard hardcase LiPo instead?* Use the **supplemental rail bracket** (STL or printed) — see the [Battery](/docs/battery) page or the store listing below.
 - **Power Management Board** — Closed source hardware/firmware. Contains safety-critical logic for intelligent arm/disarm behavior.
 
 **Files provided, buy or DIY:**
@@ -23,6 +55,8 @@ Components you need to buy for the **Replicant GEN 1** build.
 - **Fastener kit** — Full specs provided, buy ours or source your own
 
 This isn't gatekeeping — battery packs are a liability if done wrong, and the PMB firmware is our secret sauce.
+
+**Scaling production or need OEM terms?** See **[Commercial programs](/docs/commercial-programs)** (volume pricing, licensing, integration).
 :::
 
 ---
@@ -189,26 +223,34 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
 
 | Item No | Qty | Type / Spec                     | Length | Material | Finish | Strength class | Purpose                               |
 | ------: | --: | ------------------------------- | ------ | -------- | ------ | -------------- | ------------------------------------- |
-|      19 |   4 | M3 Heatset Insert               | —      | Brass    | —      | —              | Mounting the arms and flight stack    |
+|      19 |  10 | M3 Heatset Insert               | —      | Brass    | —      | —              | Mounting the arms and flight stack    |
 
 ---
 
 #### Thread-forming screws for plastic — Delta PT® (M3)
 
+Use **M3×16** arm-boss screws for a **30×30** FC stack and **M3×25** for a **20×20** stack (same locations, different lengths).
+
 | Item No | Qty | Type / Spec                            | Length | Material           | Finish | Strength class | Purpose                                                 |
 | ------: | --: | -------------------------------------- | ------ | ------------------ | ------ | -------------- | ------------------------------------------------------- |
 |       5 |   2 | Delta PT® **M3×10**, countersunk, Torx | 10mm   | Heat-treated steel | Black  | PT10           | Fastens the XT60 to the battery rail                    |
 |       9 |   2 | Delta PT® **M3×30**, low head, Torx    | 30mm   | Heat-treated steel | Black  | PT10           | Angled fasteners mounting the battery rail to the drone |
-|      10 |   4 | Delta PT® **M3×25**, countersunk, Torx | 25mm   | Heat-treated steel | Black  | PT10           | Angled arm boss reinforcement screws                    |
+|      10 |   4 | Delta PT® **M3×16**, countersunk, Torx | 16mm   | Heat-treated steel | Black  | PT10           | Arm boss — **30×30** stack only                         |
+|       — |   4 | Delta PT® **M3×25**, countersunk, Torx | 25mm   | Heat-treated steel | Black  | PT10           | Arm boss — **20×20** stack only                         |
 
 ---
 
 #### Low head Torx machine screws — ISO 14580 (M3)
 
+**20×20 stack:** use **M3×25** below. **30×30 stack:** use **M3×35** for the same callouts (items 7 + 8) — extra length for the taller stack.
+
 | Item No | Qty | Type / Spec                                        | Length | Material    | Finish | Strength class | Purpose                                |
 | ------: | --: | -------------------------------------------------- | ------ | ----------- | ------ | -------------- | -------------------------------------- |
-|       7 |   1 | ISO 14580 **M3×25**, low head Torx (machine screw) | 25mm   | Alloy steel | Black  | 12.9           | Fastens the spine toward the rear      |
-|       8 |   4 | ISO 14580 **M3×25**, low head Torx (machine screw) | 25mm   | Alloy steel | Black  | 12.9           | Front + rear bottom arm mounting screw |
+|       7 |   1 | ISO 14580 **M3×25**, low head Torx (machine screw) | 25mm   | Alloy steel | Black  | 12.9           | Spine toward rear — **20×20** stack    |
+|       8 |   4 | ISO 14580 **M3×25**, low head Torx (machine screw) | 25mm   | Alloy steel | Black  | 12.9           | Bottom arm mounting — **20×20** stack  |
+|       7 |   1 | ISO 14580 **M3×35**, low head Torx (machine screw) | 35mm   | Alloy steel | Black  | 12.9           | Spine toward rear — **30×30** stack    |
+|       8 |   4 | ISO 14580 **M3×35**, low head Torx (machine screw) | 35mm   | Alloy steel | Black  | 12.9           | Bottom arm mounting — **30×30** stack  |
+|      18 | (opt) | ISO 14580 **M3×35**, low head Torx (machine screw) | 35mm  | Alloy steel | Black  | 12.9           | Stack + motor mount — **30×30** stack  |
 |      17 |   1 | ISO 14580 **M3×8**, low head Torx (machine screw)  | 8mm    | Alloy steel | Black  | 12.9           | Secures the front of the top cover      |
 
 ---
@@ -219,11 +261,11 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
 | ------: | ----: | -------------------------------------- | ------ | ----------------------------------------------- | ------------ | -------------- | ------------------------------------------------------------------- |
 |      11 |    16 | ISO 7380 **M3×10**, button head socket | 10mm   | Alloy steel                                     | Black        | 12.9           | Motor mounting screws                                               |
 |      12 |     2 | ISO 7380 **M3×10**, button head socket | 10mm   | Alloy steel                                     | Black        | 12.9           | Rear battery rail mounting screws                                   |
-|      13 |     4 | ISO 7380 **M3×12**, button head socket | 12mm   | Alloy steel                                     | Black        | 12.9           | Top + bottom nose cone mounting screws                              |
-|      14 |     2 | ISO 7380 **M3×16**, button head socket | 16mm   | Alloy steel *(or steel with gold TiN/PVD coat)* | Black / Gold | 12.9           | Titanium coated forward spine mounting screws                       |
+|      13 |     4 | ISO 7380 **M3×10**, button head socket | 10mm   | Alloy steel                                     | Black        | 12.9           | Nose cone mounting screws                                           |
+|      14 |     2 | ISO 7380 **M3×14**, button head socket | 14mm   | Titanium                                        | Natural      | —              | Forward spine mounting screws                                       |
 |      15 |     1 | ISO 7380 **M3×16**, button head socket | 16mm   | Alloy steel                                     | Black        | 12.9           | Rear spine standoff retaining screw                                 |
-|      16 |     4 | ISO 7380 **M3×18**, button head socket | 18mm   | Alloy steel                                     | Black        | 12.9           | Arm mounting screws for 20×20 stack (shorter so it won't interfere) |
-|      18 | (opt) | ISO 7380 **M3×35**, button head socket | 35mm   | Alloy steel                                     | Black        | 12.9           | Optional longer 30×30 stack screw + motor mount                     |
+|      16 |     4 | ISO 7380 **M3×18**, button head socket | 18mm   | Alloy steel                                     | Black        | 12.9           | Arm mount — **20×20** stack only (clears stack height)             |
+|      20 |     4 | ISO 7380 **M3×12**, button head socket | 12mm   | Alloy steel                                     | Black        | 12.9           | Front top plate arm mounts                                          |
 
 ---
 
@@ -269,10 +311,15 @@ Complete hardware kit for Replicant GEN 1 assembly. All fasteners are metric wit
 | Component | Qty | Open Source | Specification |
 |-----------|-----|-------------|---------------|
 | **6S Modular Battery Pack** | 1 | **No** — Purchase | 5000mAh, Eve 50 PL cells in custom rail-mount enclosure |
+| **LiPo supplemental rail bracket** | 0–1 | **STL purchase** (or buy printed) | Optional: mounts a **standard hardcase 6S** on the same rail if you skip the Yirra pack. <PurchaseButton href={SUPPLEMENTAL_LIPO_BRACKET_PRODUCT_URL} variant="inline">Store</PurchaseButton> |
 
 :::warning Battery System is Not Open Source
 The battery pack is a proprietary design requiring spot-welded Eve 50 PL cells and custom 3D printed enclosure. For safety reasons, we do not provide files to build your own — improper cell handling or welding can result in fire or injury.
 :::
+
+<SupplementalLipoBracketCta />
+
+<CommercialProgramsPipeline />
 
 ![Battery connector](/img/drone/battery_connector_iso.png)
 
@@ -291,6 +338,26 @@ The battery pack is a proprietary design requiring spot-welded Eve 50 PL cells a
 :::
 
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', margin: '24px 0' }}>
+  {/* Release Bundle - Featured */}
+  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.12)', overflow: 'hidden', border: '2px solid #3b82f6', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <img src="/img/Products/Bundle.png" alt="Replicant Release Bundle" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+    </div>
+    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>CUSTOM PARTS BUNDLE</div>
+      <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>Replicant Release Bundle</h3>
+      <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '13px', flex: '1', lineHeight: '1.4' }}>All Yirra custom parts: carbon plates, battery, PMB, and fasteners</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>$369</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>AUD</div>
+        </div>
+        <a href="https://yirrasystems.com/product/prod_TqcqCXEB6vE8m6" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>View Details</a>
+      </div>
+      <a href="https://yirrasystems.com/product/prod_TqcqCXEB6vE8m6" target="_blank" rel="noopener noreferrer" style={{ width: '100%', backgroundColor: '#3b82f6', color: 'white', padding: '10px 16px', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>🛒 Buy Bundle</a>
+    </div>
+  </div>
+
   {/* Fastener Kit */}
   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
     <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -411,6 +478,8 @@ The battery pack is a proprietary design requiring spot-welded Eve 50 PL cells a
     </div>
   </div>
 </div>
+
+<BomChecklist />
 
 ## Next Steps
 

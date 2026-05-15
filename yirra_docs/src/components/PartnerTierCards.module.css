@@ -1,0 +1,177 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin: 24px 0;
+  align-items: stretch;
+}
+
+@media (max-width: 920px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 18px 20px;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  background: #0d1117;
+}
+
+.cardFeatured {
+  border: 2px solid #639922;
+  box-shadow: 0 0 0 1px rgba(99, 153, 34, 0.25);
+  transform: translateY(-4px);
+}
+
+.featureBadge {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #3d6b1f;
+  padding: 4px 10px;
+  border-radius: 10px;
+}
+
+.name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f0f6fc;
+  margin: 0 0 2px;
+}
+
+.vol {
+  font-size: 0.76rem;
+  color: #8b949e;
+  margin-bottom: 14px;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.priceBig {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f0f6fc;
+  line-height: 1;
+}
+
+.priceUnit {
+  font-size: 0.74rem;
+  color: #8b949e;
+}
+
+.royalty {
+  font-size: 0.72rem;
+  color: #8b949e;
+  margin-bottom: 14px;
+}
+
+.batteryBlock {
+  background: rgba(99, 153, 34, 0.10);
+  border: 1px solid rgba(99, 153, 34, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.batteryLabel {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9ccc65;
+  margin-bottom: 2px;
+}
+
+.batteryPrice {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #b6f08a;
+}
+
+.batteryStrike {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #8b949e;
+  text-decoration: line-through;
+  margin-left: 4px;
+}
+
+.batterySave {
+  font-size: 0.7rem;
+  color: #7cb342;
+  margin-top: 2px;
+}
+
+.highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.highlights li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.78rem;
+  color: #c9d1d9;
+  padding: 4px 0;
+  line-height: 1.45;
+}
+
+.check {
+  color: #639922;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 11px 14px;
+  background: #21262d;
+  color: #e6edf3 !important;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none !important;
+}
+
+.btn:hover {
+  background: #30363d;
+  border-color: #484f58;
+}
+
+.btnFeatured {
+  background: #3d6b1f;
+  color: #fff !important;
+  border-color: #639922;
+}
+
+.btnFeatured:hover {
+  background: #4a8028;
+  border-color: #7cb342;
+}
+
+.skuLine {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.6rem;
+  color: #484f58;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}

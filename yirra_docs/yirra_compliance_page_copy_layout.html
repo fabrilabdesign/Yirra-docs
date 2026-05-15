@@ -1,0 +1,221 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);line-height:1.6}
+.page{max-width:680px}
+.label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:6px}
+.annotation{background:var(--color-background-warning);border-left:3px solid var(--color-border-warning);padding:6px 10px;font-size:11px;color:var(--color-text-warning);margin-bottom:8px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.section{margin-bottom:28px}
+.hero{padding:20px 0 16px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:20px}
+.hero h1{font-size:22px;font-weight:500;margin-bottom:8px}
+.hero p{font-size:14px;color:var(--color-text-secondary);max-width:540px;line-height:1.7}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.card.partner{border:2px solid #639922}
+.card-head{padding:12px 14px}
+.card-head.cern{background:var(--color-background-secondary)}
+.card-head.partner-h{background:#EAF3DE}
+.card-title{font-size:14px;font-weight:500;margin-bottom:3px}
+.card-title.cern-t{color:var(--color-text-primary)}
+.card-title.partner-t{color:#27500A}
+.card-sub{font-size:12px;color:var(--color-text-secondary)}
+.card-sub.partner-s{color:#3B6D11}
+.card-body{padding:12px 14px;background:var(--color-background-primary)}
+.step-list{list-style:none}
+.step-list li{font-size:12px;color:var(--color-text-secondary);padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.step-list li:last-child{border-bottom:none}
+.step-num{font-size:10px;font-weight:500;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.partner-steps{list-style:none}
+.partner-steps li{font-size:13px;font-weight:500;color:#27500A;padding:7px 0;border-bottom:0.5px solid #C0DD97;display:flex;gap:10px;align-items:center}
+.partner-steps li:last-child{border-bottom:none}
+.check-icon{font-size:14px;color:#639922;flex-shrink:0}
+.savings-banner{background:#EAF3DE;border:0.5px solid #639922;border-radius:var(--border-radius-md);padding:12px 14px;margin:12px 0}
+.savings-banner .hook{font-size:15px;font-weight:500;color:#27500A;margin-bottom:4px}
+.savings-banner .detail{font-size:12px;color:#3B6D11}
+.price-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid #C0DD97}
+.price-row:last-child{border-bottom:none}
+.price-label{font-size:12px;color:#3B6D11}
+.price-val{font-size:13px;font-weight:500;color:#27500A}
+.price-save{font-size:11px;color:#639922}
+.cta-btn{display:block;width:100%;padding:10px 14px;background:#27500A;color:#fff;border:none;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;text-align:center;margin-top:12px}
+.cta-btn:hover{background:#3B6D11}
+.cta-secondary{display:block;width:100%;padding:8px 14px;background:transparent;color:var(--color-text-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:12px;cursor:pointer;text-align:center;margin-top:6px}
+.comparison{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:24px}
+.comp-row{display:grid;grid-template-columns:140px 1fr 1fr;font-size:12px}
+.comp-row.head{background:var(--color-background-secondary);font-weight:500}
+.comp-row:not(.head):nth-child(even){background:var(--color-background-secondary)}
+.comp-row:not(.head):nth-child(odd){background:var(--color-background-primary)}
+.comp-cell{padding:8px 12px;border-right:0.5px solid var(--color-border-tertiary)}
+.comp-cell:last-child{border-right:none}
+.comp-cell.partner-cell{color:#27500A;font-weight:500}
+.comp-cell.grey-cell{color:var(--color-text-secondary)}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:var(--border-radius-md);margin-left:4px}
+.tag-save{background:#EAF3DE;color:#27500A}
+.wizard-box{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:24px;background:var(--color-background-primary)}
+.wizard-title{font-size:14px;font-weight:500;margin-bottom:4px}
+.wizard-sub{font-size:12px;color:var(--color-text-secondary);margin-bottom:12px}
+.wiz-option{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:7px;cursor:pointer;background:var(--color-background-primary)}
+.wiz-option:hover{background:var(--color-background-secondary)}
+.wiz-option.partner-opt{border-color:#639922;background:#EAF3DE}
+.wiz-opt-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.wiz-opt-sub{font-size:11px;color:var(--color-text-secondary)}
+.wiz-opt-sub.partner-sub{color:#3B6D11}
+.section-title{font-size:16px;font-weight:500;margin-bottom:4px}
+.section-sub{font-size:12px;color:var(--color-text-secondary);margin-bottom:14px}
+.divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:24px 0}
+</style>
+
+<div class="page">
+
+<div class="annotation">Website copy + layout — docs.yirrasystems.com/docs/compliance</div>
+
+<div class="hero">
+  <div class="label">Compliance &amp; licensing</div>
+  <h1>Two paths. Pick yours.</h1>
+  <p>Build freely under CERN-OHL-W-2.0 and manage your own compliance obligations — or join the Commercial Partner Programme, get batteries at up to 45% off list price, and never think about compliance again.</p>
+</div>
+
+<div class="annotation">↑ REPLACE current intro. Remove all mentions of "serpentine". Lead with the real choice.</div>
+
+<div class="cards section">
+  <div class="card">
+    <div class="card-head cern">
+      <div class="card-title cern-t">Open-source route</div>
+      <div class="card-sub">Free · self-managed compliance</div>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Your ongoing obligations every time you distribute or sell:</p>
+      <ul class="step-list">
+        <li><span class="step-num">1</span>Publish all source files — schematics, PCB layouts, BOM, firmware, and assembly docs</li>
+        <li><span class="step-num">2</span>Include the full CERN-OHL-W-2.0 licence text with every distribution</li>
+        <li><span class="step-num">3</span>Prepare a Notices file documenting every modification to the original design</li>
+        <li><span class="step-num">4</span>Retain all existing copyright and attribution notices from the source files</li>
+        <li><span class="step-num">5</span>Mark every modified file with the date, nature, and author of the change</li>
+        <li><span class="step-num">6</span>Provide durable source file access for at least 3 years after last sale</li>
+        <li><span class="step-num">7</span>Ensure all downstream recipients can exercise the same licence rights</li>
+        <li><span class="step-num">8</span>Maintain records sufficient to demonstrate compliance if requested</li>
+        <li><span class="step-num">9</span>Respond to licence questions from any recipient who contacts you</li>
+      </ul>
+      <div style="margin-top:10px;padding:8px 10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:11px;color:var(--color-text-secondary)">Battery price: <strong>AUD $229</strong> / unit · No support · No design file updates</div>
+      <button class="cta-secondary">Use the compliance wizard →</button>
+    </div>
+  </div>
+
+  <div class="card partner">
+    <div class="card-head partner-h">
+      <div class="card-title partner-t">Commercial Partner Programme</div>
+      <div class="card-sub partner-s">Licensed · discounted hardware · supported</div>
+    </div>
+    <div class="card-body">
+      <div class="savings-banner">
+        <div class="hook">Licence pays for itself at 21 units.</div>
+        <div class="detail">Battery savings alone cover the annual fee before you reach a quarter of your unit cap.</div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div class="price-row"><span class="price-label">Maker (≤ 25 units)</span><span><span class="price-val">$175 / battery</span> <span class="price-save">save $54</span></span></div>
+        <div class="price-row"><span class="price-label">Commercial (≤ 500 units)</span><span><span class="price-val">$149 / battery</span> <span class="price-save">save $80</span></span></div>
+        <div class="price-row"><span class="price-label">Scale (unlimited)</span><span><span class="price-val">$125 / battery</span> <span class="price-save">save $104</span></span></div>
+      </div>
+      <ul class="partner-steps">
+        <li><span class="check-icon">✓</span> Sign the Partner Agreement</li>
+        <li><span class="check-icon">✓</span> Pay the platform fee</li>
+        <li><span class="check-icon">✓</span> Ship</li>
+      </ul>
+      <button class="cta-btn" onclick="sendPrompt('How do I join the Yirra Systems Commercial Partner Programme?')">Join the Partner Programme ↗</button>
+    </div>
+  </div>
+</div>
+
+<div class="annotation">↑ CERN card: list all 9 steps honestly — the count does the work. Partner card: lead with batteries, show the break-even, strip compliance to 3 words.</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title">At a glance</div>
+  <div class="section-sub">What you actually get on each path.</div>
+  <div class="comparison">
+    <div class="comp-row head">
+      <div class="comp-cell"></div>
+      <div class="comp-cell">Open-source route</div>
+      <div class="comp-cell" style="color:#27500A">Partner Programme</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Battery price</div>
+      <div class="comp-cell grey-cell">AUD $229 / unit</div>
+      <div class="comp-cell partner-cell">$125 – $175 / unit <span class="tag tag-save">up to 45% off</span></div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Annual licence</div>
+      <div class="comp-cell grey-cell">None</div>
+      <div class="comp-cell partner-cell">From $1,100 / yr</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Net cost at 25 units</div>
+      <div class="comp-cell grey-cell">$5,725 (batteries only)</div>
+      <div class="comp-cell partner-cell">$5,475 all-in <span class="tag tag-save">$250 less</span></div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Compliance steps</div>
+      <div class="comp-cell grey-cell">9 ongoing obligations</div>
+      <div class="comp-cell partner-cell">Sign · Pay · Ship</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Support</div>
+      <div class="comp-cell grey-cell">None</div>
+      <div class="comp-cell partner-cell">Included</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Design file updates</div>
+      <div class="comp-cell grey-cell">None</div>
+      <div class="comp-cell partner-cell">Included</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Good Standing Cert</div>
+      <div class="comp-cell grey-cell">None</div>
+      <div class="comp-cell partner-cell">Included</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-cell" style="font-weight:500">Retroactive fee risk</div>
+      <div class="comp-cell grey-cell">Yes — if non-compliant</div>
+      <div class="comp-cell partner-cell">None</div>
+    </div>
+  </div>
+</div>
+
+<div class="annotation">↑ ADD this comparison table. Shows net cost at 25 units is actually cheaper on the Partner path once batteries are counted.</div>
+
+<hr class="divider">
+
+<div class="wizard-box">
+  <div class="wizard-title">Not sure which path fits?</div>
+  <div class="wizard-sub">Three questions. Lands you in the right checklist or skips you straight to the Partner Programme.</div>
+  <div class="wiz-option">
+    <div class="wiz-opt-title">Personal or educational — not selling</div>
+    <div class="wiz-opt-sub">CERN-OHL-W-2.0 covers you. Rules 1 and 2 apply to any files you keep.</div>
+  </div>
+  <div class="wiz-option">
+    <div class="wiz-opt-title">Selling or distributing — haven't modified the design</div>
+    <div class="wiz-opt-sub">Rules 1 + 2. Submit attribution evidence. Or join the Partner Programme and skip this.</div>
+  </div>
+  <div class="wiz-option">
+    <div class="wiz-opt-title">Selling products based on a modified design</div>
+    <div class="wiz-opt-sub">Rules 1 + 2 + 3. Source publication required. Or join the Partner Programme and skip this.</div>
+  </div>
+  <div class="wiz-option partner-opt">
+    <div class="wiz-opt-title" style="color:#27500A">I want cheaper batteries, support, and a clean commercial arrangement</div>
+    <div class="wiz-opt-sub partner-sub">Skip the compliance wizard entirely — go straight to the Partner Programme.</div>
+  </div>
+</div>
+
+<div class="annotation">↑ WIZARD: Add 4th option as the explicit escape route. Remove "there is no legal advice here" — it's defensive and unnecessary.</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.wiz-option').forEach(o=>{
+  o.addEventListener('click',()=>{
+    document.querySelectorAll('.wiz-option').forEach(x=>x.style.opacity='0.5');
+    o.style.opacity='1';
+    o.style.borderColor='#639922';
+  });
+});
+</script>

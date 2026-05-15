@@ -1,0 +1,96 @@
+---
+title: Enterprise door — MCLA
+sidebar_label: Enterprise (MCLA)
+slug: /compliance/enterprise
+description: Yirra Enterprise — for 2,000+ units / yr, exclusivity, or defence and government programs. Negotiated Master Commercial License Agreement (MCLA).
+---
+
+import { LEGAL_PDFS } from '@site/src/data/legalDocs';
+import { ENTERPRISE_SETUP_FROM_AUD, EXCLUSIVITY_OPTIONS } from '@site/src/data/partnerTiers';
+
+# Yirra Enterprise — Scale, exclusivity, and defence
+
+**For large manufacturers, defence programs, and exclusive deals.**
+
+## Who this is for
+
+You fit one of four situations:
+
+- You're making more than **2,000 units a year**.
+- You want an **exclusive territory** or vertical.
+- You're a **defence or government program**.
+- You need a **custom arrangement**.
+
+Below 2,000 units and non-exclusive? → [Yirra Partner (CPA)](/docs/compliance/partner).
+
+## What you can do
+
+- Manufacture Replicants at enterprise volume (2,000+ units/year).
+- Lock in an exclusive territory, an exclusive vertical, or both.
+- Run defence, government, or regulated programs with export support.
+- Negotiate custom SKUs, priority engineering, and co-marketing.
+
+## What it costs
+
+Setup **from AUD ${ENTERPRISE_SETUP_FROM_AUD.toLocaleString("en-AU")}**. Royalty is negotiated per deal. Exclusivity is extra.
+
+**Example:** A 5,000-unit program with territorial exclusivity in ASEAN: AUD $45,000 setup + $25,000 exclusivity fee + a per-unit royalty we agree in writing.
+
+### Exclusivity (optional)
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Fee floor (AUD / yr)</th>
+      <th>What it covers</th>
+    </tr>
+  </thead>
+  <tbody>
+    {EXCLUSIVITY_OPTIONS.map((e) => (
+      <tr key={e.key}>
+        <td>{e.label}</td>
+        <td>${e.feeFloorAud.toLocaleString("en-AU")}</td>
+        <td>{e.covers}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+All figures AUD, ex-GST. **Every MCLA is signed**; nothing is auto-applied.
+
+## What you promise (five things)
+
+1. **Report and pay** on the agreed schedule — usually quarterly.
+2. **Follow export control** — DSGL and DTCA rules, and no onward supply to non-state armed groups.
+3. **Maintain quality** — genuine parts, serialisation, and post-sale support.
+4. **Don't attack** Yirra or other licensees with patents. If you do, the licence ends.
+5. **Keep exclusivity earned** — meet the agreed minimums or exclusivity converts to non-exclusive.
+
+## What happens if you mess up
+
+Most breaches get a **30-day cure period** and a conversation. **Export control breaches are different**: those terminate the licence immediately, by law and by contract.
+
+## Talk to us
+
+<div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
+  <a
+    href="mailto:partners@yirrasystems.com?subject=MCLA%20enquiry"
+    className="button button--primary button--lg"
+    style={{ textDecoration: "none" }}
+  >
+    partners@yirrasystems.com
+  </a>
+  <a href={LEGAL_PDFS.onePagerMcla} target="_blank" rel="noopener noreferrer" className="button button--secondary button--lg" style={{ textDecoration: "none" }}>
+    One-pager PDF
+  </a>
+  <a href={LEGAL_PDFS.mcla} target="_blank" rel="noopener noreferrer" className="button button--secondary button--lg" style={{ textDecoration: "none" }}>
+    Full MCLA v1.1 (PDF)
+  </a>
+</div>
+
+---
+
+**Not quite you?** &nbsp;
+<a href="/docs/compliance/free">→ Free door (non-commercial)</a> &nbsp;·&nbsp;
+<a href="/docs/compliance/partner">→ Partner door (commercial up to 2,000 units)</a>
